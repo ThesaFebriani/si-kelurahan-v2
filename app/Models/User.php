@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -27,43 +26,43 @@ class User extends Authenticatable
     // ==================== ROLE METHODS ====================
     public function isAdmin()
     {
-        return $this->role->name === 'admin';
+        return $this->role->name === Role::ADMIN;
     }
 
     public function isMasyarakat()
     {
-        return $this->role->name === 'masyarakat';
+        return $this->role->name === Role::MASYARAKAT;
     }
 
     public function isRT()
     {
-        return $this->role->name === 'rt';
+        return $this->role->name === Role::RT;
     }
 
     public function isKasi()
     {
-        return $this->role->name === 'kasi';
+        return $this->role->name === Role::KASI;
     }
 
     public function isLurah()
     {
-        return $this->role->name === 'lurah';
+        return $this->role->name === Role::LURAH;
     }
 
     // ==================== PERMISSION METHODS ====================
     public function canApproveSurat()
     {
-        return in_array($this->role->name, ['rt', 'kasi', 'lurah', 'admin']);
+        return in_array($this->role->name, [Role::RT, Role::KASI, Role::LURAH, Role::ADMIN]);
     }
 
     public function canGenerateSurat()
     {
-        return in_array($this->role->name, ['kasi', 'admin']);
+        return in_array($this->role->name, [Role::KASI, Role::ADMIN]);
     }
 
     public function canTTE()
     {
-        return in_array($this->role->name, ['lurah', 'admin']);
+        return in_array($this->role->name, [Role::LURAH, Role::ADMIN]);
     }
 
     // ==================== RELATIONS ====================
@@ -92,6 +91,16 @@ class User extends Authenticatable
         return $this->hasMany(TimelinePermohonan::class, 'updated_by');
     }
 
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function unreadNotifications()
+    {
+        return $this->notifications()->where('is_read', false);
+    }
+
     // ==================== OTHER METHODS ====================
     public function setPasswordAttribute($password)
     {
@@ -101,11 +110,11 @@ class User extends Authenticatable
     public function getRoleDisplayAttribute()
     {
         $roles = [
-            'admin' => 'Administrator',
-            'masyarakat' => 'Masyarakat',
-            'rt' => 'Ketua RT',
-            'kasi' => 'Kepala Seksi',
-            'lurah' => 'Lurah'
+            Role::ADMIN => 'Administrator',
+            Role::MASYARAKAT => 'Masyarakat',
+            Role::RT => 'Ketua RT',
+            Role::KASI => 'Kepala Seksi',
+            Role::LURAH => 'Lurah'
         ];
 
         return $roles[$this->role->name] ?? $this->role->name;

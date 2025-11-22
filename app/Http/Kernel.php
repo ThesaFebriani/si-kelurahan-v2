@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Http;
+
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+
+class Kernel extends HttpKernel
+{
+    /**
+     * The application's route middleware.
+     *
+     * @var array<string, class-string|string>
+     */
+    protected $routeMiddleware = [
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
+        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+        'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+
+        // ========== TAMBAHKAN MIDDLEWARE BARU DI SINI ==========
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'rt' => \App\Http\Middleware\RTMiddleware::class,
+        'kasi' => \App\Http\Middleware\KasiMiddleware::class,
+        'lurah' => \App\Http\Middleware\LurahMiddleware::class,
+        'masyarakat' => \App\Http\Middleware\MasyarakatMiddleware::class,
+    ];
+}
