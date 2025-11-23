@@ -4,30 +4,29 @@ namespace App\Http\Controllers\Kasi;
 
 use App\Http\Controllers\Controller;
 use App\Models\PermohonanSurat;
-use App\Models\JenisSurat;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-
         $stats = [
-            'permohonan_pending' => PermohonanSurat::whereHas('jenisSurat', function ($q) use ($user) {
-                $q->where('bidang', $user->bidang);
-            })->where('status', 'menunggu_kasi')->count(),
-
-            'permohonan_verified' => PermohonanSurat::whereHas('jenisSurat', function ($q) use ($user) {
-                $q->where('bidang', $user->bidang);
-            })->where('status', 'disetujui_kasi')->count(),
-
-            'total_jenis_surat' => JenisSurat::where('bidang', $user->bidang)
-                ->where('is_active', true)
-                ->count(),
+            'pending_permohonan' => PermohonanSurat::where('status', PermohonanSurat::MENUNGGU_KASI)->count(),
+            'approved_permohonan' => PermohonanSurat::where('status', PermohonanSurat::DISETUJUI_KASI)->count(),
+            'rejected_permohonan' => PermohonanSurat::where('status', PermohonanSurat::DITOLAK_KASI)->count(),
+            'total_permohonan' => PermohonanSurat::whereIn('status', [
+                PermohonanSurat::MENUNGGU_KASI,
+                PermohonanSurat::DISETUJUI_KASI,
+                PermohonanSurat::DITOLAK_KASI
+            ])->count(),
         ];
 
-        // Return view dengan data
-        return view('pages.kasi.dashboard', compact('stats'));
+        $recentPermohonan = PermohonanSurat::with(['user.rt', 'jenisSurat'])
+            ->where('status', PermohonanSurat::MENUNGGU_KASI)
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        return view('pages.kasi.dashboard', compact('stats', 'recentPermohonan'));
     }
 }

@@ -9,20 +9,22 @@ use Symfony\Component\HttpFoundation\Response;
 
 class KasiMiddleware
 {
-    /**
-     * Handle an incoming request.
-     */
     public function handle(Request $request, Closure $next): Response
     {
         if (!Auth::check()) {
-            return redirect('/login');
+            return redirect()->route('login'); // ✅ FIX: gunakan route()
         }
 
         $user = Auth::user();
 
-        // Cek jika user memiliki role kasi
-        if ($user->role->name !== 'kasi') {
-            abort(403, 'Unauthorized access. Hanya Kasi yang dapat mengakses halaman ini.');
+        // ✅ FIX: Cek role exists
+        if (!$user->role) {
+            abort(500, 'User role not configured');
+        }
+
+        // ✅ FIX: Gunakan constant dari Role model
+        if ($user->role->name !== \App\Models\Role::KASI) {
+            abort(403, 'Akses ditolak. Hanya Kepala Seksi yang dapat mengakses halaman ini.');
         }
 
         return $next($request);

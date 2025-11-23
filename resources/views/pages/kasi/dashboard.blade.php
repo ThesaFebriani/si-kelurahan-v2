@@ -1,181 +1,126 @@
 @extends('components.layout')
 
-@section('title', 'Kasi Dashboard - Sistem Kelurahan')
-@section('page-title', 'Kasi Dashboard')
-@section('page-description', 'Dashboard Kepala Seksi')
+@section('title', 'Dashboard Kasi')
+@section('page-title', 'Dashboard Kasi')
+@section('page-description', 'Selamat datang di dashboard Kasi')
 
 @section('content')
 <div class="space-y-6">
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        <div class="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Permohonan Menunggu -->
+        <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-gray-600 text-sm lg:text-base">Verifikasi Pending</p>
-                    <h3 class="text-xl lg:text-2xl font-bold text-gray-800 mt-1">8</h3>
-                    <p class="text-orange-600 text-xs lg:text-sm mt-1">
-                        <i class="fas fa-clock"></i> Needs action
-                    </p>
+                    <p class="text-gray-600 text-sm">Menunggu Verifikasi</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['pending_permohonan'] ?? 0 }}</h3>
                 </div>
-                <div class="p-3 bg-orange-100 rounded-lg">
-                    <i class="fas fa-tasks text-orange-600 text-lg lg:text-xl"></i>
+                <div class="p-2 bg-yellow-100 rounded-lg">
+                    <i class="fas fa-clock text-yellow-600"></i>
+                </div>
+            </div>
+            <a href="{{ route('kasi.permohonan.index') }}"
+                class="mt-3 inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
+                Lihat permohonan
+                <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+
+        <!-- Permohonan Disetujui -->
+        <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm">Disetujui</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['approved_permohonan'] ?? 0 }}</h3>
+                </div>
+                <div class="p-2 bg-green-100 rounded-lg">
+                    <i class="fas fa-check-circle text-green-600"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
+        <!-- Permohonan Ditolak -->
+        <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-gray-600 text-sm lg:text-base">Terverifikasi</p>
-                    <h3 class="text-xl lg:text-2xl font-bold text-gray-800 mt-1">25</h3>
-                    <p class="text-green-600 text-xs lg:text-sm mt-1">
-                        <i class="fas fa-check-double"></i> Completed
-                    </p>
+                    <p class="text-gray-600 text-sm">Ditolak</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['rejected_permohonan'] ?? 0 }}</h3>
                 </div>
-                <div class="p-3 bg-green-100 rounded-lg">
-                    <i class="fas fa-check-double text-green-600 text-lg lg:text-xl"></i>
+                <div class="p-2 bg-red-100 rounded-lg">
+                    <i class="fas fa-times-circle text-red-600"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
+        <!-- Total Permohonan -->
+        <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-gray-600 text-sm lg:text-base">Surat Diterbitkan</p>
-                    <h3 class="text-xl lg:text-2xl font-bold text-gray-800 mt-1">18</h3>
-                    <p class="text-purple-600 text-xs lg:text-sm mt-1">
-                        <i class="fas fa-file-pdf"></i> Generated
-                    </p>
+                    <p class="text-gray-600 text-sm">Total Permohonan</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['total_permohonan'] ?? 0 }}</h3>
                 </div>
-                <div class="p-3 bg-purple-100 rounded-lg">
-                    <i class="fas fa-file-pdf text-purple-600 text-lg lg:text-xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm lg:text-base">Bidang</p>
-                    <h3 class="text-xl lg:text-2xl font-bold text-gray-800 mt-1 capitalize">{{ Auth::user()->bidang ?? 'Kesra' }}</h3>
-                    <p class="text-blue-600 text-xs lg:text-sm mt-1">
-                        <i class="fas fa-network-wired"></i> Your domain
-                    </p>
-                </div>
-                <div class="p-3 bg-blue-100 rounded-lg">
-                    <i class="fas fa-network-wired text-blue-600 text-lg lg:text-xl"></i>
+                <div class="p-2 bg-blue-100 rounded-lg">
+                    <i class="fas fa-file-alt text-blue-600"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Pending Verification Table -->
+    <!-- Recent Permohonan -->
     <div class="bg-white rounded-lg shadow border border-gray-200">
-        <div class="p-4 lg:p-6 border-b border-gray-200">
+        <div class="p-6 border-b border-gray-200 flex justify-between items-center">
             <h3 class="text-lg font-semibold text-gray-800 flex items-center">
-                <i class="fas fa-list-check text-orange-600 mr-2"></i>
-                Permohonan Perlu Verifikasi
+                <i class="fas fa-history text-blue-600 mr-2"></i>
+                Permohonan Menunggu Verifikasi
             </h3>
+            <a href="{{ route('kasi.permohonan.index') }}"
+                class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                Lihat semua
+            </a>
         </div>
-        <div class="p-4 lg:p-6">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. Tiket</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pemohon</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Surat</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RT</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                <code class="bg-gray-100 px-2 py-1 rounded text-xs">TKT-ABC123</code>
-                            </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xs font-semibold mr-3">
-                                        B
-                                    </div>
-                                    Budi Santoso
-                                </div>
-                            </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                Surat Keterangan Domisili
-                            </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                RT 001
-                            </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                20/11/2025
-                            </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm">
-                                <a href="{{ route('kasi.permohonan.verify', 1) }}" class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors">
-                                    Verifikasi
-                                </a>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                <code class="bg-gray-100 px-2 py-1 rounded text-xs">TKT-DEF456</code>
-                            </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-xs font-semibold mr-3">
-                                        S
-                                    </div>
-                                    Siti Rahayu
-                                </div>
-                            </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                Surat Keterangan Usaha
-                            </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                RT 002
-                            </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                19/11/2025
-                            </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm">
-                                <a href="{{ route('kasi.permohonan.verify', 2) }}" class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors">
-                                    Verifikasi
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+
+        <div class="p-6">
+            @if($recentPermohonan->count() > 0)
+            <div class="space-y-4">
+                @foreach($recentPermohonan as $permohonan)
+                <div class="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">
+                            {{ strtoupper(substr($permohonan->user->name, 0, 1)) }}
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-900">{{ $permohonan->user->name }}</h4>
+                            <p class="text-sm text-gray-500">
+                                {{ $permohonan->jenisSurat->name }} •
+                                @if($permohonan->user->rt)
+                                RT {{ $permohonan->user->rt->nomor_rt }}
+                                @else
+                                Tidak terdaftar RT
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            {{ $permohonan->status_display }}
+                        </span>
+                        <span class="text-sm text-gray-500">{{ $permohonan->created_at->format('d/m H:i') }}</span>
+                        <a href="{{ route('kasi.permohonan.detail', $permohonan->id) }}"
+                            class="text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </div>
+                </div>
+                @endforeach
             </div>
+            @else
+            <div class="text-center py-8">
+                <i class="fas fa-inbox text-gray-300 text-4xl mb-3"></i>
+                <p class="text-gray-500">Tidak ada permohonan menunggu verifikasi</p>
+                <p class="text-gray-400 text-sm mt-1">Permohonan yang sudah disetujui RT akan muncul di sini</p>
+            </div>
+            @endif
         </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-        <a href="{{ route('kasi.permohonan.index') }}" class="bg-white rounded-lg shadow p-6 border border-gray-200 hover:shadow-md transition-shadow">
-            <div class="flex items-center space-x-4">
-                <div class="p-3 bg-blue-100 rounded-lg">
-                    <i class="fas fa-check-circle text-blue-600 text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="font-semibold text-gray-800">Verifikasi Permohonan</h3>
-                    <p class="text-gray-600 text-sm mt-1">Kelola semua permohonan yang perlu verifikasi</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ route('kasi.template.index') }}" class="bg-white rounded-lg shadow p-6 border border-gray-200 hover:shadow-md transition-shadow">
-            <div class="flex items-center space-x-4">
-                <div class="p-3 bg-purple-100 rounded-lg">
-                    <i class="fas fa-file-contract text-purple-600 text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="font-semibold text-gray-800">Template Surat</h3>
-                    <p class="text-gray-600 text-sm mt-1">Kelola template surat</p>
-                </div>
-            </div>
-        </a>
     </div>
 </div>
 @endsection

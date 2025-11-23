@@ -17,7 +17,6 @@ class AdminMiddleware
 
         $user = Auth::user();
 
-        // Debug: Cek user dan role
         if (!$user->role) {
             abort(500, 'User role not found');
         }

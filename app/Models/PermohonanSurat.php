@@ -28,6 +28,24 @@ class PermohonanSurat extends Model
         'tanggal_selesai' => 'datetime',
     ];
 
+    // Accessor untuk handle data_pemohon dengan aman
+    public function getDataPemohonAttribute($value)
+    {
+        // Jika sudah array, return langsung
+        if (is_array($value)) {
+            return $value;
+        }
+
+        // Jika string, coba decode JSON
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            return json_last_error() === JSON_ERROR_NONE ? $decoded : [];
+        }
+
+        // Fallback ke array kosong
+        return [];
+    }
+
     // RELATIONS
     public function user()
     {
