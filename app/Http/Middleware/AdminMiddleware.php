@@ -15,7 +15,14 @@ class AdminMiddleware
             return redirect()->route('login');
         }
 
-        if (!Auth::user()->isAdmin()) {
+        $user = Auth::user();
+
+        // Debug: Cek user dan role
+        if (!$user->role) {
+            abort(500, 'User role not found');
+        }
+
+        if ($user->role->name !== 'admin') {
             abort(403, 'Akses ditolak. Hanya Administrator yang dapat mengakses halaman ini.');
         }
 

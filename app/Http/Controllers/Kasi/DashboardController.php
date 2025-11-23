@@ -27,6 +27,7 @@ class DashboardController extends Controller
                 ->count(),
         ];
 
+        // Return view dengan data
         return view('pages.kasi.dashboard', compact('stats'));
     }
 }

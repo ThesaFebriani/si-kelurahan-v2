@@ -1,94 +1,18 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\RT\DashboardController as RTDashboardController;
+use App\Http\Controllers\Kasi\DashboardController as KasiDashboardController;
+use App\Http\Controllers\Lurah\DashboardController as LurahDashboardController;
+use App\Http\Controllers\Masyarakat\DashboardController as MasyarakatDashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
 // ==================== ROUTE PUBLIC ====================
 Route::get('/', function () {
-    echo '
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Sistem Kelurahan</title>
-        <style>
-            body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; text-align: center; }
-            .card { background: #f8f9fa; padding: 30px; border-radius: 8px; margin: 20px 0; }
-            .btn { display: inline-block; padding: 10px 20px; margin: 10px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; }
-            .btn:hover { background: #0056b3; }
-        </style>
-    </head>
-    <body>
-        <h1>🏢 SISTEM KELURAHAN</h1>
-        <p>Sistem Pelayanan Surat Menggunakan 4 Role</p>
-        
-        <div class="card">
-            <h2>🚀 Mulai Menggunakan Sistem</h2>
-            <a href="/login" class="btn">🔐 Login</a>
-            <a href="/simple-login" class="btn">🧪 Simple Login</a>
-            <a href="/debug/system" class="btn">🐛 Debug System</a>
-        </div>
-
-        <div class="card">
-            <h3>👥 Role yang Tersedia:</h3>
-            <p>Admin • RT • Kasi • Lurah • Masyarakat</p>
-        </div>
-    </body>
-    </html>
-    ';
+    return view('welcome'); // Biarkan Breeze handle welcome page
 });
-
-// ==================== MANUAL LOGIN ROUTES (BACKUP) ====================
-Route::get('/simple-login', function () {
-    echo '
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Login - Sistem Kelurahan</title>
-        <style>
-            body { font-family: Arial, sans-serif; max-width: 400px; margin: 100px auto; padding: 20px; }
-            .form-group { margin-bottom: 15px; }
-            label { display: block; margin-bottom: 5px; }
-            input[type="email"], input[type="password"] { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-            button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
-            button:hover { background: #0056b3; }
-            .user-list { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px; }
-        </style>
-    </head>
-    <body>
-        <h1>🔐 Login Sistem Kelurahan</h1>
-        
-        <form method="POST" action="/login">
-            ' . csrf_field() . '
-            <div class="form-group">
-                <label>Email:</label>
-                <input type="email" name="email" value="admin@kelurahan.dev" required>
-            </div>
-            
-            <div class="form-group">
-                <label>Password:</label>
-                <input type="password" name="password" value="password123" required>
-            </div>
-            
-            <button type="submit">Login</button>
-        </form>
-
-        <div class="user-list">
-            <h3>📋 User Testing:</h3>
-            <ul>
-                <li><strong>Admin:</strong> admin@kelurahan.dev / password123</li>
-                <li><strong>RT:</strong> rt001@kelurahan.dev / password123</li>
-                <li><strong>Kasi:</strong> kasi.kesra@kelurahan.dev / password123</li>
-                <li><strong>Lurah:</strong> lurah@kelurahan.dev / password123</li>
-                <li><strong>Masyarakat:</strong> warga@kelurahan.dev / password123</li>
-            </ul>
-        </div>
-
-        <p><a href="/">🏠 Home</a> | <a href="/debug/system">🐛 Debug</a></p>
-    </body>
-    </html>
-    ';
-})->name('simple.login');
 
 // ==================== ROUTE AUTH DASHBOARD ====================
 Route::get('/dashboard', function () {
@@ -122,13 +46,19 @@ Route::get('/dashboard', function () {
 
         echo "</ul>";
 
+        echo "<h2>🧪 Testing Access:</h2>";
+        echo "<ul>";
+        echo "<li><a href='/test/simple-role-check'>Cek Role & Permission</a></li>";
+        echo "<li><a href='/test/all-dashboards'>Test Semua Dashboard</a></li>";
+        echo "</ul>";
+
         echo "<hr>";
         echo "<p><a href='/logout' onclick='event.preventDefault(); document.getElementById(\"logout-form\").submit();'>🚪 Logout</a></p>";
         echo "<form id='logout-form' action='/logout' method='POST' style='display: none;'>" . csrf_field() . "</form>";
 
         return;
     }
-    return redirect('/login');
+    return redirect('/login'); // Redirect ke login jika belum login
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // ==================== ROUTE PROFILE ====================
@@ -140,137 +70,228 @@ Route::middleware('auth')->group(function () {
 
 // ==================== ROUTE DASHBOARD BERDASARKAN ROLE ====================
 
-// Admin Dashboard
-Route::get('/admin/dashboard', function () {
-    if (!Auth::check()) return redirect('/login');
+// Admin Dashboard - TEMPORARY tanpa middleware 'admin'
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'admin') abort(403);
+        return app(\App\Http\Controllers\Admin\DashboardController::class)->index();
+    })->name('dashboard');
+
+    // User Management
+    Route::get('/users', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'admin') abort(403);
+        return "<h1>Admin - Management User</h1><p>Halaman management user</p>";
+    })->name('users.index');
+
+    // Jenis Surat
+    Route::get('/jenis-surat', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'admin') abort(403);
+        return "<h1>Admin - Jenis Surat</h1><p>Halaman management jenis surat</p>";
+    })->name('jenis-surat.index');
+
+    // Data Wilayah
+    Route::get('/wilayah/rt', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'admin') abort(403);
+        return "<h1>Admin - Data RT</h1><p>Halaman data RT</p>";
+    })->name('wilayah.rt.index');
+
+    Route::get('/wilayah/rw', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'admin') abort(403);
+        return "<h1>Admin - Data RW</h1><p>Halaman data RW</p>";
+    })->name('wilayah.rw.index');
+
+    // Laporan
+    Route::get('/laporan/permohonan', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'admin') abort(403);
+        return "<h1>Admin - Laporan Permohonan</h1><p>Halaman laporan permohonan</p>";
+    })->name('laporan.permohonan');
+
+    Route::get('/laporan/kinerja', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'admin') abort(403);
+        return "<h1>Admin - Laporan Kinerja</h1><p>Halaman laporan kinerja</p>";
+    })->name('laporan.kinerja');
+});
+
+// RT Dashboard - TEMPORARY tanpa middleware 'rt'
+Route::middleware(['auth'])->prefix('rt')->name('rt.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'rt') abort(403);
+        return app(\App\Http\Controllers\RT\DashboardController::class)->index();
+    })->name('dashboard');
+
+    // Permohonan Surat
+    Route::get('/permohonan', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'rt') abort(403);
+        return "<h1>RT - Daftar Permohonan</h1><p>Halaman daftar permohonan surat</p>";
+    })->name('permohonan.index');
+
+    Route::get('/permohonan/{id}', function ($id) {
+        $user = Auth::user();
+        if ($user->role->name !== 'rt') abort(403);
+        return "<h1>RT - Detail Permohonan</h1><p>Detail permohonan ID: {$id}</p>";
+    })->name('permohonan.detail');
+
+    Route::get('/permohonan/{id}/approve', function ($id) {
+        $user = Auth::user();
+        if ($user->role->name !== 'rt') abort(403);
+        return "<h1>RT - Approve Permohonan</h1><p>Approve permohonan ID: {$id}</p>";
+    })->name('permohonan.approve');
+
+    // Data Keluarga
+    Route::get('/keluarga', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'rt') abort(403);
+        return "<h1>RT - Data Keluarga</h1><p>Halaman data keluarga</p>";
+    })->name('keluarga.index');
+
+    Route::get('/keluarga/{id}', function ($id) {
+        $user = Auth::user();
+        if ($user->role->name !== 'rt') abort(403);
+        return "<h1>RT - Detail Keluarga</h1><p>Detail keluarga ID: {$id}</p>";
+    })->name('keluarga.detail');
+});
+
+// Kasi Dashboard - TEMPORARY tanpa middleware 'kasi'
+Route::middleware(['auth'])->prefix('kasi')->name('kasi.')->group(function () {
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'kasi') abort(403, 'Akses Kasi ditolak. Role Anda: ' . $user->role->name);
+        return app(\App\Http\Controllers\Kasi\DashboardController::class)->index();
+    })->name('dashboard');
+
+    // Tambahkan routes Kasi lainnya
+    Route::get('/permohonan', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'kasi') abort(403);
+        return "<h1>Kasi - Verifikasi Permohonan</h1><p>Halaman verifikasi permohonan</p>";
+    })->name('permohonan.index');
+
+    Route::get('/permohonan/{id}/verify', function ($id) {
+        $user = Auth::user();
+        if ($user->role->name !== 'kasi') abort(403);
+        return "<h1>Kasi - Verifikasi Permohonan ID: {$id}</h1><p>Halaman verifikasi detail</p>";
+    })->name('permohonan.verify');
+
+    Route::get('/template', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'kasi') abort(403);
+        return "<h1>Kasi - Template Surat</h1><p>Halaman management template surat</p>";
+    })->name('template.index');
+});
+
+// Lurah Routes  
+// Lurah Dashboard - TEMPORARY tanpa middleware 'lurah'
+Route::middleware(['auth'])->prefix('lurah')->name('lurah.')->group(function () {
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'lurah') abort(403);
+        return app(\App\Http\Controllers\Lurah\DashboardController::class)->index();
+    })->name('dashboard');
+
+    // Tambahkan routes Lurah lainnya
+    Route::get('/tanda-tangan', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'lurah') abort(403);
+        return "<h1>Lurah - Tanda Tangan Digital</h1><p>Halaman tanda tangan digital</p>";
+    })->name('tanda-tangan.index');
+
+    Route::get('/laporan', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'lurah') abort(403);
+        return "<h1>Lurah - Laporan</h1><p>Halaman laporan</p>";
+    })->name('laporan.index');
+});
+
+// Masyarakat Dashboard - TEMPORARY tanpa middleware 'masyarakat'
+Route::middleware(['auth'])->prefix('masyarakat')->name('masyarakat.')->group(function () {
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'masyarakat') abort(403);
+        return app(\App\Http\Controllers\Masyarakat\DashboardController::class)->index();
+    })->name('dashboard');
+
+    // Tambahkan routes Masyarakat lainnya
+    Route::get('/permohonan', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'masyarakat') abort(403);
+        return "<h1>Masyarakat - Permohonan</h1><p>Halaman permohonan</p>";
+    })->name('permohonan.index');
+
+    Route::get('/permohonan/create', function () {
+        $user = Auth::user();
+        if ($user->role->name !== 'masyarakat') abort(403);
+        return "<h1>Masyarakat - Ajukan Permohonan</h1><p>Halaman ajukan permohonan</p>";
+    })->name('permohonan.create');
+});
+
+// ==================== TEST ROUTES ====================
+Route::get('/test/simple-role-check', function () {
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
+
     $user = Auth::user();
-    if ($user->role->name !== 'admin') abort(403, 'Akses admin ditolak');
+    $roleName = $user->role->name;
 
-    echo "<h1>📊 ADMIN DASHBOARD</h1>";
-    echo "<p>Selamat datang, <strong>{$user->name}</strong>!</p>";
-    echo "<p>Role: <strong>{$user->role->name}</strong></p>";
+    echo "<h1>🧪 SIMPLE ROLE CHECK</h1>";
+    echo "<pre>";
+    print_r([
+        'user_id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'role_id' => $user->role_id,
+        'role_name' => $roleName,
+        'rt_id' => $user->rt_id,
+        'bidang' => $user->bidang,
+    ]);
+    echo "</pre>";
 
-    echo "<h3>📈 Statistik Sistem:</h3>";
+    echo "<h3>🔗 Test Dashboard Access:</h3>";
     echo "<ul>";
-    echo "<li>Total Users: " . \App\Models\User::count() . "</li>";
-    echo "<li>Total Permohonan: " . \App\Models\PermohonanSurat::count() . "</li>";
-    echo "<li>Permohonan Pending: " . \App\Models\PermohonanSurat::where('status', 'menunggu_rt')->count() . "</li>";
+    echo "<li><a href='/admin/dashboard'>Admin Dashboard</a></li>";
+    echo "<li><a href='/rt/dashboard'>RT Dashboard</a></li>";
+    echo "<li><a href='/kasi/dashboard'>Kasi Dashboard</a></li>";
+    echo "<li><a href='/lurah/dashboard'>Lurah Dashboard</a></li>";
+    echo "<li><a href='/masyarakat/dashboard'>Masyarakat Dashboard</a></li>";
     echo "</ul>";
 
-    echo "<h3>🔧 Menu Admin:</h3>";
-    echo "<ul>";
-    echo "<li><a href='/dashboard'>🔙 Dashboard Utama</a></li>";
-    echo "<li><a href='/test/simple-role-check'>🧪 Test Role</a></li>";
-    echo "</ul>";
-    return;
-})->middleware('auth')->name('admin.dashboard');
+    echo "<p><a href='/dashboard'>🔙 Kembali ke Dashboard</a></p>";
+});
 
-// RT Dashboard
-Route::get('/rt/dashboard', function () {
-    if (!Auth::check()) return redirect('/login');
+Route::get('/test/all-dashboards', function () {
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
+
     $user = Auth::user();
-    if ($user->role->name !== 'rt') abort(403, 'Akses RT ditolak');
 
-    echo "<h1>🏠 RT DASHBOARD</h1>";
-    echo "<p>Selamat datang, <strong>{$user->name}</strong>!</p>";
-    echo "<p>Role: <strong>{$user->role->name}</strong></p>";
-    echo "<p>RT ID: <strong>{$user->rt_id}</strong></p>";
+    echo "<h1>🧪 TEST ALL DASHBOARDS</h1>";
+    echo "<p>User: <strong>{$user->name}</strong> ({$user->role->name})</p>";
 
-    echo "<h3>📊 Statistik RT:</h3>";
+    echo "<h3>Coba Akses:</h3>";
     echo "<ul>";
-    echo "<li>Permohonan Pending: " . \App\Models\PermohonanSurat::where('status', 'menunggu_rt')->count() . "</li>";
-    echo "<li>Permohonan Disetujui: " . \App\Models\PermohonanSurat::where('status', 'disetujui_rt')->count() . "</li>";
+    echo "<li><a href='/admin/dashboard'>Admin Dashboard</a></li>";
+    echo "<li><a href='/rt/dashboard'>RT Dashboard</a></li>";
+    echo "<li><a href='/kasi/dashboard'>Kasi Dashboard</a></li>";
+    echo "<li><a href='/lurah/dashboard'>Lurah Dashboard</a></li>";
+    echo "<li><a href='/masyarakat/dashboard'>Masyarakat Dashboard</a></li>";
     echo "</ul>";
 
-    echo "<h3>📋 Menu RT:</h3>";
-    echo "<ul>";
-    echo "<li><a href='/dashboard'>🔙 Dashboard Utama</a></li>";
-    echo "<li><a href='/test/simple-role-check'>🧪 Test Role</a></li>";
-    echo "</ul>";
-    return;
-})->middleware('auth')->name('rt.dashboard');
+    echo "<p><a href='/dashboard'>🔙 Kembali ke Dashboard</a></p>";
+});
 
-// Kasi Dashboard
-Route::get('/kasi/dashboard', function () {
-    if (!Auth::check()) return redirect('/login');
-    $user = Auth::user();
-    if ($user->role->name !== 'kasi') abort(403, 'Akses Kasi ditolak');
-
-    echo "<h1>📋 KASI DASHBOARD</h1>";
-    echo "<p>Selamat datang, <strong>{$user->name}</strong>!</p>";
-    echo "<p>Role: <strong>{$user->role->name}</strong></p>";
-    echo "<p>Bidang: <strong>{$user->bidang}</strong></p>";
-
-    echo "<h3>📊 Statistik Kasi:</h3>";
-    echo "<ul>";
-    echo "<li>Permohonan Pending: " . \App\Models\PermohonanSurat::where('status', 'menunggu_kasi')->count() . "</li>";
-    echo "<li>Permohonan Disetujui: " . \App\Models\PermohonanSurat::where('status', 'disetujui_kasi')->count() . "</li>";
-    echo "</ul>";
-
-    echo "<h3>📝 Menu Kasi:</h3>";
-    echo "<ul>";
-    echo "<li><a href='/dashboard'>🔙 Dashboard Utama</a></li>";
-    echo "<li><a href='/test/simple-role-check'>🧪 Test Role</a></li>";
-    echo "</ul>";
-    return;
-})->middleware('auth')->name('kasi.dashboard');
-
-// LURAH Dashboard - YANG INI YANG HILANG
-Route::get('/lurah/dashboard', function () {
-    if (!Auth::check()) return redirect('/login');
-    $user = Auth::user();
-    if ($user->role->name !== 'lurah') abort(403, 'Akses Lurah ditolak');
-
-    echo "<h1>📝 LURAH DASHBOARD</h1>";
-    echo "<p>Selamat datang, <strong>{$user->name}</strong>!</p>";
-    echo "<p>Role: <strong>{$user->role->name}</strong></p>";
-
-    echo "<h3>📊 Statistik Lurah:</h3>";
-    echo "<ul>";
-    echo "<li>Permohonan Pending: " . \App\Models\PermohonanSurat::where('status', 'menunggu_lurah')->count() . "</li>";
-    echo "<li>Permohonan Selesai: " . \App\Models\PermohonanSurat::where('status', 'selesai')->count() . "</li>";
-    echo "<li>Total Surat Terbit: " . \App\Models\Surat::count() . "</li>";
-    echo "</ul>";
-
-    echo "<h3>🖊️ Menu Lurah:</h3>";
-    echo "<ul>";
-    echo "<li><a href='/dashboard'>🔙 Dashboard Utama</a></li>";
-    echo "<li><a href='/test/simple-role-check'>🧪 Test Role</a></li>";
-    echo "<li><a href='/lurah/tanda-tangan'>✍️ Tanda Tangan Digital</a></li>";
-    echo "</ul>";
-    return;
-})->middleware('auth')->name('lurah.dashboard');
-
-// MASYARAKAT Dashboard - YANG INI JUGA HILANG
-Route::get('/masyarakat/dashboard', function () {
-    if (!Auth::check()) return redirect('/login');
-    $user = Auth::user();
-    if ($user->role->name !== 'masyarakat') abort(403, 'Akses Masyarakat ditolak');
-
-    echo "<h1>👥 MASYARAKAT DASHBOARD</h1>";
-    echo "<p>Selamat datang, <strong>{$user->name}</strong>!</p>";
-    echo "<p>Role: <strong>{$user->role->name}</strong></p>";
-
-    echo "<h3>📊 Statistik Permohonan Anda:</h3>";
-    echo "<ul>";
-    echo "<li>Total Permohonan: " . \App\Models\PermohonanSurat::where('user_id', $user->id)->count() . "</li>";
-    echo "<li>Permohonan Pending: " . \App\Models\PermohonanSurat::where('user_id', $user->id)
-        ->whereIn('status', ['menunggu_rt', 'menunggu_kasi', 'menunggu_lurah'])->count() . "</li>";
-    echo "<li>Permohonan Selesai: " . \App\Models\PermohonanSurat::where('user_id', $user->id)
-        ->where('status', 'selesai')->count() . "</li>";
-    echo "</ul>";
-
-    echo "<h3>📨 Menu Masyarakat:</h3>";
-    echo "<ul>";
-    echo "<li><a href='/dashboard'>🔙 Dashboard Utama</a></li>";
-    echo "<li><a href='/test/simple-role-check'>🧪 Test Role</a></li>";
-    echo "<li><a href='/masyarakat/permohonan'>📄 Ajukan Permohonan</a></li>";
-    echo "<li><a href='/masyarakat/riwayat'>📋 Riwayat Permohonan</a></li>";
-    echo "</ul>";
-    return;
-})->middleware('auth')->name('masyarakat.dashboard');
-
-// ==================== ROUTE DEBUG ====================
+// ==================== DEBUG ROUTES ====================
 Route::get('/debug/system', function () {
     echo "<h1>🐛 DEBUG SYSTEM</h1>";
 
@@ -283,8 +304,7 @@ Route::get('/debug/system', function () {
     echo "<h3>Available Routes:</h3>";
     echo "<ul>";
     echo "<li><a href='/'>Home</a></li>";
-    echo "<li><a href='/login'>Login (Breeze)</a></li>";
-    echo "<li><a href='/simple-login'>Simple Login</a></li>";
+    echo "<li><a href='/login'>Login</a></li>";
     echo "<li><a href='/register'>Register</a></li>";
     if (Auth::check()) {
         echo "<li><a href='/dashboard'>Dashboard</a></li>";
@@ -294,5 +314,8 @@ Route::get('/debug/system', function () {
     echo "</ul>";
 });
 
-// ==================== AUTH ROUTES ====================
+// ==================== TEST MIDDLEWARE ROUTES ====================
+require __DIR__ . '/test-middleware.php';
+
+// ==================== AUTH ROUTES (JANGAN DIUBAH) ====================
 require __DIR__ . '/auth.php';
