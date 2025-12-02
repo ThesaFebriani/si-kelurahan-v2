@@ -15,7 +15,8 @@ class DatabaseSeeder extends Seeder
             RwSeeder::class,
             RtSeeder::class,
             UserSeeder::class,
-            // JenisSuratSeeder::class, // Nanti kita buat
+            JenisSuratSeeder::class,
+            TemplateFieldSeeder::class,
         ]);
     }
 }

@@ -14,7 +14,7 @@
             </h3>
         </div>
 
-        <form action="{{ route('masyarakat.permohonan.store') }}" method="POST">
+        <form action="{{ route('masyarakat.permohonan.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="p-6 space-y-6">

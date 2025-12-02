@@ -6,10 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Sistem Kelurahan')</title>
 
-    <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Tailwind CSS -->
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Font Awesome -->
@@ -17,7 +16,7 @@
 
     <style>
         .sidebar-transition {
-            transition: all 0.3s ease;
+            transition: all .3s ease;
         }
     </style>
 
@@ -25,32 +24,48 @@
 </head>
 
 <body class="bg-gray-50 font-sans">
-    <!-- Sidebar -->
+
     @include('components.sidebar')
 
-    <!-- Main Content -->
     <div class="lg:ml-64 sidebar-transition min-h-screen">
-        <!-- Header -->
+
         @include('components.header')
 
-        <!-- Page Content -->
         <main class="p-4 lg:p-6 min-h-screen bg-gray-50">
-            <!-- Flash Messages -->
+
             @if(session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 flex items-center">
-                <i class="fas fa-check-circle mr-3"></i>
-                {{ session('success') }}
+            @php
+            $flash = session('success');
+            $title = is_array($flash) && isset($flash['title']) ? $flash['title'] : 'Berhasil';
+            $message = is_array($flash) && isset($flash['message']) ? $flash['message'] : (is_string($flash) ? $flash : '');
+            @endphp
+
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+                <div class="font-bold mb-1">{{ $title }}</div>
+                <div>{{ $message }}</div>
             </div>
             @endif
 
             @if(session('error'))
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 flex items-center">
-                <i class="fas fa-exclamation-circle mr-3"></i>
-                {{ session('error') }}
+            @php
+            $flash = session('error');
+            $title = is_array($flash) && isset($flash['title']) ? $flash['title'] : 'Terjadi Kesalahan';
+            $message = is_array($flash) && isset($flash['message']) ? $flash['message'] : (is_string($flash) ? $flash : '');
+            @endphp
+
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                <div class="font-bold mb-1">{{ $title }}</div>
+                <div>{{ $message }}</div>
             </div>
             @endif
 
-            <!-- Page Header -->
+
+            @if(session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                <i class="fas fa-exclamation-circle mr-2"></i> {{ session('error') }}
+            </div>
+            @endif
+
             <div class="mb-6">
                 @hasSection('page-title')
                 <h1 class="text-2xl font-bold text-gray-800 flex items-center">
@@ -66,51 +81,24 @@
                 @endif
             </div>
 
-            <!-- Content -->
             @yield('content')
         </main>
     </div>
 
-    <!-- Mobile menu button -->
-    <button id="mobileMenuButton" class="lg:hidden fixed top-4 left-4 z-50 p-3 bg-blue-600 text-white rounded-lg shadow-lg">
+    <button id="mobileMenuButton"
+        class="lg:hidden fixed top-4 left-4 z-50 p-3 bg-blue-600 text-white rounded-lg shadow-lg">
         <i class="fas fa-bars"></i>
     </button>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuButton = document.getElementById('mobileMenuButton');
+            const btn = document.getElementById('mobileMenuButton');
             const sidebar = document.querySelector('aside');
-            const mainContent = document.querySelector('main').parentElement;
+            const main = document.querySelector('main').parentElement;
 
-            if (mobileMenuButton) {
-                mobileMenuButton.addEventListener('click', function() {
-                    if (sidebar.classList.contains('-translate-x-full')) {
-                        // Open sidebar
-                        sidebar.classList.remove('-translate-x-full');
-                        mainContent.classList.remove('ml-0');
-                        mainContent.classList.add('ml-64');
-                        mobileMenuButton.innerHTML = '<i class="fas fa-times"></i>';
-                    } else {
-                        // Close sidebar
-                        sidebar.classList.add('-translate-x-full');
-                        mainContent.classList.remove('ml-64');
-                        mainContent.classList.add('ml-0');
-                        mobileMenuButton.innerHTML = '<i class="fas fa-bars"></i>';
-                    }
-                });
-            }
-
-            // Close sidebar when clicking on a link (mobile)
-            const sidebarLinks = document.querySelectorAll('aside a');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth < 1024) {
-                        sidebar.classList.add('-translate-x-full');
-                        mainContent.classList.remove('ml-64');
-                        mainContent.classList.add('ml-0');
-                        mobileMenuButton.innerHTML = '<i class="fas fa-bars"></i>';
-                    }
-                });
+            btn.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+                main.classList.toggle('ml-64');
             });
         });
     </script>

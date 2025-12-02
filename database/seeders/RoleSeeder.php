@@ -44,9 +44,12 @@ class RoleSeeder extends Seeder
         ];
 
         foreach ($roles as $role) {
-            Role::create($role);
+            Role::updateOrCreate(
+                ['name' => $role['name']], // Cari berdasarkan name
+                $role // Update atau create dengan data ini
+            );
         }
 
-        $this->command->info('Seeder Role berhasil!');
+        $this->command->info('Seeder Role berhasil! (UpdateOrCreate)');
     }
 }

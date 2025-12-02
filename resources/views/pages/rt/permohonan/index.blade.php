@@ -126,13 +126,17 @@
                                     class="text-blue-600 hover:text-blue-900 mr-3">
                                     <i class="fas fa-eye mr-1"></i> Detail
                                 </a>
+
                                 @if($item->isMenungguRT())
-                                <a href="{{ route('rt.permohonan.approve', $item->id) }}"
-                                    class="text-green-600 hover:text-green-900">
-                                    <i class="fas fa-check-circle mr-1"></i> Proses
-                                </a>
+                                <form action="{{ route('rt.permohonan.process', $item->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-green-600 hover:text-green-900">
+                                        <i class="fas fa-check-circle mr-1"></i> Proses
+                                    </button>
+                                </form>
                                 @endif
                             </td>
+
                         </tr>
                         @endforeach
                     </tbody>

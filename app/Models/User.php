@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+// IMPORT MODEL YANG DIBUTUHKAN
+use App\Models\Role;
+use App\Models\Rt;
+use App\Models\PermohonanSurat;
+use App\Models\ApprovalFlow;
+use App\Models\TimelinePermohonan;
+use App\Models\Notification;
+
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -23,52 +31,55 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    // ==================== ROLE METHODS ====================
+    // ==================== ROLE HELPERS ====================
     public function isAdmin()
     {
-        return $this->role->name === Role::ADMIN;
+        return $this->role && $this->role->name === Role::ADMIN;
     }
 
     public function isMasyarakat()
     {
-        return $this->role->name === Role::MASYARAKAT;
+        return $this->role && $this->role->name === Role::MASYARAKAT;
     }
 
     public function isRT()
     {
-        return $this->role->name === Role::RT;
+        return $this->role && $this->role->name === Role::RT;
     }
 
     public function isKasi()
     {
-        return $this->role->name === Role::KASI;
+        return $this->role && $this->role->name === Role::KASI;
     }
 
     public function isLurah()
     {
-        return $this->role->name === Role::LURAH;
+        return $this->role && $this->role->name === Role::LURAH;
     }
 
-    // ==================== PERMISSION METHODS ====================
+    // ==================== PERMISSION HELPERS ====================
     public function canApproveSurat()
     {
-        return in_array($this->role->name, [Role::RT, Role::KASI, Role::LURAH, Role::ADMIN]);
+        return $this->role &&
+            in_array($this->role->name, [Role::RT, Role::KASI, Role::LURAH, Role::ADMIN]);
     }
 
     public function canGenerateSurat()
     {
-        return in_array($this->role->name, [Role::KASI, Role::ADMIN]);
+        return $this->role &&
+            in_array($this->role->name, [Role::KASI, Role::ADMIN]);
     }
 
     public function canTTE()
     {
-        return in_array($this->role->name, [Role::LURAH, Role::ADMIN]);
+        return $this->role &&
+            in_array($this->role->name, [Role::LURAH, Role::ADMIN]);
     }
 
-    // ==================== RELATIONS ====================
+    // ==================== RELASI ====================
     public function role()
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
     public function rt()
@@ -101,14 +112,23 @@ class User extends Authenticatable
         return $this->notifications()->where('is_read', false);
     }
 
-    // ==================== OTHER METHODS ====================
+    // ==================== OTHER HELPERS ====================
     public function setPasswordAttribute($password)
     {
-        $this->attributes['password'] = bcrypt($password);
+        // Jika password sudah hashed, tidak perlu hash ulang
+        if (strlen($password) !== 60 || !preg_match('/^\$2y\$/', $password)) {
+            $password = bcrypt($password);
+        }
+
+        $this->attributes['password'] = $password;
     }
 
     public function getRoleDisplayAttribute()
     {
+        if (!$this->role) {
+            return '-';
+        }
+
         $roles = [
             Role::ADMIN => 'Administrator',
             Role::MASYARAKAT => 'Masyarakat',

@@ -60,13 +60,6 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-
-        // ========== MIDDLEWARE CUSTOM ==========
-        // COMMENT DULU SAMPAI KITA PERBAIKI
-        // 'admin' => \App\Http\Middleware\AdminMiddleware::class,
-        // 'rt' => \App\Http\Middleware\RTMiddleware::class,
-        // 'kasi' => \App\Http\Middleware\KasiMiddleware::class,
-        // 'lurah' => \App\Http\Middleware\LurahMiddleware::class,
-        // 'masyarakat' => \App\Http\Middleware\MasyarakatMiddleware::class,
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
     ];
 }

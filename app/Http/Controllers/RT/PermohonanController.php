@@ -8,6 +8,7 @@ use App\Models\ApprovalFlow;
 use App\Models\TimelinePermohonan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\PDFGeneratorService;
 
 class PermohonanController extends Controller
 {
@@ -68,6 +69,23 @@ class PermohonanController extends Controller
         return view('pages.rt.permohonan.approve', compact('permohonan'));
     }
 
+
+    public function previewSuratPengantar($id)
+    {
+        $user = Auth::user();
+        $permohonan = PermohonanSurat::with(['user', 'jenisSurat'])
+            ->whereHas('user', function ($q) use ($user) {
+                $q->where('rt_id', $user->rt_id);
+            })
+            ->where('status', PermohonanSurat::MENUNGGU_RT)
+            ->findOrFail($id);
+
+        // Generate nomor surat otomatis
+        $pdfService = new PDFGeneratorService();
+        $nomorSurat = $pdfService->generateNomorSuratPengantar($user->rt);
+
+        return view('pages.rt.preview-surat-pengantar', compact('permohonan', 'nomorSurat'));
+    }
     public function processApproval(Request $request, $id)
     {
         $user = Auth::user();
@@ -81,14 +99,25 @@ class PermohonanController extends Controller
 
         $request->validate([
             'action' => 'required|in:approve,reject',
+            'nomor_surat_pengantar' => 'required_if:action,approve|string|max:100',
             'catatan' => 'nullable|string|max:500',
         ]);
 
         try {
             if ($request->action === 'approve') {
-                // Update status permohonan
+                // Generate surat pengantar RT
+                $pdfService = new PDFGeneratorService();
+                $suratPengantarPath = $pdfService->generateSuratPengantarRT(
+                    $permohonan,
+                    $request->nomor_surat_pengantar,
+                    $user->rt
+                );
+
+                // Update permohonan
                 $permohonan->update([
-                    'status' => PermohonanSurat::MENUNGGU_KASI
+                    'status' => PermohonanSurat::MENUNGGU_KASI,
+                    'file_surat_pengantar_rt' => $suratPengantarPath,
+                    'nomor_surat_pengantar_rt' => $request->nomor_surat_pengantar,
                 ]);
 
                 // Buat approval flow
@@ -106,19 +135,18 @@ class PermohonanController extends Controller
                 TimelinePermohonan::create([
                     'permohonan_surat_id' => $permohonan->id,
                     'status' => PermohonanSurat::MENUNGGU_KASI,
-                    'keterangan' => 'Disetujui RT - ' . ($request->catatan ?: 'Tidak ada catatan'),
+                    'keterangan' => 'Disetujui RT dengan nomor pengantar: ' . $request->nomor_surat_pengantar,
                     'updated_by' => $user->id,
                 ]);
 
-                $message = 'Permohonan berhasil disetujui dan diteruskan ke Kasi';
+                $message = 'Permohonan berhasil disetujui dan surat pengantar telah digenerate';
             } else {
-                // Update status permohonan ditolak
+                // Reject logic
                 $permohonan->update([
                     'status' => PermohonanSurat::DITOLAK_RT,
                     'keterangan_tolak' => $request->catatan
                 ]);
 
-                // Buat approval flow
                 ApprovalFlow::create([
                     'permohonan_surat_id' => $permohonan->id,
                     'step' => ApprovalFlow::STEP_RT,
@@ -129,7 +157,6 @@ class PermohonanController extends Controller
                     'urutan' => 1,
                 ]);
 
-                // Buat timeline
                 TimelinePermohonan::create([
                     'permohonan_surat_id' => $permohonan->id,
                     'status' => PermohonanSurat::DITOLAK_RT,

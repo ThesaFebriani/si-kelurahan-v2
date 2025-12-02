@@ -48,4 +48,15 @@ class JenisSurat extends Model
 
         return $bidang[$this->bidang] ?? $this->bidang;
     }
+
+    //TAMBAH RELASI
+    public function templateFields()
+    {
+        return $this->hasMany(TemplateField::class)->ordered();
+    }
+
+    public function requiredDocuments()
+    {
+        return $this->hasMany(RequiredDocument::class);
+    }
 }

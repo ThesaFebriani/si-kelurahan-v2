@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 class PermohonanSurat extends Model
 {
     use HasFactory;
@@ -21,12 +22,24 @@ class PermohonanSurat extends Model
     const MENUNGGU_LURAH = 'menunggu_lurah';
     const SELESAI = 'selesai';
     const DIBATALKAN = 'dibatalkan';
+    const MENUNGGU_TTE = 'menunggu_tte'; // Untuk Phase 4
+    const DITOLAK_LURAH = 'ditolak_lurah'; // Untuk Phase 4
 
     protected $casts = [
         'data_pemohon' => 'array',
         'tanggal_pengajuan' => 'datetime',
         'tanggal_selesai' => 'datetime',
     ];
+    protected $fillable = [
+        'user_id',
+        'jenis_surat_id',
+        'nomor_tiket',
+        'status',
+        'data_pemohon',
+        'tanggal_pengajuan',
+        'tanggal_selesai',
+    ];
+
 
     // Accessor untuk handle data_pemohon dengan aman
     public function getDataPemohonAttribute($value)
@@ -183,5 +196,14 @@ class PermohonanSurat extends Model
         ];
 
         return $stepPermission[$this->getCurrentStep()] ?? false;
+    }
+    public function isMenungguTTE()
+    {
+        return $this->status === self::MENUNGGU_TTE;
+    }
+
+    public function isDitolakLurah()
+    {
+        return $this->status === self::DITOLAK_LURAH;
     }
 }
