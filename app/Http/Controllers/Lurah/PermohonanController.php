@@ -32,6 +32,25 @@ class PermohonanController extends Controller
         return view('pages.lurah.permohonan.index', compact('permohonan', 'stats'));
     }
 
+    public function arsip()
+    {
+        $permohonan = PermohonanSurat::with(['user.rt.rw', 'jenisSurat', 'surat'])
+            ->where('status', PermohonanSurat::SELESAI)
+            ->latest()
+            ->get();
+
+        $stats = [
+            'pending' => PermohonanSurat::where('status', PermohonanSurat::MENUNGGU_LURAH)->count(),
+            'completed' => PermohonanSurat::where('status', PermohonanSurat::SELESAI)->count(),
+            'total' => PermohonanSurat::whereIn('status', [
+                PermohonanSurat::MENUNGGU_LURAH,
+                PermohonanSurat::SELESAI
+            ])->count(),
+        ];
+
+        return view('pages.lurah.permohonan.arsip', compact('permohonan', 'stats'));
+    }
+
     public function show($id)
     {
         $permohonan = PermohonanSurat::with([
@@ -43,7 +62,10 @@ class PermohonanController extends Controller
             },
             'approvalFlows.approvedBy'
         ])
-            ->where('status', PermohonanSurat::MENUNGGU_LURAH)
+            ->whereIn('status', [
+                PermohonanSurat::MENUNGGU_LURAH,
+                PermohonanSurat::SELESAI
+            ])
             ->findOrFail($id);
 
         return view('pages.lurah.permohonan.detail', compact('permohonan'));

@@ -7,42 +7,49 @@
 @section('content')
 <div class="space-y-6">
     <!-- Statistics Cards -->
+    <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm">Menunggu Persetujuan</p>
-                    <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['pending'] }}</h3>
-                </div>
-                <div class="p-2 bg-yellow-100 rounded-lg">
-                    <i class="fas fa-clock text-yellow-600"></i>
+        <a href="{{ route('rt.permohonan.index') }}" class="block transform transition duration-200 hover:scale-105">
+            <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Menunggu Persetujuan</p>
+                        <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['pending'] }}</h3>
+                    </div>
+                    <div class="p-2 bg-yellow-100 rounded-lg">
+                        <i class="fas fa-clock text-yellow-600"></i>
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm">Disetujui</p>
-                    <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['approved'] }}</h3>
-                </div>
-                <div class="p-2 bg-green-100 rounded-lg">
-                    <i class="fas fa-check-circle text-green-600"></i>
+        <a href="{{ route('rt.permohonan.arsip', ['status' => 'approved']) }}" class="block transform transition duration-200 hover:scale-105">
+            <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Disetujui</p>
+                        <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['approved'] }}</h3>
+                    </div>
+                    <div class="p-2 bg-green-100 rounded-lg">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm">Ditolak</p>
-                    <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['rejected'] }}</h3>
-                </div>
-                <div class="p-2 bg-red-100 rounded-lg">
-                    <i class="fas fa-times-circle text-red-600"></i>
+        <a href="{{ route('rt.permohonan.arsip', ['status' => 'rejected']) }}" class="block transform transition duration-200 hover:scale-105">
+            <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Ditolak</p>
+                        <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['rejected'] }}</h3>
+                    </div>
+                    <div class="p-2 bg-red-100 rounded-lg">
+                        <i class="fas fa-times-circle text-red-600"></i>
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
 
         <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div class="flex items-center justify-between">
@@ -127,14 +134,7 @@
                                     <i class="fas fa-eye mr-1"></i> Detail
                                 </a>
 
-                                @if($item->isMenungguRT())
-                                <form action="{{ route('rt.permohonan.process', $item->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    <button type="submit" class="text-green-600 hover:text-green-900">
-                                        <i class="fas fa-check-circle mr-1"></i> Proses
-                                    </button>
-                                </form>
-                                @endif
+
                             </td>
 
                         </tr>

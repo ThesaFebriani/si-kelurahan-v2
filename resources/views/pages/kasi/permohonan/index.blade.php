@@ -59,11 +59,14 @@
 
     <!-- Table Permohonan -->
     <div class="bg-white rounded-lg shadow border border-gray-200">
-        <div class="p-6 border-b border-gray-200">
+        <div class="p-6 border-b border-gray-200 flex justify-between items-center">
             <h3 class="text-lg font-semibold text-gray-800 flex items-center">
                 <i class="fas fa-list-check text-blue-600 mr-2"></i>
                 Daftar Permohonan Surat
             </h3>
+            <a href="{{ route('kasi.permohonan.arsip') }}" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded transition-colors">
+                <i class="fas fa-archive mr-1"></i> Lihat Arsip
+            </a>
         </div>
 
         <div class="p-6">
@@ -117,14 +120,20 @@
                                 {{ $item->created_at->format('d/m/Y H:i') }}
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap text-sm">
-                                <a href="{{ route('kasi.permohonan.detail', $item->id) }}"
-                                    class="text-blue-600 hover:text-blue-900 mr-3">
-                                    <i class="fas fa-eye mr-1"></i> Detail
-                                </a>
                                 @if($item->isMenungguKasi())
                                 <a href="{{ route('kasi.permohonan.verify', $item->id) }}"
-                                    class="text-green-600 hover:text-green-900">
-                                    <i class="fas fa-check-circle mr-1"></i> Verifikasi
+                                    class="text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs transition-colors">
+                                    <i class="fas fa-search mr-1"></i> Periksa Detail
+                                </a>
+                                @elseif($item->isMenungguLurah() || $item->isSelesai())
+                                <a href="{{ route('kasi.permohonan.preview', $item->id) }}"
+                                    class="text-purple-600 hover:text-purple-800 border border-purple-600 px-2 py-1 rounded text-xs">
+                                    <i class="fas fa-file-alt mr-1"></i> Lihat Surat
+                                </a>
+                                @else
+                                <a href="{{ route('kasi.permohonan.detail', $item->id) }}"
+                                    class="text-gray-600 hover:text-gray-900 border border-gray-300 px-2 py-1 rounded text-xs">
+                                    <i class="fas fa-eye mr-1"></i> Detail
                                 </a>
                                 @endif
                             </td>

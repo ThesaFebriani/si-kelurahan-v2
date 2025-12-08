@@ -15,11 +15,13 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
-        Route::get('/users', [UserManagementController::class, 'index'])
-            ->name('users.index');
+        // User Management
+        Route::resource('users', UserManagementController::class);
 
-        Route::get('/jenis-surat', [JenisSuratController::class, 'index'])
-            ->name('jenis-surat.index');
+        // Jenis Surat
+        Route::resource('jenis-surat', JenisSuratController::class)->parameters([
+            'jenis-surat' => 'jenis_surat' // Agar parameter di controller sesuai standar Laravel convention
+        ]);
 
         Route::get('/wilayah/rw', [WilayahController::class, 'rwIndex'])
             ->name('wilayah.rw.index');

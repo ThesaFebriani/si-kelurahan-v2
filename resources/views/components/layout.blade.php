@@ -11,6 +11,9 @@
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -66,6 +69,8 @@
             </div>
             @endif
 
+            <!-- Page Title Removed to prevent duplication with Header -->
+            <!-- 
             <div class="mb-6">
                 @hasSection('page-title')
                 <h1 class="text-2xl font-bold text-gray-800 flex items-center">
@@ -79,7 +84,8 @@
                 @hasSection('page-description')
                 <p class="text-gray-600 mt-2">@yield('page-description')</p>
                 @endif
-            </div>
+            </div> 
+            -->
 
             @yield('content')
         </main>

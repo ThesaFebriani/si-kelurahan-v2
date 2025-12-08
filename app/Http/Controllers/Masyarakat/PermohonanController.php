@@ -23,7 +23,7 @@ class PermohonanController extends Controller
         $permohonan = PermohonanSurat::with(['jenisSurat', 'timeline'])
             ->where('user_id', $user->id)
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('pages.masyarakat.permohonan.index', compact('permohonan'));
     }

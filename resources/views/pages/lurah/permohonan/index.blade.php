@@ -110,7 +110,7 @@
                                     <i class="fas fa-eye mr-1"></i> Detail
                                 </a>
                                 @if($item->isMenungguLurah())
-                                <a href="{{ route('lurah.permohonan.sign', $item->id) }}"
+                                <a href="{{ route('lurah.tanda-tangan.sign', $item->id) }}"
                                     class="text-green-600 hover:text-green-900">
                                     <i class="fas fa-signature mr-1"></i> TTE
                                 </a>

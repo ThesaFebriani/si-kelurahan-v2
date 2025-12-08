@@ -24,7 +24,16 @@ class DashboardController extends Controller
 
             'approved_permohonan' => PermohonanSurat::whereHas('user', function ($q) use ($rtId) {
                 $q->where('rt_id', $rtId);
-            })->where('status', PermohonanSurat::DISETUJUI_RT)->count(),
+            })->whereIn('status', [
+                PermohonanSurat::MENUNGGU_KASI,
+                PermohonanSurat::DISETUJUI_KASI,
+                PermohonanSurat::MENUNGGU_LURAH,
+                PermohonanSurat::SELESAI
+            ])->count(),
+
+            'rejected_permohonan' => PermohonanSurat::whereHas('user', function ($q) use ($rtId) {
+                $q->where('rt_id', $rtId);
+            })->where('status', PermohonanSurat::DITOLAK_RT)->count(),
 
             'total_keluarga' => Keluarga::where('rt_id', $rtId)->count(),
 

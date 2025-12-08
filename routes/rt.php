@@ -16,6 +16,9 @@ Route::middleware(['auth', RoleMiddleware::class . ':rt'])
         Route::get('/permohonan', [PermohonanController::class, 'index'])
             ->name('permohonan.index');
 
+        Route::get('/permohonan/arsip', [PermohonanController::class, 'arsip'])
+            ->name('permohonan.arsip'); // <--- Arsip Route
+
         Route::get('/permohonan/{id}', [PermohonanController::class, 'show'])
             ->name('permohonan.detail');
 
@@ -27,4 +30,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':rt'])
 
         Route::post('/permohonan/{id}/process', [PermohonanController::class, 'processApproval'])
             ->name('permohonan.process');
+
+        Route::post('/permohonan/{id}/regenerate', [PermohonanController::class, 'regenerateSuratPengantar'])
+            ->name('permohonan.regenerate');
     });

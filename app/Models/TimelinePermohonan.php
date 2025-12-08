@@ -34,7 +34,7 @@ class TimelinePermohonan extends Model
             'menunggu_rt' => 'Menunggu Persetujuan RT',
             'disetujui_rt' => 'Disetujui RT',
             'ditolak_rt' => 'Ditolak RT',
-            'menunggu_kasi' => 'Menunggu Verifikasi Kasi',
+            'menunggu_kasi' => 'Disetujui RT / Menunggu Verifikasi Kasi',
             'disetujui_kasi' => 'Disetujui Kasi',
             'ditolak_kasi' => 'Ditolak Kasi',
             'menunggu_lurah' => 'Menunggu TTE Lurah',

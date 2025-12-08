@@ -39,6 +39,19 @@
             </div>
         </div>
 
+        <!-- Permohonan Ditolak -->
+        <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm">Ditolak</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['rejected_permohonan'] ?? 0 }}</h3>
+                </div>
+                <div class="p-2 bg-red-100 rounded-lg">
+                    <i class="fas fa-times-circle text-red-600"></i>
+                </div>
+            </div>
+        </div>
+
         <!-- Total Keluarga -->
         <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div class="flex items-center justify-between">

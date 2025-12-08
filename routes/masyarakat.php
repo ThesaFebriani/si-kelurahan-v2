@@ -15,6 +15,12 @@ Route::prefix('masyarakat')
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
+        // Profile
+        Route::get('/profile', [App\Http\Controllers\Masyarakat\ProfileController::class, 'index'])
+            ->name('profile.index');
+        Route::put('/profile', [App\Http\Controllers\Masyarakat\ProfileController::class, 'update'])
+            ->name('profile.update');
+
         // Route group permohonan
         Route::prefix('permohonan')
             ->name('permohonan.')

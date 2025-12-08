@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Rt;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,32 +20,43 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        $rts = Rt::aktif()->with('rw')->get(); // AMBIL RT + RW
+
+        return view('auth.register', compact('rts'));
     }
 
     /**
      * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'nik' => ['required', 'string', 'size:16', 'unique:users,nik'],
+            'telepon' => ['required', 'string', 'max:15'],
+            'alamat' => ['required', 'string'],
+            'jk' => ['required', 'in:laki-laki,perempuan'],
+            'rt_id' => ['required', 'exists:rt,id'],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'nik' => $request->nik,
+            'telepon' => $request->telepon,
+            'alamat' => $request->alamat,
+            'jk' => $request->jk,
+            'rt_id' => $request->rt_id,
+            'role_id' => 2, // Default Role Masyarakat
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('dashboard'));
     }
 }

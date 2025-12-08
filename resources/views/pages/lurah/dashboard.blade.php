@@ -19,9 +19,9 @@
                     <i class="fas fa-signature text-purple-600"></i>
                 </div>
             </div>
-            <a href="{{ route('lurah.permohonan.index') }}"
+            <a href="{{ route('lurah.tanda-tangan.index') }}"
                 class="mt-3 inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
-                Lihat permohonan
+                Mulai Tanda Tangan
                 <i class="fas fa-arrow-right ml-1"></i>
             </a>
         </div>

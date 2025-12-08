@@ -44,6 +44,73 @@
             </div>
         </div>
 
+        <!-- Lampiran -->
+        <div class="p-6 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-paperclip text-orange-600 mr-2"></i>
+                Lampiran Dokumen
+            </h4>
+
+            <div class="space-y-4">
+                <!-- Surat Pengantar RT -->
+                <div class="border border-green-200 bg-green-50 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-file-pdf text-red-500 mr-3 text-lg"></i>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Surat Pengantar RT</p>
+                                <p class="text-xs text-gray-500">Nomor: {{ $permohonan->nomor_surat_pengantar_rt ?? '-' }}</p>
+                            </div>
+                        </div>
+                        @if($permohonan->file_surat_pengantar_rt)
+                        <a href="{{ Storage::url($permohonan->file_surat_pengantar_rt) }}"
+                            target="_blank"
+                            class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+                            <i class="fas fa-external-link-alt mr-1"></i> Lihat
+                        </a>
+                        @else
+                        <span class="text-gray-400 text-sm italic">Belum tersedia</span>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Lampiran Warga -->
+                @if($permohonan->lampirans && $permohonan->lampirans->count() > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @foreach($permohonan->lampirans as $lampiran)
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-file text-gray-400 mr-3 text-lg"></i>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">{{ $lampiran->nama_file }}</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $lampiran->file_type ?? 'Unknown' }} •
+                                        {{ $lampiran->file_size ? number_format($lampiran->file_size / 1024, 2) . ' KB' : 'Unknown size' }}
+                                    </p>
+                                </div>
+                            </div>
+                            @if($lampiran->file_path)
+                            <a href="{{ Storage::url($lampiran->file_path) }}"
+                                target="_blank"
+                                class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                Lihat
+                            </a>
+                            @else
+                            <span class="text-gray-400 text-sm">File tidak tersedia</span>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @else
+                <div class="text-center py-4 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                    <p class="text-sm text-gray-500">Tidak ada lampiran tambahan dari pemohon.</p>
+                </div>
+                @endif
+            </div>
+        </div>
+
         <!-- Form Verification -->
         <form action="{{ route('kasi.permohonan.process', $permohonan->id) }}" method="POST">
             @csrf
@@ -60,7 +127,7 @@
                                 <label for="approve" class="ml-3 block text-sm font-medium text-gray-700">
                                     <span class="flex items-center">
                                         <i class="fas fa-check-circle text-green-600 mr-2"></i>
-                                        Setujui dan teruskan ke Lurah
+                                        Setujui Permohonan
                                     </span>
                                 </label>
                             </div>

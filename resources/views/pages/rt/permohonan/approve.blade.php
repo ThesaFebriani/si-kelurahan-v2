@@ -80,8 +80,8 @@
                             -
                             @endif
                         </div>
-                        <div><strong>Agama:</strong> {{ $dataPemohon['agama'] ?? '-' }}</div>
-                        <div><strong>Pekerjaan:</strong> {{ $dataPemohon['pekerjaan'] ?? '-' }}</div>
+                        <div><strong>Agama:</strong> {{ $dataPemohon['agama'] ?? $permohonan->user->agama ?? '-' }}</div>
+                        <div><strong>Pekerjaan:</strong> {{ $dataPemohon['pekerjaan'] ?? $permohonan->user->pekerjaan ?? '-' }}</div>
                     </div>
                     <div class="mt-3">
                         <strong>Tujuan:</strong>
@@ -129,6 +129,34 @@
                         </div>
                     </div>
 
+                    <!-- Input Nomor Surat (Muncul jika Approve dipilih) -->
+                    <div id="approve-section" class="hidden space-y-4">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h5 class="text-blue-800 font-semibold mb-2 flex items-center">
+                                <i class="fas fa-edit mr-2"></i> Draft Surat Pengantar
+                            </h5>
+                            <p class="text-sm text-blue-700 mb-4">
+                                Silakan periksa dan edit isi surat pengantar di bawah ini sebelum menandatangani.
+                            </p>
+                            
+                            <!-- Nomor Surat -->
+                            <div class="mb-4">
+                                <label for="nomor_surat_pengantar" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nomor Surat Pengantar
+                                </label>
+                                <input type="text" name="nomor_surat_pengantar" id="nomor_surat_pengantar" 
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring focus:ring-blue-200"
+                                    value="{{ $nomorSurat }}" required>
+                            </div>
+
+                            <!-- Editor Surat -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Isi Surat</label>
+                                <textarea name="isi_surat" id="isi_surat" rows="15">{{ $defaultContent }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Catatan -->
                     <div>
                         <label for="catatan" class="block text-sm font-medium text-gray-700 mb-2">
@@ -164,11 +192,44 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.5.1/tinymce.min.js" referrerpolicy="no-referrer"></script>
 <script>
-    // Dynamic form validation
     document.addEventListener('DOMContentLoaded', function() {
+        // Init TinyMCE
+        tinymce.init({
+            selector: '#isi_surat',
+            height: 400,
+            menubar: false,
+            plugins: [
+                'advlist autolink lists link image charmap print preview anchor',
+                'searchreplace visualblocks code fullscreen',
+                'insertdatetime media table paste code help wordcount'
+            ],
+            toolbar: 'undo redo | formatselect | ' +
+            'bold italic backcolor | alignleft aligncenter ' +
+            'alignright alignjustify | bullist numlist outdent indent | ' +
+            'removeformat',
+            content_style: 'body { font-family:Times New Roman,Times,serif; font-size:12pt }'
+        });
+
         const form = document.querySelector('form');
         const submitBtn = form.querySelector('button[type="submit"]');
+        const actionRadios = document.querySelectorAll('input[name="action"]');
+        const approveSection = document.getElementById('approve-section');
+        const nomorInput = document.getElementById('nomor_surat_pengantar');
+
+        // Toggle visibility input nomor surat
+        actionRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'approve') {
+                    approveSection.classList.remove('hidden');
+                    nomorInput.setAttribute('required', 'required');
+                } else {
+                    approveSection.classList.add('hidden');
+                    nomorInput.removeAttribute('required');
+                }
+            });
+        });
 
         form.addEventListener('submit', function(e) {
             const actionSelected = document.querySelector('input[name="action"]:checked');

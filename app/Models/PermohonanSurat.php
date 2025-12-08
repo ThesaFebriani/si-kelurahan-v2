@@ -38,6 +38,8 @@ class PermohonanSurat extends Model
         'data_pemohon',
         'tanggal_pengajuan',
         'tanggal_selesai',
+        'file_surat_pengantar_rt',
+        'nomor_surat_pengantar_rt',
     ];
 
 
@@ -114,6 +116,11 @@ class PermohonanSurat extends Model
     public function isDisetujuiKasi()
     {
         return $this->status === self::DISETUJUI_KASI;
+    }
+
+    public function isDitolakKasi()
+    {
+        return $this->status === self::DITOLAK_KASI;
     }
 
     public function isMenungguLurah()

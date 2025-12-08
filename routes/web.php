@@ -8,7 +8,7 @@ Route::get('/', function () {
 });
 
 // Redirect dashboard sesuai role
-Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
+Route::middleware(['auth'])->get('/dashboard', function () {
     $role = Auth::user()->role->name;
 
     return match ($role) {
