@@ -40,6 +40,11 @@ class DashboardController extends Controller
             'total_warga' => AnggotaKeluarga::whereHas('keluarga', function ($q) use ($rtId) {
                 $q->where('rt_id', $rtId);
             })->count(),
+
+            'pending_warga' => \App\Models\User::where('rt_id', $rtId)
+                ->where('status', \App\Models\User::STATUS_PENDING)
+                ->where('role_id', '!=', 1)
+                ->count(),
         ];
 
         // Recent permohonan

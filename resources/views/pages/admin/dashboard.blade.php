@@ -182,6 +182,19 @@
                 </div>
             </div>
         </a>
+
+        <!-- BARU: Kependudukan -->
+        <a href="{{ route('admin.kependudukan.keluarga.index') }}" class="bg-white rounded-lg shadow p-6 border border-gray-200 hover:shadow-md transition-shadow">
+            <div class="flex items-center space-x-4">
+                <div class="p-3 bg-orange-100 rounded-lg">
+                    <i class="fas fa-id-card text-orange-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800">Data Kependudukan</h3>
+                    <p class="text-gray-600 text-sm mt-1">Kelola KK & Warga</p>
+                </div>
+            </div>
+        </a>
     </div>
 </div>
 @endsection

@@ -61,9 +61,9 @@
                                 
                                 <div class="mb-6">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Passphrase / PIN Keamanan
+                                        Passphrase / Password Login
                                     </label>
-                                    <input type="password" name="passphrase" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Masukkan Passphrase (Opsional Demo)" >
+                                    <input type="password" name="passphrase" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Masukkan Password Login Anda">
                                     <p class="text-xs text-gray-500 mt-1">
                                         Dengan menekan tombol di bawah, Anda menyatakan setuju menandatangani dokumen ini secara elektronik.
                                     </p>

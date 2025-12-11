@@ -81,6 +81,24 @@
                 </div>
             </div>
         </div>
+
+        <!-- Menunggu Verifikasi Warga -->
+        <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm">Verifikasi Warga</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['pending_warga'] }}</h3>
+                </div>
+                <div class="p-2 bg-orange-100 rounded-lg">
+                    <i class="fas fa-user-lock text-orange-600"></i>
+                </div>
+            </div>
+            <a href="{{ route('rt.warga.verification') }}"
+                class="mt-3 inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
+                Lihat detail
+                <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
     </div>
 
     <!-- Recent Permohonan -->

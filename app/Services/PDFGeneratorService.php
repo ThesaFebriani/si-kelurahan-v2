@@ -32,7 +32,7 @@ class PDFGeneratorService
             'rt' => $rt,
             'tanggal_surat' => now()->translatedFormat('d F Y'),
             'user' => $permohonan->user,
-            'data_pemohon' => $permohonan->data_pemohon,
+            'data_pemohon' => $permohonan->data_pemohon ?? [],
             'qr_code' => $qrCode,
             'isi_surat' => $isiSurat, // Konten kustom/edit user
             'verificator_name' => Auth::user()->name,

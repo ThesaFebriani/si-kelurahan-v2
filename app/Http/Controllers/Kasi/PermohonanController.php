@@ -16,9 +16,17 @@ class PermohonanController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+        
         // Hanya yang menunggu approval Kasi
+        // FILTER: Hanya tampilkan surat yang sesuai BIDANG Kasi tersebut
         $permohonan = PermohonanSurat::with(['user.rt', 'jenisSurat'])
             ->where('status', PermohonanSurat::MENUNGGU_KASI)
+            ->when($user->bidang, function($q) use ($user) {
+                $q->whereHas('jenisSurat', function($sub) use ($user) {
+                    $sub->where('bidang', $user->bidang);
+                });
+            })
             ->latest()
             ->get();
 
@@ -29,6 +37,8 @@ class PermohonanController extends Controller
 
     public function arsip()
     {
+        $user = Auth::user();
+
         // Yang sudah diproses (Disetujui/Ditolak/Lanjut)
         $permohonan = PermohonanSurat::with(['user.rt', 'jenisSurat'])
             ->whereIn('status', [
@@ -37,6 +47,11 @@ class PermohonanController extends Controller
                 PermohonanSurat::MENUNGGU_LURAH,
                 PermohonanSurat::SELESAI
             ])
+            ->when($user->bidang, function($q) use ($user) {
+                $q->whereHas('jenisSurat', function($sub) use ($user) {
+                    $sub->where('bidang', $user->bidang);
+                });
+            })
             ->latest()
             ->get();
 
@@ -47,15 +62,25 @@ class PermohonanController extends Controller
 
     private function getStats()
     {
+        $user = Auth::user();
+
+        // Base Query untuk Kasi (sesuai bidang)
+        $baseQuery = PermohonanSurat::query()
+            ->when($user->bidang, function($q) use ($user) {
+                $q->whereHas('jenisSurat', function($sub) use ($user) {
+                    $sub->where('bidang', $user->bidang);
+                });
+            });
+
         return [
-            'pending' => PermohonanSurat::where('status', PermohonanSurat::MENUNGGU_KASI)->count(),
-            'approved' => PermohonanSurat::whereIn('status', [
+            'pending' => (clone $baseQuery)->where('status', PermohonanSurat::MENUNGGU_KASI)->count(),
+            'approved' => (clone $baseQuery)->whereIn('status', [
                 PermohonanSurat::DISETUJUI_KASI,
                 PermohonanSurat::MENUNGGU_LURAH,
                 PermohonanSurat::SELESAI
             ])->count(),
-            'rejected' => PermohonanSurat::where('status', PermohonanSurat::DITOLAK_KASI)->count(),
-            'total' => PermohonanSurat::whereIn('status', [
+            'rejected' => (clone $baseQuery)->where('status', PermohonanSurat::DITOLAK_KASI)->count(),
+            'total' => (clone $baseQuery)->whereIn('status', [
                 PermohonanSurat::MENUNGGU_KASI,
                 PermohonanSurat::DISETUJUI_KASI,
                 PermohonanSurat::DITOLAK_KASI,
@@ -69,6 +94,8 @@ class PermohonanController extends Controller
 
     public function show($id)
     {
+        $user = Auth::user();
+        
         $permohonan = PermohonanSurat::with([
             'user.rt.rw',
             'jenisSurat',
@@ -77,15 +104,28 @@ class PermohonanController extends Controller
                 $q->latest();
             },
             'approvalFlows.approvedBy'
-        ])->findOrFail($id);
+        ])
+        ->when($user->bidang, function($q) use ($user) {
+            $q->whereHas('jenisSurat', function($sub) use ($user) {
+                $sub->where('bidang', $user->bidang);
+            });
+        })
+        ->findOrFail($id);
 
         return view('pages.kasi.permohonan.detail', compact('permohonan'));
     }
 
     public function verify($id)
     {
+        $user = Auth::user();
+        
         $permohonan = PermohonanSurat::with(['user.rt.rw', 'jenisSurat'])
             ->where('status', PermohonanSurat::MENUNGGU_KASI)
+            ->when($user->bidang, function($q) use ($user) {
+                $q->whereHas('jenisSurat', function($sub) use ($user) {
+                    $sub->where('bidang', $user->bidang);
+                });
+            })
             ->findOrFail($id);
 
         return view('pages.kasi.permohonan.verify', compact('permohonan'));
@@ -97,6 +137,11 @@ class PermohonanController extends Controller
 
         $permohonan = PermohonanSurat::with(['user.rt.rw', 'jenisSurat'])
             ->where('status', PermohonanSurat::MENUNGGU_KASI)
+            ->when($user->bidang, function($q) use ($user) {
+                $q->whereHas('jenisSurat', function($sub) use ($user) {
+                    $sub->where('bidang', $user->bidang);
+                });
+            })
             ->findOrFail($id);
 
         $request->validate([
@@ -167,28 +212,53 @@ class PermohonanController extends Controller
 
     public function draft($id)
     {
+        $user = Auth::user();
+        
         // Method ini hanya untuk MEMBUAT/MENGEDIT draft (untuk status MENUNGGU_KASI)
         $permohonan = PermohonanSurat::with(['user.rt.rw', 'jenisSurat', 'surat'])
             ->whereIn('status', [
                  PermohonanSurat::MENUNGGU_KASI,
                  PermohonanSurat::DISETUJUI_KASI // Tambahkan ini agar bisa diakses setelah approve
             ])
+            ->when($user->bidang, function($q) use ($user) {
+                $q->whereHas('jenisSurat', function($sub) use ($user) {
+                    $sub->where('bidang', $user->bidang);
+                });
+            })
             ->findOrFail($id);
             
         // Jika belum ada surat, buat dummy object atau ambil template default
         $draftContent = $permohonan->surat->isi_surat ?? $this->getDefaultTemplate($permohonan);
         
-        return view('pages.kasi.permohonan.draft', compact('permohonan', 'draftContent'));
+        // Generate Suggested Number
+        $suggestedNomorSurat = $permohonan->surat->nomor_surat ?? null;
+        if (!$suggestedNomorSurat) {
+             $monthRoman = $this->getRomanMonth(now()->month);
+             $year = now()->year;
+             // Simple Auto Increment based on total Surat created this year
+             $count = \App\Models\Surat::whereYear('created_at', $year)->count() + 1;
+             $seq = str_pad($count, 3, '0', STR_PAD_LEFT);
+             $suggestedNomorSurat = "{$seq}/KL/{$monthRoman}/{$year}";
+        }
+
+        return view('pages.kasi.permohonan.draft', compact('permohonan', 'draftContent', 'suggestedNomorSurat'));
     }
 
     public function previewSurat($id)
     {
+        $user = Auth::user();
+        
         // Method ini untuk MELIHAT surat yang sudah dibuat (Read Only)
         $permohonan = PermohonanSurat::with(['user.rt.rw', 'jenisSurat', 'surat'])
             ->whereIn('status', [
                 PermohonanSurat::MENUNGGU_LURAH, 
                 PermohonanSurat::SELESAI
             ])
+            ->when($user->bidang, function($q) use ($user) {
+                $q->whereHas('jenisSurat', function($sub) use ($user) {
+                    $sub->where('bidang', $user->bidang);
+                });
+            })
             ->findOrFail($id);
 
         // Jika status sudah selesai dan ada filenya, redirect ke file PDF final
@@ -203,16 +273,35 @@ class PermohonanController extends Controller
 
     public function storeDraft(Request $request, $id)
     {
+        $user = Auth::user();
+        
         $permohonan = PermohonanSurat::with(['user.rt'])
             ->whereIn('status', [
                 PermohonanSurat::MENUNGGU_KASI,
                 PermohonanSurat::DISETUJUI_KASI
             ])
+            ->when($user->bidang, function($q) use ($user) {
+                $q->whereHas('jenisSurat', function($sub) use ($user) {
+                    $sub->where('bidang', $user->bidang);
+                });
+            })
             ->findOrFail($id);
 
         $request->validate([
             'isi_surat' => 'required|string',
-            'nomor_surat' => 'required|string',
+            'nomor_surat' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) use ($id) {
+                    // Cek di tabel surat apakah nomor ini sudah dipakai oleh surat LAIN (selain surat milik permohonan ini)
+                    $exists = Surat::where('nomor_surat', $value)
+                        ->where('permohonan_surat_id', '!=', $id)
+                        ->exists();
+                    if ($exists) {
+                        $fail('Nomor Surat ini sudah digunakan oleh dokumen lain.');
+                    }
+                },
+            ],
         ]);
 
         // Simpan atau update surat
@@ -283,12 +372,15 @@ class PermohonanController extends Controller
 
         // 4. Jika Template DB Ada
         if ($template && !empty($template->template_content)) {
-            // Prepend Kop Surat & Close Wrapper
-            $content = $this->getKopSuratHTML() . $template->template_content . '</div>';
+            // Prepend Kop Surat
+            $content = $this->getKopSuratHTML() . $template->template_content;
+            
+            // Append Signature (Penutup) - Note: getPenutupSuratHTML already includes the closing </div>
+            $content .= $this->getPenutupSuratHTML($permohonan);
             
             $replacements = [
                 // Header
-                '{{ $logo_url }}' => asset('images/logo-kota-bengkulu.png'), // Pastikan file ada atau gunakan external url sementara
+                '{{ $logo_url }}' => 'file://' . public_path('images/logo-kota-bengkulu.png'), 
                 '{{ $nomor_surat }}' => '<span id="nomor_surat_placeholder">... / ... / ... / ' . date('Y') . '</span>', // Placeholder ID untuk JS replacement
                 
                 // Data Warga Common
@@ -305,6 +397,7 @@ class PermohonanController extends Controller
                 "{{ \Carbon\Carbon::now()->isoFormat('D MMMM Y') }}" => \Carbon\Carbon::now()->isoFormat('D MMMM Y'),
                 
                 // Data Khusus
+                '{{ $data_pemohon[\'jenis_kelamin\'] ?? \'-\' }}' => $dataPemohon['jenis_kelamin'] ?? $dataPemohon['jk'] ?? $user->jk ?? '-',
                 '{{ $data_pemohon[\'nama_usaha\'] ?? \'-\' }}' => strtoupper($dataPemohon['nama_usaha'] ?? '-'),
                 '{{ $data_pemohon[\'jenis_usaha\'] ?? \'-\' }}' => $dataPemohon['jenis_usaha'] ?? '-',
                 '{{ $data_pemohon[\'alamat_usaha\'] ?? \'-\' }}' => $dataPemohon['alamat_usaha'] ?? '-',
@@ -315,8 +408,6 @@ class PermohonanController extends Controller
                 '{{ $user->ttl_formatted }}' => $ttl,
                 '{{ $date_now_formatted }}' => \Carbon\Carbon::now()->isoFormat('D MMMM Y'),
                 
-                // MISSING KEYS FIX
-                '{{ $data_pemohon[\'jenis_kelamin\'] ?? \'-\' }}' => $dataPemohon['jenis_kelamin'] ?? $dataPemohon['jk'] ?? $user->jk ?? '-',
                 '{{ $data_pemohon[\'nomor_surat_pengantar\'] ?? \'...\' }}' => $permohonan->nomor_surat_pengantar_rt ?? '...',
 
                 // LURAH DATA DYNAMIC
@@ -382,12 +473,20 @@ class PermohonanController extends Controller
 
     private function getKopSuratHTML()
     {
+        $path = public_path('images/logo-kota-bengkulu.png');
+        $logoSrc = '';
+        if (file_exists($path)) {
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $data = file_get_contents($path);
+            $logoSrc = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        }
+
         return "
         <div style=\"font-family: 'Times New Roman', serif; color: #000; padding: 20px;\">
             <table style=\"width: 100%; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 25px;\">
                 <tr>
                     <td style=\"width: 15%; text-align: center; vertical-align: middle;\">
-                        <img src=\"" . asset('images/logo-kota-bengkulu.png') . "\" alt=\"Logo\" style=\"height: 90px;\">
+                        <img src=\"" . $logoSrc . "\" alt=\"Logo\" style=\"height: 90px;\">
                     </td>
                     <td style=\"text-align: center; vertical-align: middle;\">
                         <h3 style=\"margin: 0; font-size: 14pt; font-weight: normal;\">PEMERINTAH KOTA BENGKULU</h3>
@@ -407,19 +506,29 @@ class PermohonanController extends Controller
                 <h3 style=\"text-decoration: underline; margin: 0; font-size: 14pt; font-weight: bold; text-transform: uppercase;\">
                     " . ($permohonan->jenisSurat->name ?? 'SURAT KETERANGAN') . "
                 </h3>
-                <p style=\"margin: 2px 0 0 0; font-size: 12pt;\">NOMOR: " . ($permohonan->surat->nomor_surat ?? '... / ... / ... / ' . date('Y')) . "</p>
+                <p style=\"margin: 2px 0 0 0; font-size: 12pt;\">NOMOR: <span id=\"nomor_surat_placeholder\">" . ($permohonan->surat->nomor_surat ?? '... / ... / ... / ' . date('Y')) . "</span></p>
             </div>
         ";
     }
 
     private function getCommonPemohonData($permohonan)
     {
-        $nama = strtoupper($permohonan->data_pemohon['nama_lengkap'] ?? $permohonan->user->name ?? '-');
-        $ttl = ($permohonan->data_pemohon['tempat_lahir'] ?? '') . ', ' . ($permohonan->data_pemohon['tanggal_lahir'] ?? '-');
-        $jk = $permohonan->data_pemohon['jenis_kelamin'] ?? '-';
-        $alamat = $permohonan->data_pemohon['alamat'] ?? '-';
-        $pekerjaan = $permohonan->data_pemohon['pekerjaan'] ?? '-';
-        $agama = $permohonan->data_pemohon['agama'] ?? '-';
+        $data = $permohonan->data_pemohon ?? [];
+        $user = $permohonan->user;
+
+        $nama = strtoupper($data['nama_lengkap'] ?? $user->name ?? '-');
+        
+        $tmpLahir = $data['tempat_lahir'] ?? $user->tempat_lahir ?? '-';
+        $tglLahir = isset($data['tanggal_lahir']) ? \Carbon\Carbon::parse($data['tanggal_lahir'])->isoFormat('D MMMM Y') : ($user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->isoFormat('D MMMM Y') : '-');
+        $ttl = "$tmpLahir, $tglLahir";
+
+        $jk = $data['jenis_kelamin'] ?? $data['jk'] ?? $user->jk ?? '-';
+        if(in_array(strtolower($jk), ['l', 'laki-laki'])) $jk = 'Laki-laki';
+        if(in_array(strtolower($jk), ['p', 'perempuan'])) $jk = 'Perempuan';
+
+        $alamat = $data['alamat'] ?? $user->alamat ?? '-';
+        $pekerjaan = $data['pekerjaan'] ?? $user->pekerjaan ?? '-';
+        $agama = $data['agama'] ?? $user->agama ?? '-';
 
         return "
             <table style=\"width: 100%; margin-left: 40px; margin-bottom: 15px;\">
@@ -572,17 +681,31 @@ class PermohonanController extends Controller
 
     private function getPenutupSuratHTML($permohonan)
     {
+        // Ambil data Lurah dari DB agar dinamis
+        $lurah = \App\Models\User::whereHas('role', function($q){ $q->where('name', 'lurah'); })->first();
+        $namaLurah = $lurah ? $lurah->name : 'EDWIN KURNIAWAN, SH';
+        $nipLurah = $lurah ? $lurah->nip : '198205272010011004';
+        
         return "
              <!-- TANDA TANGAN -->
             <div style=\"margin-top: 50px; float: right; width: 45%; text-align: center; font-size: 12pt;\">
-                <p>Bengkulu, " . date('d F Y') . "</p>
-                <p style=\"margin-bottom: 60px;\">KEPALA KELURAHAN PADANG JATI</p>
+                <p>Bengkulu, " . \Carbon\Carbon::now()->isoFormat('D MMMM Y') . "</p>
+                <p style=\"margin-bottom: 60px;\">LURAH PEMATANG GUBERNUR</p>
                 
-                <p style=\"font-weight: bold; text-decoration: underline;\">EDWIN KURNIAWAN, SH</p>
-                <p>NIP. 198205272010011004</p>
+                <p style=\"font-weight: bold; text-decoration: underline;\">" . strtoupper($namaLurah) . "</p>
+                <p>NIP. " . $nipLurah . "</p>
             </div>
             
             <div style=\"clear: both;\"></div>
         </div>"; // Close main div
+    }
+
+    private function getRomanMonth($month)
+    {
+        $romans = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI',
+            7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+        ];
+        return $romans[$month] ?? 'I';
     }
 }

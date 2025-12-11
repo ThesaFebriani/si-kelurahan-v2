@@ -31,4 +31,10 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::get('/laporan/permohonan', [LaporanController::class, 'permohonan'])
             ->name('laporan.permohonan');
+
+        // MANAJEMEN KEPENDUDUKAN
+        Route::prefix('kependudukan')->name('kependudukan.')->group(function () {
+            Route::resource('keluarga', \App\Http\Controllers\Admin\KeluargaController::class);
+            Route::resource('penduduk', \App\Http\Controllers\Admin\PendudukController::class)->except(['index', 'create', 'show']);
+        });
     });

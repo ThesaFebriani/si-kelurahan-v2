@@ -25,6 +25,9 @@ class DashboardController extends Controller
             'jenis_surat' => JenisSurat::where('is_active', true)->count(),
             'total_rt' => Rt::where('is_active', true)->count(),
             'total_rw' => Rw::where('is_active', true)->count(),
+            // Manajement Kependudukan
+            'total_keluarga' => \App\Models\Keluarga::count(),
+            'total_penduduk' => \App\Models\AnggotaKeluarga::count(),
         ];
 
         $recent_permohonan = PermohonanSurat::with(['user', 'jenisSurat'])

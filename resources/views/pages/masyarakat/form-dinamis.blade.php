@@ -74,11 +74,11 @@
                                 if (empty($value)) {
                                     if ($field->field_name === 'nama_lengkap') $value = Auth::user()->name;
                                     elseif ($field->field_name === 'nik') $value = Auth::user()->nik;
-                                    elseif ($field->field_name === 'alamat') $value = Auth::user()->alamat;
+                                    elseif ($field->field_name === 'alamat') $value = Auth::user()->alamat_lengkap ?? Auth::user()->alamat;
                                     elseif ($field->field_name === 'pekerjaan') $value = Auth::user()->pekerjaan;
                                     elseif ($field->field_name === 'tempat_lahir') $value = Auth::user()->tempat_lahir;
                                     elseif ($field->field_name === 'tanggal_lahir') $value = Auth::user()->tanggal_lahir;
-                                    elseif ($field->field_name === 'jenis_kelamin') $value = Auth::user()->jk;
+                                    elseif ($field->field_name === 'jenis_kelamin') $value = Auth::user()->jk; // Ensure JK accessor exists
                                     elseif ($field->field_name === 'agama') $value = Auth::user()->agama;
                                     elseif ($field->field_name === 'status_perkawinan') $value = Auth::user()->status_perkawinan;
                                     elseif ($field->field_name === 'kewarganegaraan') $value = Auth::user()->kewarganegaraan;

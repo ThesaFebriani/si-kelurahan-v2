@@ -7,6 +7,7 @@ $menus = [
     'admin' => [
         ['name' => 'Dashboard', 'route' => 'admin.dashboard', 'icon' => 'fas fa-tachometer-alt'],
         ['name' => 'Management User', 'route' => 'admin.users.index', 'icon' => 'fas fa-users'],
+        ['name' => 'Data Kependudukan', 'route' => 'admin.kependudukan.keluarga.index', 'icon' => 'fas fa-id-card'], // <--- New Menu
         ['name' => 'Jenis Surat', 'route' => 'admin.jenis-surat.index', 'icon' => 'fas fa-file-alt'],
         ['name' => 'Data RT', 'route' => 'admin.wilayah.rt.index', 'icon' => 'fas fa-map-marker-alt'],
         ['name' => 'Data RW', 'route' => 'admin.wilayah.rw.index', 'icon' => 'fas fa-map'],
@@ -14,6 +15,7 @@ $menus = [
     ],
     'rt' => [
         ['name' => 'Dashboard', 'route' => 'rt.dashboard', 'icon' => 'fas fa-tachometer-alt'],
+        ['name' => 'Data Keluarga', 'route' => 'rt.keluarga.index', 'icon' => 'fas fa-users-cog'], // <--- Fixed Placement
         ['name' => 'Permohonan Surat', 'route' => 'rt.permohonan.index', 'icon' => 'fas fa-file-signature'],
         ['name' => 'Arsip Surat', 'route' => 'rt.permohonan.arsip', 'icon' => 'fas fa-archive'],
     ],
@@ -112,15 +114,7 @@ if ($roleName === 'lurah') {
             @endif
 
             <ul class="space-y-1.5">
-                 @if($roleName === 'rt')
-                <li>
-                    <div class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-500 opacity-60 cursor-not-allowed hover:bg-slate-800/50">
-                        <i class="fas fa-home w-5 text-center"></i>
-                        <span class="text-sm">Data Keluarga</span>
-                        <i class="fas fa-lock ml-auto text-xs"></i>
-                    </div>
-                </li>
-                @endif
+                <!-- Additional RT Links if needed -->
             </ul>
         </nav>
     </div>

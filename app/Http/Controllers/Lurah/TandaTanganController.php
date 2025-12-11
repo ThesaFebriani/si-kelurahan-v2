@@ -36,8 +36,13 @@ class TandaTanganController extends Controller
             ->where('status', PermohonanSurat::MENUNGGU_LURAH)
             ->findOrFail($id);
             
-        // Simulasi validasi passphrase (di real app pakai hash check)
-        // $request->validate(['passphrase' => 'required']);
+        $request->validate(['passphrase' => 'required']);
+
+        if (!\Illuminate\Support\Facades\Hash::check($request->passphrase, Auth::user()->password)) {
+            return redirect()->back()
+                ->with('error', 'Passphrase (Password Login) salah. Silakan coba lagi.')
+                ->withInput();
+        }
         
         try {
             $user = Auth::user();

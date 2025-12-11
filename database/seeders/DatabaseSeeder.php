@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
             RwSeeder::class,
             RtSeeder::class,
             UserSeeder::class,
+            PendudukSeeder::class, // ADDED: Seeder Penduduk Dummy
             JenisSuratSeeder::class,
             TemplateFieldSeeder::class,
             SuratTemplateSeeder::class,

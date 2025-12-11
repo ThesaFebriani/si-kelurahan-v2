@@ -7,6 +7,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/verification-pending', function () {
+    return view('auth.verification-pending');
+})->name('verification.pending');
+
 // Redirect dashboard sesuai role
 Route::middleware(['auth'])->get('/dashboard', function () {
     $role = Auth::user()->role->name;

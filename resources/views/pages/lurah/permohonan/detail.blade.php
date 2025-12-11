@@ -62,6 +62,25 @@
                             $dataPemohon = json_last_error() === JSON_ERROR_NONE ? $decoded : [];
                         }
                         $dataPemohon = is_array($dataPemohon) ? $dataPemohon : [];
+                         // Fallback mapping from User model if JSON data is missing
+                        $user = $permohonan->user;
+                        $userMapping = [
+                            'nama_lengkap' => $user->name,
+                            'nik' => $user->nik,
+                            'tempat_lahir' => $user->tempat_lahir,
+                            'tanggal_lahir' => $user->tanggal_lahir,
+                            'pekerjaan' => $user->pekerjaan,
+                            'jenis_kelamin' => $user->jk,
+                            'agama' => $user->agama,
+                            'alamat' => $user->alamat_lengkap ?? $user->alamat,
+                            'status_perkawinan' => $user->status_perkawinan,
+                        ];
+
+                        foreach($userMapping as $k => $v) {
+                            if((empty($dataPemohon[$k]) || $dataPemohon[$k] === '-') && !empty($v)) {
+                                $dataPemohon[$k] = $v;
+                            }
+                        }
                         $priorityKeys = ['nik', 'nama_lengkap', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin', 'pekerjaan', 'agama', 'alamat'];
                     @endphp
 

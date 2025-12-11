@@ -49,6 +49,26 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // CHECK STATUS
+        $user = Auth::user();
+        if ($user->status !== 'active') {
+             Auth::logout();
+             RateLimiter::clear($this->throttleKey());
+             
+             if ($user->status === 'pending') {
+                 // Throw a specialized exception or just error, but ideally redirect to pending page?
+                 // Since this is an API call usually, but here it's Form Request. 
+                 // We can throw ValidationException
+                 throw ValidationException::withMessages([
+                    'email' => 'Akun Anda belum diaktifkan. Silakan tunggu verifikasi RT.',
+                 ]);
+             } else {
+                 throw ValidationException::withMessages([
+                    'email' => 'Akun Anda telah ditolak. Silakan hubungi RT setempat.',
+                 ]);
+             }
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

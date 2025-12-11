@@ -29,16 +29,16 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Data Pemohon</label>
                         <div class="bg-gray-50 p-4 rounded-md border text-sm">
                             <p><span class="font-semibold">Nama:</span> {{ $permohonan->data_pemohon['nama_lengkap'] ?? $permohonan->user->name ?? '-' }}</p>
-                                <p><span class="font-semibold">NIK:</span> {{ $permohonan->data_pemohon['nik'] ?? '-' }}</p>
-                                <p><span class="font-semibold">Tgl Lahir:</span> {{ $permohonan->data_pemohon['tanggal_lahir'] ?? '-' }}</p>
-                                <p><span class="font-semibold">Alamat:</span> {{ $permohonan->data_pemohon['alamat'] ?? '-' }}</p>
-                            </div>
+                            <p><span class="font-semibold">NIK:</span> {{ (empty($permohonan->data_pemohon['nik']) || $permohonan->data_pemohon['nik'] == '-') ? $permohonan->user->nik : $permohonan->data_pemohon['nik'] }}</p>
+                            <p><span class="font-semibold">Tgl Lahir:</span> {{ (empty($permohonan->data_pemohon['tanggal_lahir']) || $permohonan->data_pemohon['tanggal_lahir'] == '-') ? ($permohonan->user->tanggal_lahir ? \Carbon\Carbon::parse($permohonan->user->tanggal_lahir)->format('d F Y') : '-') : $permohonan->data_pemohon['tanggal_lahir'] }}</p>
+                            <p><span class="font-semibold">Alamat:</span> {{ (empty($permohonan->data_pemohon['alamat']) || $permohonan->data_pemohon['alamat'] == '-') ? ($permohonan->user->alamat_lengkap ?? $permohonan->user->alamat) : $permohonan->data_pemohon['alamat'] }}</p>
+                        </div>
                         </div>
                         <div>
                             <label for="nomor_surat" class="block text-sm font-medium text-gray-700 mb-2">Nomor Surat (Manual)</label>
                             <input type="text" name="nomor_surat" id="nomor_surat" 
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                value="{{ old('nomor_surat', $permohonan->surat->nomor_surat ?? '') }}" placeholder="Contoh: 140/KL/IX/2024" required>
+                                value="{{ old('nomor_surat', $suggestedNomorSurat) }}" placeholder="Contoh: 140/KL/IX/2024" required>
                             <p class="text-xs text-gray-500 mt-1">Masukkan nomor surat sesuai buku register.</p>
                         </div>
                     </div>
@@ -70,29 +70,39 @@
         height: 600,
         branding: false,
         promotion: false,
-        setup: function (editor) {
-            editor.on('change', function () {
-                editor.save(); 
-            });
-            
-            // Listen to KeyUp on external input
-            document.getElementById('nomor_surat').addEventListener('keyup', function(e) {
-                var nomorBaru = e.target.value;
-                if(!nomorBaru) nomorBaru = '... / ... / ... / ' + new Date().getFullYear();
-                
-                // Cari elemen placeholder di dalam editor
-                try {
-                    var doc = editor.getDoc();
-                    var placeholder = doc.getElementById('nomor_surat_placeholder');
-                    
-                    if (placeholder) {
-                        placeholder.innerText = nomorBaru;
+            setup: function (editor) {
+                editor.on('change', function () {
+                    editor.save(); 
+                });
+
+                function updateNomorSurat() {
+                    var input = document.getElementById('nomor_surat');
+                    var nomorBaru = input.value;
+                    if(!nomorBaru) nomorBaru = '... / ... / ... / ' + new Date().getFullYear();
+
+                    try {
+                        var doc = editor.getDoc();
+                        if (doc) {
+                            var placeholder = doc.getElementById('nomor_surat_placeholder');
+                            if (placeholder) {
+                                placeholder.innerText = nomorBaru;
+                            }
+                        }
+                    } catch (err) {
+                        console.log('Error updating placeholder:', err);
                     }
-                } catch (err) {
-                    console.log('Editor not ready or placeholder missing');
                 }
-            });
-        }
+                
+                // Update saat editor siap (Initial Load)
+                editor.on('init', function() {
+                    updateNomorSurat();
+                });
+
+                // Update saat mengetik
+                document.getElementById('nomor_surat').addEventListener('keyup', updateNomorSurat);
+                // Update saat paste/change
+                document.getElementById('nomor_surat').addEventListener('change', updateNomorSurat);
+            }
     });
 </script>
 @endsection

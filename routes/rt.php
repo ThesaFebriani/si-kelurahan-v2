@@ -13,6 +13,17 @@ Route::middleware(['auth', RoleMiddleware::class . ':rt'])
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
+        // VERIFIKASI WARGA
+        Route::get('/warga/verification', [\App\Http\Controllers\RT\WargaController::class, 'indexVerification'])
+            ->name('warga.verification');
+        
+        Route::post('/warga/verification/{id}', [\App\Http\Controllers\RT\WargaController::class, 'processVerification'])
+            ->name('warga.verification.process');
+
+        // DATA KELUARGA (READ ONLY FOR RT)
+        Route::get('/keluarga', [\App\Http\Controllers\RT\KeluargaController::class, 'index'])->name('keluarga.index');
+        Route::get('/keluarga/{id}', [\App\Http\Controllers\RT\KeluargaController::class, 'show'])->name('keluarga.show');
+
         Route::get('/permohonan', [PermohonanController::class, 'index'])
             ->name('permohonan.index');
 

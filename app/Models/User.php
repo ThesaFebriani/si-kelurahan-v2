@@ -19,6 +19,21 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    // CONSTANTS
+    const STATUS_ACTIVE = 'active';
+    const STATUS_PENDING = 'pending';
+    const STATUS_REJECTED = 'rejected';
+
+    public function isActive()
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function isPending()
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
     protected $guarded = ['id'];
 
     protected $hidden = [
@@ -110,6 +125,18 @@ class User extends Authenticatable
     public function unreadNotifications()
     {
         return $this->notifications()->where('is_read', false);
+    }
+
+    // Relasi ke Data Penduduk (Anggota Keluarga) via NIK
+    public function anggotaKeluarga()
+    {
+        return $this->belongsTo(\App\Models\AnggotaKeluarga::class, 'nik', 'nik');
+    }
+
+    // Helper untuk load KK-nya langsung
+    public function getKeluargaAttribute()
+    {
+        return $this->anggotaKeluarga ? $this->anggotaKeluarga->keluarga : null;
     }
 
     // ==================== OTHER HELPERS ====================

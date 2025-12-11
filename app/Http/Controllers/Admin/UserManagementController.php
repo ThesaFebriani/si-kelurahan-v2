@@ -68,6 +68,11 @@ class UserManagementController extends Controller
             // Warga / RT
             $rules['nik'] = 'required|string|unique:users,nik';
             $rules['nip'] = 'nullable|string';
+            
+            // Khusus Masyarakat wajib isi alamat, Role lain opsional (default '-')
+            if ($role->name === Role::MASYARAKAT) {
+                $rules['alamat'] = 'required|string';
+            }
         }
         
         $request->validate($rules);
@@ -77,6 +82,32 @@ class UserManagementController extends Controller
         
         // Auto assign JK
         if(!isset($data['jk'])) $data['jk'] = 'laki-laki';
+        
+        // Handle Alamat Default
+        if (empty($data['alamat'])) {
+            $data['alamat'] = '-';
+        }
+
+        // Admin create selalu ACTIVE
+        $data['status'] = User::STATUS_ACTIVE;
+
+        // Cek Data Penduduk via NIK
+        $penduduk = \App\Models\AnggotaKeluarga::where('nik', $data['nik'])->first();
+        if ($penduduk) {
+            // Auto fill data from Kependudukan if match
+            $data['name'] = $penduduk->nama_lengkap;
+            $data['jk'] = strtolower($penduduk->jk) == 'l' ? 'laki-laki' : 'perempuan';
+            $data['tempat_lahir'] = $penduduk->tempat_lahir;
+            $data['tanggal_lahir'] = $penduduk->tanggal_lahir;
+            $data['agama'] = $penduduk->agama;
+            $data['status_perkawinan'] = $penduduk->status_perkawinan;
+            $data['pekerjaan'] = $penduduk->pekerjaan;
+            
+            // Jika alamat kosong, ambil dari KK
+            if ($data['alamat'] == '-') {
+                $data['alamat'] = $penduduk->keluarga->alamat_lengkap;
+            }
+        }
 
         User::create($data);
 

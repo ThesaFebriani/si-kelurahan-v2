@@ -30,33 +30,54 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // 1. Validasi Input Dasar
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'nik' => ['required', 'string', 'size:16', 'unique:users,nik'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'telepon' => ['required', 'string', 'max:15'],
-            'alamat' => ['required', 'string'],
-            'jk' => ['required', 'in:laki-laki,perempuan'],
-            'rt_id' => ['required', 'exists:rt,id'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+        // 2. Cek Data Penduduk (Strict Mode)
+        // Load relasi keluarga untuk mengambil alamat & RT
+        $penduduk = \App\Models\AnggotaKeluarga::where('nik', $request->nik)->with('keluarga')->first();
+
+        if (!$penduduk) {
+            return back()->withInput()->withErrors(['nik' => 'NIK Anda belum terdaftar di Data Kependudukan Desa. Silakan hubungi RT atau Admin Kelurahan.']);
+        }
+
+        // 3. Susun Data User Otomatis dari Database Penduduk
+        $userData = [
+            'role_id' => 2, // Masyarakat
+            'status' => User::STATUS_ACTIVE, // Auto Activate
+
+            // Input User
             'nik' => $request->nik,
+            'email' => $request->email,
             'telepon' => $request->telepon,
-            'alamat' => $request->alamat,
-            'jk' => $request->jk,
-            'rt_id' => $request->rt_id,
-            'role_id' => 2, // Default Role Masyarakat
-        ]);
+            'password' => Hash::make($request->password),
+
+            // Auto-Fill dari Master Data Penduduk
+            'name' => $penduduk->nama_lengkap,
+            'jk' => ($penduduk->jk == 'L' ? 'laki-laki' : 'perempuan'), // Convert L/P to full string if needed
+            'tempat_lahir' => $penduduk->tempat_lahir,
+            'tanggal_lahir' => $penduduk->tanggal_lahir,
+            'agama' => $penduduk->agama,
+            'status_perkawinan' => $penduduk->status_perkawinan,
+            'pekerjaan' => $penduduk->pekerjaan,
+            
+            // Auto-Fill dari Kartu Keluarga
+            'alamat' => $penduduk->keluarga ? $penduduk->keluarga->alamat_lengkap : '-',
+            'rt_id' => $penduduk->keluarga ? $penduduk->keluarga->rt_id : null,
+        ];
+
+        // 4. Buat Akun
+        $user = User::create($userData);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard'));
+        return redirect()->route('dashboard');
     }
 }

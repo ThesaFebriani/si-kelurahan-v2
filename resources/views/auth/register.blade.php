@@ -32,122 +32,65 @@
         <form method="POST" action="{{ route('register') }}">
             @csrf
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                <!-- Data Akun Section -->
-                <div class="col-span-1 md:col-span-2">
-                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
-                        <i class="fas fa-lock mr-2 text-blue-500"></i> Informasi Akun
-                    </h3>
-                </div>
-
-                <!-- Email -->
+            <div class="space-y-6">
+                <!-- NIK Section (Prominent) -->
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                    <input type="email" name="email" id="email" value="{{ old('email') }}" required
-                        class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-2.5 px-4"
-                        placeholder="nama@email.com">
-                    @error('email')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- No Telepon -->
-                <div>
-                    <label for="telepon" class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon / WA</label>
-                    <input type="text" name="telepon" id="telepon" value="{{ old('telepon') }}" required
-                        class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-2.5 px-4"
-                        placeholder="081234567890">
-                    @error('telepon')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Password -->
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                    <input type="password" name="password" id="password" required
-                        class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-2.5 px-4"
-                        placeholder="••••••••">
-                    @error('password')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Confirm Password -->
-                <div>
-                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password</label>
-                    <input type="password" name="password_confirmation" id="password_confirmation" required
-                        class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-2.5 px-4"
-                        placeholder="••••••••">
-                </div>
-
-                <!-- Data Pribadi Section -->
-                <div class="col-span-1 md:col-span-2 mt-4">
-                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
-                        <i class="fas fa-id-card mr-2 text-green-500"></i> Data Pribadi
-                    </h3>
-                </div>
-
-                <!-- Nama Lengkap -->
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
-                    <input type="text" name="name" id="name" value="{{ old('name') }}" required
-                        class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-2.5 px-4"
-                        placeholder="Sesuai KTP">
-                    @error('name')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- NIK -->
-                <div>
-                    <label for="nik" class="block text-sm font-medium text-gray-700 mb-2">NIK (16 Digit)</label>
-                    <input type="text" name="nik" id="nik" value="{{ old('nik') }}" required maxlength="16"
-                        class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-2.5 px-4"
-                        placeholder="1234567890123456">
+                    <label for="nik" class="block text-sm font-medium text-gray-700 mb-2">NIK (16 Digit - Sesuai KTP)</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-id-card text-gray-400"></i>
+                        </div>
+                        <input type="text" name="nik" id="nik" value="{{ old('nik') }}" required maxlength="16" autofocus
+                            class="block w-full pl-10 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-3"
+                            placeholder="Contoh: 3278...">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Data diri Anda akan diambil otomatis berdasarkan NIK ini.</p>
                     @error('nik')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <!-- Jenis Kelamin -->
-                <div>
-                    <label for="jk" class="block text-sm font-medium text-gray-700 mb-2">Jenis Kelamin</label>
-                    <select name="jk" id="jk" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-2.5 px-4 bg-white" required>
-                        <option value="">-- Pilih Jenis Kelamin --</option>
-                        <option value="laki-laki" {{ old('jk') == 'laki-laki' ? 'selected' : '' }}>Laki-laki</option>
-                        <option value="perempuan" {{ old('jk') == 'perempuan' ? 'selected' : '' }}>Perempuan</option>
-                    </select>
-                    @error('jk')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <input type="email" name="email" id="email" value="{{ old('email') }}" required
+                            class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-2.5 px-4"
+                            placeholder="nama@email.com">
+                        @error('email')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                <!-- RT / RW -->
-                <div>
-                    <label for="rt_id" class="block text-sm font-medium text-gray-700 mb-2">Wilayah RT / RW</label>
-                    <select name="rt_id" id="rt_id" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-2.5 px-4 bg-white" required>
-                        <option value="">-- Pilih RT --</option>
-                        @foreach($rts as $rt)
-                            <option value="{{ $rt->id }}" {{ old('rt_id') == $rt->id ? 'selected' : '' }}>
-                                RT {{ $rt->nomor_rt }} / RW {{ $rt->rw->nomor_rw }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('rt_id')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+                    <!-- No Telepon -->
+                    <div>
+                        <label for="telepon" class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon / WA</label>
+                        <input type="text" name="telepon" id="telepon" value="{{ old('telepon') }}" required
+                            class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-2.5 px-4"
+                            placeholder="081234567890">
+                        @error('telepon')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                <!-- Alamat -->
-                <div class="col-span-1 md:col-span-2">
-                    <label for="alamat" class="block text-sm font-medium text-gray-700 mb-2">Alamat Lengkap</label>
-                    <textarea name="alamat" id="alamat" rows="2" required
-                        class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-2.5 px-4"
-                        placeholder="Nama jalan, nomor rumah, blok, dll.">{{ old('alamat') }}</textarea>
-                    @error('alamat')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
+                    <!-- Password -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" name="password" id="password" required
+                            class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-2.5 px-4"
+                            placeholder="••••••••">
+                        @error('password')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password</label>
+                        <input type="password" name="password_confirmation" id="password_confirmation" required
+                            class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm py-2.5 px-4"
+                            placeholder="••••••••">
+                    </div>
                 </div>
             </div>
 

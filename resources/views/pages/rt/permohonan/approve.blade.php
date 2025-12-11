@@ -53,6 +53,25 @@
 
                     // Pastikan $dataPemohon adalah array
                     $dataPemohon = is_array($dataPemohon) ? $dataPemohon : [];
+
+                    // Fallback to User profile if data is incomplete
+                    $user = $permohonan->user;
+                    $userMapping = [
+                        'nama_lengkap' => $user->name,
+                        'nik' => $user->nik,
+                        'tempat_lahir' => $user->tempat_lahir,
+                        'tanggal_lahir' => $user->tanggal_lahir,
+                        'pekerjaan' => $user->pekerjaan,
+                        'jenis_kelamin' => $user->jk,
+                        'agama' => $user->agama,
+                        'alamat' => $user->alamat_lengkap ?? $user->alamat,
+                    ];
+
+                    foreach($userMapping as $k => $v) {
+                        if((empty($dataPemohon[$k]) || $dataPemohon[$k] === '-') && !empty($v)) {
+                            $dataPemohon[$k] = $v;
+                        }
+                    }
                     @endphp
 
                     @if(!empty($dataPemohon) && count($dataPemohon) > 0)
@@ -229,6 +248,19 @@
                     nomorInput.removeAttribute('required');
                 }
             });
+        });
+
+        // Real-time Update Nomor Surat in TinyMCE
+        nomorInput.addEventListener('input', function() {
+            var inputVal = this.value;
+            if (tinymce.activeEditor && !tinymce.activeEditor.isHidden()) {
+                var doc = tinymce.activeEditor.getDoc();
+                var span = doc.getElementById('nomor-surat-display');
+                if (span) {
+                    span.innerText = inputVal;
+                    tinymce.activeEditor.save(); // Sync back to textarea
+                }
+            }
         });
 
         form.addEventListener('submit', function(e) {

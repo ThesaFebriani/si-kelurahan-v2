@@ -85,6 +85,27 @@
                             
                             // Merged fields
                             $displayKeys = array_merge($mainFields, $dynamicFields);
+                            
+                            // fallback mapping from User model
+                            $userMapping = [
+                                'nama_lengkap' => $permohonan->user->name,
+                                'nik' => $permohonan->user->nik,
+                                'tempat_lahir' => $permohonan->user->tempat_lahir,
+                                'tanggal_lahir' => $permohonan->user->tanggal_lahir,
+                                'pekerjaan' => $permohonan->user->pekerjaan,
+                                'jenis_kelamin' => $permohonan->user->jk,
+                                'agama' => $permohonan->user->agama,
+                                'alamat' => $permohonan->user->alamat_lengkap, // Assumed accessor
+                                'status_perkawinan' => $permohonan->user->status_perkawinan,
+                                'kewarganegaraan' => $permohonan->user->kewarganegaraan,
+                            ];
+                            
+                            // Merge into dataPemohon if key missing or empty
+                            foreach($userMapping as $k => $v) {
+                                if((empty($dataPemohon[$k]) || $dataPemohon[$k] === '-') && !empty($v)) {
+                                    $dataPemohon[$k] = $v;
+                                }
+                            }
                         @endphp
 
                         @foreach($displayKeys as $key)

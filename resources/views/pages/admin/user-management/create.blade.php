@@ -53,6 +53,13 @@
                             placeholder="nama@email.com">
                         @error('email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Alamat Lengkap (Wajib untuk Masyarakat)</label>
+                        <textarea name="alamat" rows="2"
+                            class="w-full rounded-lg border-slate-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm"
+                            placeholder="Jalan, RT/RW, Kelurahan...">{{ old('alamat') }}</textarea>
+                        @error('alamat') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
                 </div>
             </div>
 

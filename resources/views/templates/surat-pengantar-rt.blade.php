@@ -12,21 +12,30 @@
         body {
             font-family: 'Times New Roman', Times, serif;
             font-size: 12pt;
-            line-height: 1.5;
+            line-height: 1.5; /* 1.5 Spacing */
         }
 
         .header {
             text-align: center;
             margin-bottom: 20px;
             position: relative;
+            /* Ensure logo doesn't overlap text if we use absolute, or use grid/flex (not supported well in DomPDF sometimes). 
+               Standard approach: Absolute positioning for logo is fine if text has padding or is centered irrelevant of logo.
+            */
         }
 
         .header img {
             position: absolute;
             left: 0;
             top: 0;
-            height: 75px;
+            width: 70px; 
+            height: auto;
         }
+
+        /* Adjust text container to not overlap logo if needed, but usually centered text is fine. 
+           If logo is floating left, we might need to ensure text is truly centered relative to page, not remaining space.
+           Absolute logo allows text to be centered to page.
+        */
 
         .header h1 {
             font-size: 14pt;
@@ -36,22 +45,36 @@
         }
 
         .header h2 {
-            font-size: 12pt;
+            font-size: 13pt; /* Slightly bigger for Kecamatan/Kelurahan */
             font-weight: bold;
             margin: 0;
+            text-transform: uppercase;
+        }
+        
+        .header h3 {
+             font-size: 11pt;
+             font-weight: bold; 
+             margin: 0;
+             text-transform: uppercase;
         }
 
         .header p {
             margin: 0;
-            font-size: 11pt;
+            font-size: 10pt;
+            font-style: normal;
         }
 
         .header-line {
-            border-top: 2px solid #000;
-            border-bottom: 1px solid #000;
-            margin-top: 5px;
-            margin-bottom: 20px;
-            height: 2px;
+            /* Double line style */
+            border-top: 1px solid #000;
+            border-bottom: 3px solid #000; /* Create effect of specific double line thickness logic if needed, or use border-style: double */
+            border-bottom-style: double;
+            border-bottom-width: 3px; 
+             /* Or simpler: Use a standard double border */
+            border: 0;
+            border-bottom: 3px double #000;
+            margin-top: 10px;
+            margin-bottom: 25px;
         }
 
         .nomor-surat {
@@ -105,79 +128,12 @@
 </head>
 
 <body>
-    <!-- Header/Kop Surat -->
-    <div class="header">
-        <!-- Logo -->
-        <img src="{{ public_path('images/logo-kota-bengkulu.png') }}" alt="Logo">
-        
-        <h1>PEMERINTAH KOTA BENGKULU</h1>
-        <h2>KECAMATAN MUARA BANGKAHULU</h2>
-        <h2>KELURAHAN PEMATANG GUBERNUR</h2>
-        <h2>RUKUN TETANGGA {{ $rt->nomor_rt }} RUKUN WARGA {{ $rt->rw->nomor_rw }}</h2>
-        <div class="header-line"></div>
-    </div>
-
-    <!-- Judul Surat -->
-    <div class="nomor-surat">
-        SURAT PENGANTAR
-    </div>
-    <div style="text-align: center; margin-top: -15px; margin-bottom: 20px;">
-        Nomor: {{ $nomor_surat }}
-    </div>
-
     <!-- Isi Surat -->
     <div class="content">
         @if(!empty($isi_surat))
             {!! $isi_surat !!}
         @else
-            <!-- Fallback Default Content jika isi_surat kosong (untuk backward compatibility) -->
-            <p>Yang bertanda tangan di bawah ini Ketua RT {{ $rt->nomor_rt }} Kelurahan Pematang Gubernur, Kecamatan Muara Bangkahulu, Kota Bengkulu, menerangkan bahwa:</p>
-
-            <table class="table-data">
-                <tr>
-                    <td>Nama</td>
-                    <td>:</td>
-                    <td><strong>{{ $user->name }}</strong></td>
-                </tr>
-                <tr>
-                    <td>NIK</td>
-                    <td>:</td>
-                    <td>{{ $data_pemohon['nik'] ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td>Tempat/Tgl Lahir</td>
-                    <td>:</td>
-                    <td>{{ $data_pemohon['tempat_lahir'] ?? '-' }}, {{ isset($data_pemohon['tanggal_lahir']) ? \Carbon\Carbon::parse($data_pemohon['tanggal_lahir'])->format('d/m/Y') : '-' }}</td>
-                </tr>
-                <tr>
-                    <td>Jenis Kelamin</td>
-                    <td>:</td>
-                    <td>{{ isset($data_pemohon['jenis_kelamin']) ? ($data_pemohon['jenis_kelamin'] == 'L' ? 'Laki-laki' : 'Perempuan') : '-' }}</td>
-                </tr>
-                <tr>
-                    <td>Pekerjaan</td>
-                    <td>:</td>
-                    <td>{{ $data_pemohon['pekerjaan'] ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td>Agama</td>
-                    <td>:</td>
-                    <td>{{ $data_pemohon['agama'] ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td>Alamat</td>
-                    <td>:</td>
-                    <td>{{ $user->alamat_lengkap }}</td>
-                </tr>
-            </table>
-
-            <p>Orang tersebut diatas adalah benar-benar warga kami yang berdomisili di RT {{ $rt->nomor_rt }} RW {{ $rt->rw->nomor_rw }} Kelurahan Pematang Gubernur. Surat pengantar ini diberikan untuk keperluan:</p>
-
-            <div style="margin: 10px 0; padding: 10px; border: 1px solid #eee; background: #f9f9f9; font-weight: bold; text-align: center;">
-                {{ $data_pemohon['tujuan'] ?? 'Pengurusan Administrasi' }}
-            </div>
-
-            <p>Demikian surat pengantar ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.</p>
+            <p style="color: red; text-align: center;">[Konten Surat Kosong]</p>
         @endif
     </div>
 
@@ -185,17 +141,16 @@
     <div class="footer clearfix">
         <div class="signature">
             <p>Bengkulu, {{ $tanggal_surat }}</p>
-            <p>Ketua RT {{ $rt->nomor_rt }}</p>
+            <p>Ketua RT.{{ $rt->nomor_rt }} / RW.{{ $rt->rw->nomor_rw }} Kelurahan Padang Jati</p>
             
-            <!-- QR Code Signature -->
-            <div style="margin: 10px auto;">
+            <div style="height: 80px; margin: 10px 0;">
+                <!-- QR Code Signature Placeholder -->
                 @if(isset($qr_code))
                     <img src="data:image/svg+xml;base64,{{ $qr_code }}" alt="QR Code" width="80" height="80">
                 @endif
             </div>
 
-            <p style="text-decoration: underline; font-weight: bold;">{{ $verificator_name }}</p>
-            <p style="font-size: 10pt;">Dokumen ini ditandatangani secara elektronik</p>
+            <p style="text-decoration: underline; font-weight: bold; text-transform: uppercase;">{{ $verificator_name }}</p>
         </div>
     </div>
 </body>
