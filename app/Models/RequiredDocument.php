@@ -4,22 +4,35 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class RequiredDocument extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'jenis_surat_id',
+        'document_name',
+        'is_required',
+        'description',
+    ];
 
-    // RELATIONS
+    protected $casts = [
+        'is_required' => 'boolean',
+    ];
+
     public function jenisSurat()
     {
         return $this->belongsTo(JenisSurat::class);
     }
 
-    public function getSlugNameAttribute()
+    // Accessors for View Compatibility
+    public function getDocumentLabelAttribute()
     {
-        return Str::slug($this->document_name, '_');
+        return $this->document_name;
+    }
+
+    public function getRequiredAttribute()
+    {
+        return $this->is_required;
     }
 }

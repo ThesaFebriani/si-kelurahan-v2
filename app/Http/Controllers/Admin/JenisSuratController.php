@@ -30,15 +30,16 @@ class JenisSuratController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'code' => 'required|string|max:50|unique:jenis_surats',
+            'kode_surat' => 'required|string|max:50|unique:jenis_surats',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
 
-        JenisSurat::create($request->all());
+        $jenisSurat = JenisSurat::create($request->all());
 
-        return redirect()->route('admin.jenis-surat.index')->with('success', 'Jenis Surat berhasil ditambahkan');
+        return redirect()->route('admin.jenis-surat.edit', $jenisSurat->id)
+            ->with('success', 'Jenis Surat berhasil dibuat. Silakan tambahkan persyaratan dokumen di bawah.');
     }
 
     public function update(Request $request, $id)
@@ -46,7 +47,7 @@ class JenisSuratController extends Controller
         $jenis_surat = JenisSurat::findOrFail($id);
 
         $request->validate([
-            'code' => ['required', 'string', 'max:50', Rule::unique('jenis_surats')->ignore($jenis_surat->id)],
+            'kode_surat' => ['required', 'string', 'max:50', Rule::unique('jenis_surats')->ignore($jenis_surat->id)],
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'is_active' => 'boolean',

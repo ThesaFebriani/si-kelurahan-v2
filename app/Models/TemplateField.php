@@ -11,72 +11,29 @@ class TemplateField extends Model
 
     protected $guarded = ['id'];
 
-    // CASTING untuk JSON options
     protected $casts = [
-        'options' => 'array',
+        'is_required' => 'boolean',
     ];
 
-    // RELATIONS
     public function jenisSurat()
     {
         return $this->belongsTo(JenisSurat::class);
     }
 
-    // SCOPES
-    public function scopeOrdered($query)
+    // Accessors for View Compatibility
+    public function getFieldNameAttribute()
     {
-        return $query->orderBy('order');
+        return $this->field_key;
     }
 
-    public function scopeRequired($query)
+    public function getRequiredAttribute()
     {
-        return $query->where('required', true);
-    }
-
-    public function scopeOptional($query)
-    {
-        return $query->where('required', false);
-    }
-
-    // ACCESSORS
-    public function getValidationRulesAttribute()
-    {
-        // Jika ada custom validation rules di database, pakai itu
-        if (!empty($this->attributes['validation_rules'] ?? null)) {
-            return $this->attributes['validation_rules'];
-        }
-
-        // Generate default rules berdasarkan tipe field
-        $rules = $this->required ? 'required|' : 'nullable|';
-
-        return match ($this->field_type) {
-            'text'     => $rules . 'string|max:255',
-            'number'   => $rules . 'numeric',
-            'date'     => $rules . 'date',
-            'textarea' => $rules . 'string|max:1000',
-            'select'   => $rules . 'string',
-            'file'     => $rules . 'file|mimes:jpg,jpeg,png,pdf|max:2048',
-            default    => $rules . 'string',
-        };
+        return $this->is_required;
     }
 
     public function getOptionsArrayAttribute()
     {
-        if (empty($this->options)) {
-            return [];
-        }
-
-        // Jika options sudah array, return langsung
-        if (is_array($this->options)) {
-            return $this->options;
-        }
-
-        // Jika string JSON, decode
-        if (is_string($this->options)) {
-            $decoded = json_decode($this->options, true);
-            return json_last_error() === JSON_ERROR_NONE ? $decoded : [];
-        }
-
-        return [];
+        if (empty($this->options)) return [];
+        return explode(',', $this->options); // Assuming comma separated for now
     }
 }

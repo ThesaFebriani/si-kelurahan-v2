@@ -5,12 +5,25 @@ $roleName = $user->role->name;
 // Menu berdasarkan role
 $menus = [
     'admin' => [
+        // Main
+        ['header' => 'UTAMA'],
         ['name' => 'Dashboard', 'route' => 'admin.dashboard', 'icon' => 'fas fa-tachometer-alt'],
-        ['name' => 'Management User', 'route' => 'admin.users.index', 'icon' => 'fas fa-users'],
-        ['name' => 'Data Kependudukan', 'route' => 'admin.kependudukan.keluarga.index', 'icon' => 'fas fa-id-card'], // <--- New Menu
-        ['name' => 'Jenis Surat', 'route' => 'admin.jenis-surat.index', 'icon' => 'fas fa-file-alt'],
+        
+        // Master Data Section
+        ['header' => 'MASTER DATA'],
+        ['name' => 'Data Kependudukan', 'route' => 'admin.kependudukan.keluarga.index', 'icon' => 'fas fa-id-card'],
         ['name' => 'Data RT', 'route' => 'admin.wilayah.rt.index', 'icon' => 'fas fa-map-marker-alt'],
         ['name' => 'Data RW', 'route' => 'admin.wilayah.rw.index', 'icon' => 'fas fa-map'],
+        ['name' => 'Manajemen Pengguna', 'route' => 'admin.users.index', 'icon' => 'fas fa-users-cog'],
+
+        // Letter Management Section
+        ['header' => 'MANAJEMEN SURAT'],
+        ['name' => 'Jenis Surat', 'route' => 'admin.jenis-surat.index', 'icon' => 'fas fa-file-alt'],
+        ['name' => 'Template Surat', 'route' => 'admin.templates.index', 'icon' => 'fas fa-copy'],
+        ['name' => 'Format Pengantar RT', 'route' => 'admin.settings.surat-pengantar', 'icon' => 'fas fa-file-contract'],
+
+        // Reports Section
+        ['header' => 'LAPORAN & ARSIP'],
         ['name' => 'Laporan', 'route' => 'admin.laporan.permohonan', 'icon' => 'fas fa-chart-bar'],
     ],
     'rt' => [
@@ -50,7 +63,13 @@ if ($roleName === 'rt') {
 
 // Hitung permohonan pending untuk Kasi
 if ($roleName === 'kasi') {
-    $pendingCount = App\Models\PermohonanSurat::where('status', 'menunggu_kasi')->count();
+    $pendingCount = App\Models\PermohonanSurat::where('status', 'menunggu_kasi')
+        ->when($user->bidang, function($q) use ($user) {
+            $q->whereHas('jenisSurat', function($sub) use ($user) {
+                $sub->where('bidang', $user->bidang);
+            });
+        })
+        ->count();
 }
 
 // Hitung permohonan pending untuk Lurah
@@ -76,33 +95,39 @@ if ($roleName === 'lurah') {
         <nav class="p-4 mt-2">
             <ul class="space-y-1.5">
                 @foreach($currentMenu as $menu)
-                <li>
-                    <a href="{{ route($menu['route']) }}"
-                        class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden
-                        {{ $currentRoute === $menu['route'] 
-                            ? 'bg-blue-600/90 text-white shadow-lg shadow-blue-500/30' 
-                            : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        
-                        @if($currentRoute === $menu['route'])
-                        <div class="absolute inset-y-0 left-0 w-1 bg-white rounded-r-full"></div>
-                        @endif
+                    @if(isset($menu['header']))
+                        <li class="px-4 mt-4 mb-2">
+                            <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider pl-2">{{ $menu['header'] }}</span>
+                        </li>
+                    @else
+                        <li>
+                            <a href="{{ route($menu['route']) }}"
+                                class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                                {{ $currentRoute === $menu['route'] 
+                                    ? 'bg-blue-600/90 text-white shadow-lg shadow-blue-500/30' 
+                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                                
+                                @if($currentRoute === $menu['route'])
+                                <div class="absolute inset-y-0 left-0 w-1 bg-white rounded-r-full"></div>
+                                @endif
 
-                        <i class="{{ $menu['icon'] }} w-5 text-center transition-transform group-hover:scale-110 {{ $currentRoute === $menu['route'] ? 'text-white' : 'text-slate-400 group-hover:text-blue-400' }}"></i>
-                        <span class="font-medium text-sm tracking-wide">{{ $menu['name'] }}</span>
+                                <i class="{{ $menu['icon'] }} w-5 text-center transition-transform group-hover:scale-110 {{ $currentRoute === $menu['route'] ? 'text-white' : 'text-slate-400 group-hover:text-blue-400' }}"></i>
+                                <span class="font-medium text-sm tracking-wide">{{ $menu['name'] }}</span>
 
-                        <!-- Badges -->
-                        @php $badgeCount = 0; @endphp
-                        @if($roleName === 'rt' && $menu['route'] === 'rt.permohonan.index') @php $badgeCount = $pendingCount ?? 0; @endphp @endif
-                        @if($roleName === 'kasi' && $menu['route'] === 'kasi.permohonan.index') @php $badgeCount = $pendingCount ?? 0; @endphp @endif
-                        @if($roleName === 'lurah' && $menu['route'] === 'lurah.permohonan.index') @php $badgeCount = $pendingCount ?? 0; @endphp @endif
+                                <!-- Badges -->
+                                @php $badgeCount = 0; @endphp
+                                @if($roleName === 'rt' && $menu['route'] === 'rt.permohonan.index') @php $badgeCount = $pendingCount ?? 0; @endphp @endif
+                                @if($roleName === 'kasi' && $menu['route'] === 'kasi.permohonan.index') @php $badgeCount = $pendingCount ?? 0; @endphp @endif
+                                @if($roleName === 'lurah' && $menu['route'] === 'lurah.permohonan.index') @php $badgeCount = $pendingCount ?? 0; @endphp @endif
 
-                        @if($badgeCount > 0)
-                        <span class="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse">
-                            {{ $badgeCount }}
-                        </span>
-                        @endif
-                    </a>
-                </li>
+                                @if($badgeCount > 0)
+                                <span class="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse">
+                                    {{ $badgeCount }}
+                                </span>
+                                @endif
+                            </a>
+                        </li>
+                    @endif
                 @endforeach
             </ul>
 

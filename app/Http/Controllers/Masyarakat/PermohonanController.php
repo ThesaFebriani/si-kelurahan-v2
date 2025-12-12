@@ -46,9 +46,7 @@ class PermohonanController extends Controller
     public function createForm($jenis_surat_id)
     {
         $jenisSurat = JenisSurat::with([
-            'templateFields' => function ($q) {
-                $q->ordered();
-            },
+            'templateFields',
             'requiredDocuments'
         ])->findOrFail($jenis_surat_id);
 

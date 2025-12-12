@@ -143,15 +143,43 @@
                         </div>
                     </div>
 
+                    <!-- Input Nomor Surat (Muncul jika Approve dipilih) -->
+                    <div id="approve-section" class="hidden space-y-4">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h5 class="text-blue-800 font-semibold mb-2 flex items-center">
+                                <i class="fas fa-edit mr-2"></i> Draft Surat Kelurahan
+                            </h5>
+                            <p class="text-sm text-blue-700 mb-4">
+                                Silakan periksa dan edit isi surat di bawah ini sebelum meneruskan ke Lurah.
+                            </p>
+                            
+                            <!-- Nomor Surat -->
+                            <div class="mb-4">
+                                <label for="nomor_surat" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nomor Surat
+                                </label>
+                                <input type="text" name="nomor_surat" id="nomor_surat" 
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring focus:ring-blue-200"
+                                    value="{{ $suggestedNomorSurat ?? '' }}">
+                                <p class="text-xs text-gray-500 mt-1">Nomor surat akan otomatis terupdate di dalam dokumen.</p>
+                            </div>
+
+                            <!-- Editor Surat -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Isi Surat</label>
+                                <textarea name="isi_surat" id="isi_surat" rows="15">{{ $defaultContent ?? '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Catatan -->
                     <div>
                         <label for="catatan" class="block text-sm font-medium text-gray-700 mb-2">
-                            Catatan Verifikasi (Opsional)
+                            Catatan (Opsional)
                         </label>
                         <textarea name="catatan" id="catatan" rows="4"
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-colors"
-                            placeholder="Berikan catatan verifikasi atau alasan persetujuan/penolakan..."></textarea>
-                        <p class="text-sm text-gray-500 mt-1">Catatan akan ditampilkan di timeline permohonan</p>
+                            placeholder="Berikan catatan verifikasi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -170,7 +198,7 @@
                     </button>
                     <button type="submit"
                         class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                        <i class="fas fa-paper-plane mr-2"></i>Proses Verifikasi
+                        <i class="fas fa-paper-plane mr-2"></i>Proses & Kirim
                     </button>
                 </div>
             </div>
@@ -178,9 +206,78 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.5.1/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Init TinyMCE
+        tinymce.init({
+            selector: '#isi_surat',
+            license_key: 'gpl',
+            height: 600,
+            menubar: false,
+            plugins: [
+                'advlist autolink lists link image charmap print preview anchor',
+                'searchreplace visualblocks code fullscreen',
+                'insertdatetime media table paste code help wordcount'
+            ],
+            toolbar: 'undo redo | formatselect | ' +
+            'bold italic backcolor | alignleft aligncenter ' +
+            'alignright alignjustify | bullist numlist outdent indent | ' +
+            'removeformat',
+            content_style: 'body { font-family:Times New Roman,Times,serif; font-size:12pt; line-height: 1.5; }',
+            
+            // Sync logic initial
+            setup: function (editor) {
+                editor.on('change', function () {
+                    editor.save(); 
+                });
+                
+                function updateNomorSurat() {
+                    var input = document.getElementById('nomor_surat');
+                    if(!input) return;
+                    var nomorBaru = input.value;
+                    
+                    try {
+                        var doc = editor.getDoc();
+                        if (doc) {
+                            var placeholder = doc.getElementById('nomor_surat_placeholder');
+                            if (placeholder) {
+                                placeholder.innerText = nomorBaru;
+                            }
+                        }
+                    } catch (err) {
+                        console.log('Wait context...');
+                    }
+                }
+
+                editor.on('init', updateNomorSurat);
+                // Also update on keyup of "nomor_surat"
+                var nomorInput = document.getElementById('nomor_surat');
+                if(nomorInput){
+                    nomorInput.addEventListener('keyup', updateNomorSurat);
+                    nomorInput.addEventListener('change', updateNomorSurat);
+                }
+            }
+        });
+
         const form = document.querySelector('form');
+        const actionRadios = document.querySelectorAll('input[name="action"]');
+        const approveSection = document.getElementById('approve-section');
+        const nomorInput = document.getElementById('nomor_surat');
+        const suratInput = document.getElementById('isi_surat');
+
+        // Toggle visibility input nomor surat
+        actionRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'approve') {
+                    approveSection.classList.remove('hidden');
+                    nomorInput.setAttribute('required', 'required');
+                } else {
+                    approveSection.classList.add('hidden');
+                    nomorInput.removeAttribute('required');
+                }
+            });
+        });
 
         form.addEventListener('submit', function(e) {
             const actionSelected = document.querySelector('input[name="action"]:checked');

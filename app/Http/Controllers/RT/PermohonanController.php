@@ -134,11 +134,16 @@ class PermohonanController extends Controller
 
     private function getDefaultSuratPengantarContent($permohonan, $nomorSurat = null)
     {
-        // 1. Cek apakah ada Template Khusus untuk Pengantar RT di Database
-        $template = \App\Models\SuratTemplate::where('jenis_surat_id', $permohonan->jenis_surat_id)
-            ->where('type', 'pengantar_rt')
-            ->where('is_active', true)
+        // 1. Ambil Template Global Khusus Pengantar RT (Satu untuk semua)
+        $template = \App\Models\SuratTemplate::where('type', 'pengantar_rt')
+            ->whereNull('jenis_surat_id') // Pastikan ambil yang global
+            ->whereNull('rt_id')
             ->first();
+
+        // Jika entah kenapa template tidak ada (belum seed), fallback ke pesan error atau default minimal
+        if (!$template || empty($template->template_content)) {
+            return "<p>Error: Template Surat Pengantar RT belum disetting oleh Admin. Harap hubungi Operator Kelurahan.</p>";
+        }
             
         $user = $permohonan->user;
         $rt = $user->rt;
@@ -149,48 +154,8 @@ class PermohonanController extends Controller
         if (is_string($dataPemohon)) $dataPemohon = json_decode($dataPemohon, true);
         if (!is_array($dataPemohon)) $dataPemohon = [];
 
-        // Jika Template DB Ditemukan, render template tersebut
-        if ($template && !empty($template->template_content)) {
-            // Render string blade template (sederhana)
-            $content = $template->template_content;
-            
-            // Kita gunakan Blade::render jika Laravel versi baru, atau str_replace manual untuk keamanan/kesederhanaan
-            // Karena ini controller, kita replace manual variable-variable umum
-            // Catatan: Untuk fitur full blade di DB butuh library khusus atau eval (berbahaya).
-            // Disini kita pakai str_replace sederhana sesuai format di seeder.
-            
-            // Format Tanggal Lahir
-            $tglLahirUser = $user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->translatedFormat('d F Y') : '-';
-            
-            $replacements = [
-                '{{ $rt->nomor_rt }}' => $rt->nomor_rt,
-                '{{ $user->name }}' => $user->name,
-                '{{ $user->nik }}' => $user->nik,
-                '{{ $user->alamat_lengkap }}' => $user->alamat_lengkap,
-                '{!! $user->alamat_lengkap !!}' => $user->alamat_lengkap,
-                
-                // DATA PROFIL YANG HILANG
-                '{{ $user->pekerjaan }}' => $dataPemohon['pekerjaan'] ?? $user->pekerjaan ?? '-',
-                '{{ $user->tempat_lahir }}' => $user->tempat_lahir ?? '-',
-                '{{ $user->agama }}' => $user->agama ?? '-',
-                
-                // Data Pemohon Dynamic
-                '{{ $data_pemohon[\'nama_usaha\'] ?? \'-\' }}' => $dataPemohon['nama_usaha'] ?? '-',
-                '{{ $data_pemohon[\'jenis_usaha\'] ?? \'-\' }}' => $dataPemohon['jenis_usaha'] ?? '-',
-                '{{ $data_pemohon[\'alamat_usaha\'] ?? \'-\' }}' => $dataPemohon['alamat_usaha'] ?? '-',
-                '{{ $data_pemohon[\'status_tempat_usaha\'] ?? \'-\' }}' => $dataPemohon['status_tempat_usaha'] ?? '-',
-                // Fallback umum
-                '{{ $data_pemohon[\'tujuan\'] ?? \'-\' }}' => $dataPemohon['tujuan'] ?? '-',
-                '{{ $nomor_surat }}' => '.../RT-.../.../'.date('Y'),
-            ];
-            
-            return strtr($content, $replacements);
-        }
-
-        // --- PREPARE DATA ---
-        $rwNumber = $rw ? $rw->nomor_rw : '-';
-        $rtNumber = $rt->nomor_rt;
-        
+        // Data Preparation
+        $tglLahirUser = $user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->translatedFormat('d F Y') : '-';
         $nik = !empty($dataPemohon['nik']) ? $dataPemohon['nik'] : ($user->nik ?? '-');
         $tempatLahir = !empty($dataPemohon['tempat_lahir']) ? $dataPemohon['tempat_lahir'] : ($user->tempat_lahir ?? '-');
         
@@ -215,10 +180,7 @@ class PermohonanController extends Controller
         $alamat = !empty($dataPemohon['alamat']) ? $dataPemohon['alamat'] : ($user->alamat_lengkap ?? '-');
         $namaKepalaKeluarga = $user->keluarga ? $user->keluarga->kepala_keluarga : '-';
 
-
-        // --- BUILD HTML CONTENT ---
-        
-        // 1. HEADER / KOP SURAT
+        // Logo Logic
         $logoPath = public_path('images/logo-kota-bengkulu.png');
         $logoSrc = '';
         if (file_exists($logoPath)) {
@@ -226,65 +188,28 @@ class PermohonanController extends Controller
             $logoSrc = 'data:image/png;base64,' . $logoData;
         }
 
-        // Adjust logo position and size, slightly bigger and better aligned.
-        $html = '
-        <div style="text-align: center; position: relative; font-family: \'Times New Roman\', serif; line-height: 1;">
-            <img src="' . $logoSrc . '" alt="Logo" style="position: absolute; left: 40px; top: 5px; width: 65px; height: auto;">
-            <h2 style="font-size: 14pt; font-weight: bold; margin: 0; text-transform: uppercase;">PEMERINTAH KOTA BENGKULU</h2>
-            <h2 style="font-size: 13pt; font-weight: bold; margin: 0; text-transform: uppercase;">KECAMATAN RATU SAMBAN</h2>
-            <h2 style="font-size: 13pt; font-weight: bold; margin: 0; text-transform: uppercase;">KELURAHAN PADANG JATI</h2>
-            <h3 style="font-size: 11pt; font-weight: bold; margin: 0; text-transform: uppercase;">RUKUN TETANGGA ' . str_pad($rtNumber, 3, '0', STR_PAD_LEFT) . ' RUKUN WARGA ' . str_pad($rwNumber, 3, '0', STR_PAD_LEFT) . '</h3>
-            <p style="font-size: 10pt; margin: 2px 0 0 0;">Jl. Jati No. ... Kelurahan Padang Jati Kecamatan Ratu Samban Kota Bengkulu</p>
-            <div style="border-top: 1px solid #000; border-bottom: 3px double #000; margin-top: 5px; margin-bottom: 15px; height: 3px;"></div>
-        </div>';
-
-        // 2. META INFO (Nomor, Kepada Yth) - Reduced spacing
-        $html .= '
-        <div style="margin-bottom: 15px; overflow: auto; font-family: \'Times New Roman\', serif; line-height: 1.15;">
-            <div style="float: left; width: 60%;">
-                <table style="width: 100%;">
-                    <tr><td style="width: 80px;">Nomor</td><td style="width: 10px;">:</td><td><span id="nomor-surat-display">' . ($nomorSurat ?? '...v') . '</span></td></tr>
-                    <tr><td>Lampiran</td><td>:</td><td>-</td></tr>
-                    <tr><td>Perihal</td><td>:</td><td style="text-decoration: underline;">Surat Pengantar</td></tr>
-                </table>
-            </div>
-            <div style="float: right; width: 40%;">
-                <p style="margin: 0;">Kepada Yth,</p>
-                <p style="margin: 0;">Bapak Lurah</p>
-                <p style="margin: 0;">Kepala Kelurahan Padang Jati</p>
-                <p style="margin: 0;">Di -</p>
-                <p style="text-indent: 20px; margin: 0;">Bengkulu</p>
-            </div>
-            <div style="clear: both;"></div>
-        </div>';
-
-        // 3. BODY CONTENT - Compact Layout for 1 Page
-        $html .= '<div style="font-family: \'Times New Roman\', serif; line-height: 1.15; text-align: justify;">';
-        $html .= '<p style="margin-bottom: 5px;">Dengan Hormat,</p>';
-        $html .= '<p style="text-indent: 40px; margin-bottom: 5px;">Yang bertanda tangan dibawah ini, Ketua RT.' . $rtNumber . '/RW.' . $rwNumber . ' Kelurahan Padang Jati Kecamatan Ratu Samban Kota Bengkulu, dengan ini menerangkan bahwa :</p>';
-
-        $html .= '<table style="width: 100%; margin-top: 5px; margin-bottom: 5px; margin-left: 20px; border-collapse: collapse;">';
-        $html .= '<tr><td style="width: 180px; padding: 1px 0;">Nama</td><td style="width: 10px; padding: 1px 0;">:</td><td style="padding: 1px 0;"><strong>' . $user->name . '</strong></td></tr>';
-        $html .= '<tr><td style="padding: 1px 0;">Tempat, Tanggal Lahir</td><td style="padding: 1px 0;">:</td><td style="padding: 1px 0;">' . $tempatLahir . ', ' . $tglLahir . '</td></tr>';
-        $html .= '<tr><td style="padding: 1px 0;">Jenis Kelamin</td><td style="padding: 1px 0;">:</td><td style="padding: 1px 0;">' . $jk . '</td></tr>';
-        $html .= '<tr><td style="padding: 1px 0;">Nama Kepala Keluarga</td><td style="padding: 1px 0;">:</td><td style="padding: 1px 0;">' . $namaKepalaKeluarga . '</td></tr>';
-        $html .= '<tr><td style="padding: 1px 0;">Bangsa</td><td style="padding: 1px 0;">:</td><td style="padding: 1px 0;">Indonesia / WNA</td></tr>';
-        $html .= '<tr><td style="padding: 1px 0;">Agama</td><td style="padding: 1px 0;">:</td><td style="padding: 1px 0;">' . $agama . '</td></tr>';
-        $html .= '<tr><td style="padding: 1px 0;">Status Perkawinan</td><td style="padding: 1px 0;">:</td><td style="padding: 1px 0;">' . $statusPerkawinan . '</td></tr>';
-        $html .= '<tr><td style="padding: 1px 0;">Pendidikan Terakhir</td><td style="padding: 1px 0;">:</td><td style="padding: 1px 0;">-</td></tr>';
-        $html .= '<tr><td style="padding: 1px 0;">Pekerjaan</td><td style="padding: 1px 0;">:</td><td style="padding: 1px 0;">' . $pekerjaan . '</td></tr>';
-        $html .= '<tr><td style="padding: 1px 0;">No. NIK</td><td style="padding: 1px 0;">:</td><td style="padding: 1px 0;">' . $nik . '</td></tr>';
-        $html .= '<tr><td style="padding: 1px 0;">Alamat</td><td style="padding: 1px 0;">:</td><td style="padding: 1px 0;">' . $alamat . ' Kelurahan Padang Jati Kecamatan Ratu Samban</td></tr>';
-        $html .= '</table>';
-
-        $html .= '<p style="text-indent: 40px; margin-bottom: 5px;">Bahwa nama tersebut diatas adalah benar warga RT.' . $rtNumber . '/RW.' . $rwNumber . ' Kelurahan Padang Jati Kecamatan Ratu Samban dan tercatat dalam Buku Kependudukan. Yang bersangkutan datang menghadap Bapak Lurah untuk mengurus :</p>';
-
-        $html .= '<div style="margin: 5px 0 10px 0; padding: 10px; border: 2px solid #000; min-height: 30px; font-weight: bold; text-align: center;">&nbsp;</div>';
-
-        $html .= '<p style="text-indent: 40px; margin-bottom: 0;">Demikian surat pengantar ini kami buat, untuk mendapatkan penyelesaian selanjutnya dan atas bantuannya diucapkan terima kasih.</p>';
-        $html .= '</div>';
-
-        return $html;
+        // Replacements Map
+        $replacements = [
+            '{{ $logo_src }}' => $logoSrc,
+            '{{ $rt_nomor }}' => str_pad($rt->nomor_rt, 3, '0', STR_PAD_LEFT),
+            '{{ $rw_nomor }}' => $rw ? str_pad($rw->nomor_rw, 3, '0', STR_PAD_LEFT) : '-',
+            '{{ $nomor_surat }}' => $nomorSurat ?? '.../RT-.../.../'.date('Y'),
+            
+            '{{ $nama_warga }}' => $user->name,
+            '{{ $ttl }}' => $tempatLahir . ', ' . $tglLahir,
+            '{{ $jenis_kelamin }}' => $jk,
+            '{{ $kepala_keluarga }}' => $namaKepalaKeluarga,
+            '{{ $agama }}' => $agama,
+            '{{ $status_perkawinan }}' => $statusPerkawinan,
+            '{{ $pekerjaan }}' => $pekerjaan,
+            '{{ $nik }}' => $nik,
+            '{{ $alamat }}' => $alamat,
+            
+            // Dynamic Fields from Users
+            '{{ $keperluan }}' => $dataPemohon['tujuan'] ?? $dataPemohon['keperluan'] ?? '-',
+        ];
+        
+        return strtr($template->template_content, $replacements);
     }
 
 

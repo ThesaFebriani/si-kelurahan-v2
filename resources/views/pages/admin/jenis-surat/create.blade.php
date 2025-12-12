@@ -25,11 +25,11 @@
                 <!-- Kode Surat -->
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Kode Surat (Unique)</label>
-                    <input type="text" name="code" value="{{ old('code') }}" required
+                    <input type="text" name="kode_surat" value="{{ old('kode_surat') }}" required
                         class="w-full rounded-lg border-slate-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm"
                         placeholder="Contoh: surat_keterangan_usaha">
                     <p class="text-xs text-slate-400 mt-1">Gunakan huruf kecil dan underscore, tanpa spasi.</p>
-                    @error('code') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    @error('kode_surat') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <!-- Nama Surat -->

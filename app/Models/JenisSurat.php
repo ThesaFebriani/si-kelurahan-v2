@@ -50,13 +50,13 @@ class JenisSurat extends Model
     }
 
     //TAMBAH RELASI
-    public function templateFields()
-    {
-        return $this->hasMany(TemplateField::class)->ordered();
-    }
-
     public function requiredDocuments()
     {
         return $this->hasMany(RequiredDocument::class);
+    }
+
+    public function templateFields()
+    {
+        return $this->hasMany(TemplateField::class);
     }
 }
