@@ -270,7 +270,7 @@ class PermohonanController extends Controller
                     $permohonan,
                     $request->nomor_surat_pengantar,
                     $user->rt,
-                    $request->isi_surat // Pass edited content
+                    strip_tags($request->isi_surat, '<p><br><b><i><u><strong><em><ul><ol><li><div><span>') // Sanitize XSS
                 );
 
                 // Update permohonan
