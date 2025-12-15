@@ -19,7 +19,7 @@ return new class extends Migration
                 $table->unsignedBigInteger('rt_id')->nullable()->after('type');
                 
                 // Add foreign key manually to avoid issues
-                $table->foreign('rt_id')->references('id')->on('rts')->onDelete('cascade');
+                $table->foreign('rt_id')->references('id')->on('rt')->onDelete('cascade');
             });
         }
     }

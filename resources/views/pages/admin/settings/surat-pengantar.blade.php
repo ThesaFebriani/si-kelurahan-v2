@@ -48,13 +48,21 @@
                 </div>
                 
                 <div class="flex-1 overflow-y-auto p-4 space-y-6">
+                    
                     <!-- Group: Data Kop Surat -->
                     <div>
                         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Data Wilayah (Kop Surat)</h4>
                         <div class="space-y-2">
-                            <button type="button" onclick="insertTag('{{ $logo_src }}')" class="w-full text-left px-3 py-2 bg-white border border-gray-200 rounded-md text-sm hover:border-blue-400 group flex justify-between"><span>Logo Kota</span> <code class="text-[10px] bg-gray-100 px-1">Img Src</code></button>
-                            <button type="button" onclick="insertTag('{{ $rt_nomor }}')" class="w-full text-left px-3 py-2 bg-white border border-gray-200 rounded-md text-sm hover:border-blue-400 group flex justify-between"><span>Nomor RT</span> <code class="text-[10px] bg-gray-100 px-1">{{ $rt_nomor }}</code></button>
-                            <button type="button" onclick="insertTag('{{ $rw_nomor }}')" class="w-full text-left px-3 py-2 bg-white border border-gray-200 rounded-md text-sm hover:border-blue-400 group flex justify-between"><span>Nomor RW</span> <code class="text-[10px] bg-gray-100 px-1">{{ $rw_nomor }}</code></button>
+                             @foreach([
+                                ['[NOMOR_RT]', 'Nomor RT'],
+                                ['[NOMOR_RW]', 'Nomor RW'],
+                                ['[ALAMAT_SEKRETARIAT]', 'Alamat Sekretariat'],
+                                ['[NO_HP_RT]', 'No. HP RT'],
+                             ] as $tag)
+                            <button type="button" onclick="insertTag('{{ $tag[0] }}')" class="w-full text-left px-3 py-2 bg-white border border-gray-200 rounded-md text-sm hover:border-blue-400 group flex justify-between">
+                                <span>{{ $tag[1] }}</span> <code class="text-[10px] bg-gray-100 px-1">{{ $tag[0] }}</code>
+                            </button>
+                            @endforeach
                         </div>
                     </div>
 
@@ -63,16 +71,16 @@
                         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Data Warga</h4>
                         <div class="space-y-2">
                              @foreach([
-                                ['{{ $nama_warga }}', 'Nama Lengkap'],
-                                ['{{ $nik }}', 'NIK'],
-                                ['{{ $ttl }}', 'Tempat/Tgl Lahir'],
-                                ['{{ $jenis_kelamin }}', 'Jenis Kelamin'],
-                                ['{{ $agama }}', 'Agama'],
-                                ['{{ $pekerjaan }}', 'Pekerjaan'],
-                                ['{{ $alamat }}', 'Alamat Domisili'],
-                                ['{{ $status_perkawinan }}', 'Status Kawin'],
-                                ['{{ $kepala_keluarga }}', 'Kepala Keluarga'],
-                                ['{{ $keperluan }}', 'Keperluan (Isian Manual RT)'],
+                                ['[NAMA_WARGA]', 'Nama Lengkap'],
+                                ['[NIK]', 'NIK'],
+                                ['[TTL_WARGA]', 'Tempat/Tgl Lahir'],
+                                ['[JENIS_KELAMIN]', 'Jenis Kelamin'],
+                                ['[AGAMA]', 'Agama'],
+                                ['[PEKERJAAN]', 'Pekerjaan'],
+                                ['[ALAMAT_WARGA]', 'Alamat Domisili'],
+                                ['[STATUS_PERKAWINAN]', 'Status Kawin'],
+                                ['[PENDIDIKAN]', 'Pendidikan'],
+                                ['[KEPALA_KELUARGA]', 'Kepala Keluarga'],
                              ] as $tag)
                             <button type="button" onclick="insertTag('{{ $tag[0] }}')" class="w-full text-left px-3 py-2 bg-white border border-gray-200 rounded-md text-sm hover:border-blue-400 hover:shadow-sm transition flex justify-between items-center group">
                                 <span class="font-medium text-gray-700">{{ $tag[1] }}</span>
@@ -84,11 +92,14 @@
 
                      <!-- Group: Data Surat -->
                      <div>
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Data Surat</h4>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Data Surat & TTD</h4>
                         <div class="space-y-2">
                              @foreach([
-                                ['{{ $nomor_surat }}', 'Nomor Surat'],
-                                ['{{ $tanggal_surat }}', 'Tanggal Hari Ini'],
+                                ['[NOMOR_SURAT]', 'Nomor Surat'],
+                                ['[TAHUN]', 'Tahun Ini'],
+                                ['[TANGGAL_SURAT]', 'Tanggal Hari Ini'],
+                                ['[NAMA_KETUA_RT]', 'Nama Ketua RT'],
+                                ['[QR_CODE_SPACE]', 'Area QR Code/TTD'],
                              ] as $tag)
                             <button type="button" onclick="insertTag('{{ $tag[0] }}')" class="w-full text-left px-3 py-2 bg-white border border-gray-200 rounded-md text-sm hover:border-purple-400 hover:shadow-sm transition flex justify-between items-center group">
                                 <span class="font-medium text-gray-700">{{ $tag[1] }}</span>

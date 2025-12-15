@@ -29,8 +29,12 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/wilayah/rt', [WilayahController::class, 'rtIndex'])
             ->name('wilayah.rt.index');
 
-        Route::get('/laporan/permohonan', [LaporanController::class, 'permohonan'])
-            ->name('laporan.permohonan');
+        // Route::get('/laporan/permohonan', [LaporanController::class, 'permohonan'])
+        //    ->name('laporan.permohonan');
+        
+        // NEW ADVANCED REPORTS
+        Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])
+            ->name('reports.index');
 
         // MANAJEMEN KEPENDUDUKAN
         Route::prefix('kependudukan')->name('kependudukan.')->group(function () {

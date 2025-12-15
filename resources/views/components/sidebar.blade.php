@@ -24,7 +24,7 @@ $menus = [
 
         // Reports Section
         ['header' => 'LAPORAN & ARSIP'],
-        ['name' => 'Laporan', 'route' => 'admin.laporan.permohonan', 'icon' => 'fas fa-chart-bar'],
+        ['name' => 'Laporan & Statistik', 'route' => 'admin.reports.index', 'icon' => 'fas fa-chart-pie'],
     ],
     'rt' => [
         ['name' => 'Dashboard', 'route' => 'rt.dashboard', 'icon' => 'fas fa-tachometer-alt'],

@@ -20,9 +20,18 @@ class PengaturanSuratController extends Controller
             ->first();
 
         // If not exists (should be seeded, but just in case), create dummy
+        // If not exists (should be seeded, but just in case), create dummy or load from file
         if (!$template) {
             $template = new SuratTemplate();
-            $template->template_content = '<p>Template belum diatur. Silakan hubungi teknisi.</p>';
+            // Load content from the actual blade file we just fixed
+            $defaultContent = file_get_contents(resource_path('views/templates/surat-pengantar-rt.blade.php'));
+            
+            // EXTRACT BODY CONTENT ONLY to prevent messy editor
+            if (preg_match('/<body>(.*?)<\/body>/s', $defaultContent, $matches)) {
+                $template->template_content = $matches[1];
+            } else {
+                $template->template_content = $defaultContent;
+            }
         }
 
         // Data for Preview Look & Feel
@@ -34,8 +43,15 @@ class PengaturanSuratController extends Controller
 
         // Replace Variable with Real Image for Editor
         // This ensures the user sees the logo, and when saved, it's saved as Base64 (perfect for PDF)
+            // Replace Variable with Real Image for Editor
         if ($template) {
-            $template->template_content = str_replace('{{ $logo_src }}', $logo_b64, $template->template_content);
+            // 1. Ganti src gambar dengan Base64 agar tampil di editor
+            // Cari pattern {{ public_path(...) }} atau src="..." yang mengarah ke logo
+            // Ini PENTING karena editor WYSIWYG tidak bisa mengeksekusi fungsi blade public_path()
+            // Jadi kita ganti dengan string Base64 gambar asli agar admin bisa lihat logonya.
+            $pattern = '/src=["\']\{\{ public_path\([\'"]images\/logo_kota_bengkulu\.png[\'"]\)\s*\}\}["\']/';
+            $replacement = 'src="'.$logo_b64.'"';
+            $template->template_content = preg_replace($pattern, $replacement, $template->template_content);
         }
 
         $logo_src = $logo_b64; // For the side buttons if needed

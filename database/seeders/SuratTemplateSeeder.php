@@ -150,7 +150,7 @@ class SuratTemplateSeeder extends Seeder
         }
 
         // 3. Template Surat Keterangan Domisili (SKD)
-        $skd = JenisSurat::where('kode_surat', 'SKD')->first();
+        $skd = JenisSurat::where('kode_surat', 'DOM')->first(); // Changed SKD to DOM based on JenisSuratSeeder
         if ($skd) {
              // RT
             SuratTemplate::create([

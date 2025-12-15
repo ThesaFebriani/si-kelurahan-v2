@@ -171,14 +171,14 @@
             </div>
         </a>
 
-        <a href="{{ route('admin.laporan.permohonan') }}" class="bg-white rounded-lg shadow p-6 border border-gray-200 hover:shadow-md transition-shadow">
+        <a href="{{ route('admin.reports.index') }}" class="bg-white rounded-lg shadow p-6 border border-gray-200 hover:shadow-md transition-shadow">
             <div class="flex items-center space-x-4">
                 <div class="p-3 bg-purple-100 rounded-lg">
-                    <i class="fas fa-chart-bar text-purple-600 text-xl"></i>
+                    <i class="fas fa-chart-pie text-purple-600 text-xl"></i>
                 </div>
                 <div>
-                    <h3 class="font-semibold text-gray-800">Laporan</h3>
-                    <p class="text-gray-600 text-sm mt-1">Lihat laporan sistem</p>
+                    <h3 class="font-semibold text-gray-800">Laporan & Statistik</h3>
+                    <p class="text-gray-600 text-sm mt-1">Insight & Analitik</p>
                 </div>
             </div>
         </a>
