@@ -42,10 +42,12 @@ Route::prefix('masyarakat')
                 // Store dinamis berdasarkan jenis_surat_id
                 Route::post('/store/dinamis/{jenis_surat_id}', [PermohonanController::class, 'storeDinamis'])
                     ->where('jenis_surat_id', '[0-9]+')
+                    ->middleware('throttle:6,1')
                     ->name('store.dinamis');
 
                 // Store umum
                 Route::post('/', [PermohonanController::class, 'store'])
+                    ->middleware('throttle:6,1')
                     ->name('store');
 
                 // Detail permohonan

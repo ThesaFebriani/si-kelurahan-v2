@@ -53,6 +53,17 @@ class ProfileController extends Controller
         // Jika ada password baru
         if ($request->filled('password')) {
             $userData['password'] = Hash::make($request->password);
+            
+            // Log Password Change
+            \App\Models\AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'change_password',
+                'description' => 'User mengubah password akun.',
+                'model_type' => 'App\Models\User',
+                'model_id' => $user->id,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
         }
 
         $user->update($userData);

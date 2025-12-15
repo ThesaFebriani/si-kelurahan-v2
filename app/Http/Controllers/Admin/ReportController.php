@@ -16,6 +16,17 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
+        // LOG ACCESS
+        \App\Models\AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'view_report',
+            'description' => 'Melihat Laporan Statistik',
+            'model_type' => 'System',
+            'model_id' => 0,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+        
         // 1. Filter Setup
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());

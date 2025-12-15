@@ -25,6 +25,12 @@ Route::middleware(['auth'])->get('/dashboard', function () {
     };
 })->name('dashboard');
 
+// Route Global (Semua Role)
+Route::middleware(['auth'])->group(function () {
+    Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])
+        ->name('notifications.mark-all-read');
+});
+
 // Load file routes per-role
 require __DIR__ . '/admin.php';
 require __DIR__ . '/rt.php';

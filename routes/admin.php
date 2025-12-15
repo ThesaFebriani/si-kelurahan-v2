@@ -33,8 +33,14 @@ Route::middleware(['auth', 'role:admin'])
         //    ->name('laporan.permohonan');
         
         // NEW ADVANCED REPORTS
+
+        // NEW ADVANCED REPORTS
         Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])
             ->name('reports.index');
+
+        // AUDIT LOGS
+        Route::resource('audit-logs', \App\Http\Controllers\Admin\AuditLogController::class)->only(['index', 'show']);
+
 
         // MANAJEMEN KEPENDUDUKAN
         Route::prefix('kependudukan')->name('kependudukan.')->group(function () {

@@ -25,6 +25,7 @@ $menus = [
         // Reports Section
         ['header' => 'LAPORAN & ARSIP'],
         ['name' => 'Laporan & Statistik', 'route' => 'admin.reports.index', 'icon' => 'fas fa-chart-pie'],
+        ['name' => 'Log Aktivitas', 'route' => 'admin.audit-logs.index', 'icon' => 'fas fa-history'],
     ],
     'rt' => [
         ['name' => 'Dashboard', 'route' => 'rt.dashboard', 'icon' => 'fas fa-tachometer-alt'],

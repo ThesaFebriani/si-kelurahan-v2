@@ -13,10 +13,7 @@ $user = Auth::user();
         <!-- User Info -->
         <div class="flex items-center space-x-4">
             <!-- Notifications -->
-            <button class="relative p-2 text-gray-600 hover:text-blue-600 transition-colors">
-                <i class="fas fa-bell"></i>
-                <span class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center transform translate-x-1 -translate-y-1">3</span>
-            </button>
+            @include('components.notification-dropdown')
 
             <!-- User Dropdown -->
             <div class="relative" x-data="{ open: false }">
