@@ -23,11 +23,24 @@ Route::middleware(['auth', 'role:admin'])
             'jenis-surat' => 'jenis_surat' // Agar parameter di controller sesuai standar Laravel convention
         ]);
 
-        Route::get('/wilayah/rw', [WilayahController::class, 'rwIndex'])
-            ->name('wilayah.rw.index');
+        // Wilayah Management
+        Route::prefix('wilayah')->name('wilayah.')->group(function () {
+            // RW
+            Route::get('/rw', [WilayahController::class, 'rwIndex'])->name('rw.index');
+            Route::get('/rw/create', [WilayahController::class, 'rwCreate'])->name('rw.create');
+            Route::post('/rw', [WilayahController::class, 'rwStore'])->name('rw.store');
+            Route::get('/rw/{rw}/edit', [WilayahController::class, 'rwEdit'])->name('rw.edit');
+            Route::put('/rw/{rw}', [WilayahController::class, 'rwUpdate'])->name('rw.update');
+            Route::delete('/rw/{rw}', [WilayahController::class, 'rwDestroy'])->name('rw.destroy');
 
-        Route::get('/wilayah/rt', [WilayahController::class, 'rtIndex'])
-            ->name('wilayah.rt.index');
+            // RT
+            Route::get('/rt', [WilayahController::class, 'rtIndex'])->name('rt.index');
+            Route::get('/rt/create', [WilayahController::class, 'rtCreate'])->name('rt.create');
+            Route::post('/rt', [WilayahController::class, 'rtStore'])->name('rt.store');
+            Route::get('/rt/{rt}/edit', [WilayahController::class, 'rtEdit'])->name('rt.edit');
+            Route::put('/rt/{rt}', [WilayahController::class, 'rtUpdate'])->name('rt.update');
+            Route::delete('/rt/{rt}', [WilayahController::class, 'rtDestroy'])->name('rt.destroy');
+        });
 
         // Route::get('/laporan/permohonan', [LaporanController::class, 'permohonan'])
         //    ->name('laporan.permohonan');

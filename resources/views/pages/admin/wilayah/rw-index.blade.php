@@ -14,10 +14,10 @@
             <i class="fas fa-search absolute left-3 top-3 text-slate-400 text-sm"></i>
         </div>
 
-        <button disabled class="px-5 py-2.5 bg-blue-400 text-white font-medium text-sm rounded-lg cursor-not-allowed flex items-center gap-2 opacity-70">
+        <a href="{{ route('admin.wilayah.rw.create') }}" class="px-5 py-2.5 bg-blue-600 text-white font-medium text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center gap-2">
             <i class="fas fa-plus"></i>
-            <span>Tambah RW (Coming Soon)</span>
-        </button>
+            <span>Tambah RW</span>
+        </a>
     </div>
 
     <!-- Table -->
@@ -60,9 +60,16 @@
                     </td>
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                            <button class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Edit">
+                            <a href="{{ route('admin.wilayah.rw.edit', $item->id) }}" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Edit">
                                 <i class="fas fa-edit"></i>
-                            </button>
+                            </a>
+                            <form action="{{ route('admin.wilayah.rw.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus RW ini?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Hapus">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
