@@ -44,6 +44,11 @@
             <a href="{{ route('admin.reports.index') }}" class="w-full sm:w-auto px-6 py-2 bg-slate-100 text-slate-600 font-medium rounded-lg hover:bg-slate-200 transition flex items-center justify-center gap-2">
                 <i class="fas fa-undo"></i> Reset
             </a>
+
+             <!-- Export Button -->
+             <a href="{{ route('admin.reports.export', request()->query()) }}" target="_blank" class="w-full sm:w-auto px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition flex items-center justify-center gap-2">
+                <i class="fas fa-file-pdf"></i> Export Laporan
+            </a>
         </form>
     </div>
 

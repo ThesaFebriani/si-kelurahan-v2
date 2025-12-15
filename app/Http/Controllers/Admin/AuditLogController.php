@@ -45,4 +45,39 @@ class AuditLogController extends Controller
         }
         return abort(404);
     }
+
+    public function export(Request $request)
+    {
+        $query = AuditLog::with('user')->latest();
+
+        // 1. Re-apply Filters (Sama seperti Index)
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
+
+        // 2. Get All Data (No Pagination)
+        $logs = $query->get();
+
+        // 3. Metadata Header
+        $meta = [
+            'range' => $request->start_date && $request->end_date ? 
+                ($request->start_date . ' s/d ' . $request->end_date) : 'Semua Waktu',
+            'generated_at' => now()->format('d M Y H:i:s'),
+            'user' => auth()->user()->name
+        ];
+
+        // 4. Generate PDF
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pages.admin.audit-logs.pdf', compact('logs', 'meta'));
+        
+        return $pdf->download('Laporan_Audit_Log_' . now()->format('Ymd_His') . '.pdf');
+    }
 }

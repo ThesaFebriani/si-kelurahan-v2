@@ -34,11 +34,14 @@ Route::middleware(['auth', 'role:admin'])
         
         // NEW ADVANCED REPORTS
 
-        // NEW ADVANCED REPORTS
+
+        Route::get('/reports/export', [\App\Http\Controllers\Admin\ReportController::class, 'export'])
+            ->name('reports.export');
         Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])
             ->name('reports.index');
 
         // AUDIT LOGS
+        Route::get('audit-logs/export', [\App\Http\Controllers\Admin\AuditLogController::class, 'export'])->name('audit-logs.export');
         Route::resource('audit-logs', \App\Http\Controllers\Admin\AuditLogController::class)->only(['index', 'show']);
 
 

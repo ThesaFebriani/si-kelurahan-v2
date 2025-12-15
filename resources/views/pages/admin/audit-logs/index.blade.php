@@ -43,6 +43,9 @@
                 <a href="{{ route('admin.audit-logs.index') }}" class="px-4 py-2 border border-slate-300 text-slate-600 font-medium text-sm rounded-lg hover:bg-slate-50 transition-all">
                     Reset
                 </a>
+                <a href="{{ route('admin.audit-logs.export', request()->query()) }}" target="_blank" class="px-4 py-2 bg-red-600 text-white font-medium text-sm rounded-lg hover:bg-red-700 transition-all shadow-sm flex items-center">
+                    <i class="fas fa-file-pdf mr-2"></i> Export PDF
+                </a>
             </div>
         </form>
     </div>
@@ -148,13 +151,22 @@ function showDetail(id) {
     document.getElementById('detailModal').classList.remove('hidden');
     
     // Fetch content
-    fetch(`{{ url('admin/audit-logs') }}/${id}`)
-        .then(response => response.text())
+    // Fetch content
+    fetch(`{{ url('admin/audit-logs') }}/${id}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.text();
+        })
         .then(html => {
             document.getElementById('modalContent').innerHTML = html;
         })
         .catch(error => {
-            document.getElementById('modalContent').innerHTML = '<p class="text-red-500 text-center">Gagal memuat data.</p>';
+            console.error('Error:', error);
+            document.getElementById('modalContent').innerHTML = '<p class="text-red-500 text-center">Gagal memuat data detail.</p>';
         });
 }
 

@@ -27,6 +27,38 @@ class ReportController extends Controller
             'user_agent' => $request->userAgent()
         ]);
         
+        $data = $this->getReportData($request);
+
+        return view('pages.admin.reports.index', $data);
+    }
+
+    public function export(Request $request)
+    {
+        // Log Export
+        \App\Models\AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'view_report', // or export_report
+            'description' => 'Mengunduh Laporan Statistik (PDF)',
+            'model_type' => 'System',
+            'model_id' => 0,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
+        $data = $this->getReportData($request);
+        $data['meta'] = [
+            'generated_at' => now()->format('d M Y H:i:s'),
+            'user' => auth()->user()->name
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pages.admin.reports.pdf', $data);
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->download('Laporan_Statistik_' . now()->format('Ymd_His') . '.pdf');
+    }
+
+    private function getReportData(Request $request)
+    {
         // 1. Filter Setup
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
@@ -42,7 +74,7 @@ class ReportController extends Controller
         }
 
         // 3. Data Gathering
-        $data = [
+        return [
             'startDate' => $startDate,
             'endDate' => $endDate,
             'jenisSuratList' => JenisSurat::where('is_active', true)->get(),
@@ -66,9 +98,10 @@ class ReportController extends Controller
             'rtPerformance' => $this->getRtPerformance($startDate, $endDate),
             'dailyHeatmap' => $this->getDailyHeatmap($startDate, $endDate),
             'demographics' => $this->getDemographics($startDate, $endDate),
+            'lurah' => User::whereHas('role', function($q) {
+                $q->where('name', \App\Models\Role::LURAH);
+            })->where('status', User::STATUS_ACTIVE)->latest()->first(),
         ];
-
-        return view('pages.admin.reports.index', $data);
     }
 
     // --- PRIVATE ANALYTICS METHODS ---
