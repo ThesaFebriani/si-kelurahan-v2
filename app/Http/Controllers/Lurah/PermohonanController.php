@@ -81,31 +81,7 @@ class PermohonanController extends Controller
     }
 
 
-    private function generateSuratContent($permohonan)
-    {
-        $dataPemohon = $permohonan->data_pemohon;
 
-        $content = "SURAT {$permohonan->jenisSurat->name}\n\n";
-        $content .= "Yang bertanda tangan di bawah ini:\n\n";
-        $content .= "Nama: {$permohonan->user->name}\n";
-        $content .= "NIK: " . ($dataPemohon['nik'] ?? '-') . "\n";
-        $content .= "Tempat/Tanggal Lahir: " . ($dataPemohon['tempat_lahir'] ?? '-') . ", " .
-            (isset($dataPemohon['tanggal_lahir']) ? \Carbon\Carbon::parse($dataPemohon['tanggal_lahir'])->format('d/m/Y') : '-') . "\n";
-        $content .= "Alamat: " . ($dataPemohon['alamat'] ?? $permohonan->user->alamat_lengkap ?? '-') . "\n\n";
-
-        if (!empty($dataPemohon['tujuan'])) {
-            $content .= "Dengan ini menerangkan bahwa pemohon membutuhkan surat ini untuk: {$dataPemohon['tujuan']}\n\n";
-        }
-
-        $content .= "Demikian surat ini dibuat untuk dapat dipergunakan sebagaimana mestinya.\n\n";
-        $content .= "Hormat kami,\n";
-        $content .= "LURAH\n\n";
-        $content .= "Tanda Tangan Digital\n";
-        $content .= "Ditandatangani secara elektronik oleh: " . Auth::user()->name . "\n";
-        $content .= "Pada: " . now()->format('d F Y H:i:s');
-
-        return $content;
-    }
     public function processSign(Request $request, $id)
     {
         Log::info('=== PROCESS SIGN STARTED ===');
@@ -133,13 +109,86 @@ class PermohonanController extends Controller
             Log::info('Processing action: ' . $request->action);
 
             if ($request->action === 'approve') {
-                // ... kode approve yang sudah ada
-                Log::info('Surat approved successfully');
-                $message = 'Permohonan telah disetujui';
+                $surat = $permohonan->surat;
+                
+                // Verifikasi Kasi sudah membuat Draft
+                if (!$surat) {
+                    throw new \Exception('Draft Surat belum dibuat oleh Kasi.');
+                }
+                
+                // Update Tanggal Surat jika diubah Lurah
+                if ($request->filled('tanggal_surat')) {
+                     // Kita tidak update isi_html karena tanggal ada di placeholder [TANGGAL_SURAT]
+                     // Tapi jika Kasi sudah replace jd hardcoded text, maka repot.
+                     // Asumsi: Kita pakai tanggal hari ini (TTE).
+                }
+
+                // Generate Final PDF with QR Code
+                $pdfService = new \App\Services\PDFGeneratorService();
+                $finalPath = $pdfService->generateSuratKelurahan($surat, $user->name);
+
+                // Update Surat Record
+                $surat->update([
+                    'file_path' => $finalPath,
+                    'signed_by' => $user->id,
+                    'signed_at' => now(),
+                    // 'nomor_surat' => $request->nomor_surat ?? $surat->nomor_surat // Use request if allowed to edit
+                ]);
+
+                // Update Permohonan Status
+                $permohonan->update([
+                    'status' => PermohonanSurat::SELESAI,
+                    'tanggal_selesai' => now()
+                ]);
+
+                // Create Approval Flow
+                ApprovalFlow::create([
+                    'permohonan_surat_id' => $permohonan->id,
+                    'step' => ApprovalFlow::STEP_LURAH,
+                    'status' => ApprovalFlow::STATUS_APPROVED,
+                    'catatan' => $request->catatan,
+                    'approved_by' => $user->id,
+                    'approved_at' => now(),
+                    'urutan' => 3 
+                ]);
+
+                // Timeline
+                TimelinePermohonan::create([
+                    'permohonan_surat_id' => $permohonan->id,
+                    'status' => PermohonanSurat::SELESAI,
+                    'keterangan' => 'Surat Selesai - Ditandatangani secara Elektronik oleh Lurah',
+                    'updated_by' => $user->id,
+                ]);
+                
+                Log::info('Surat signed and generated: ' . $finalPath);
+                $message = 'Dokumen berhasil ditandatangani dan diterbitkan.';
+
             } else {
-                // ... kode reject yang sudah ada
-                Log::info('Surat rejected');
-                $message = 'Permohonan telah ditolak';
+                // REJECT Logic
+                $permohonan->update([
+                    'status' => PermohonanSurat::DITOLAK_LURAH, // Or back to Kasi? Usually RejectFinal or BackToKasi
+                    'keterangan_tolak' => $request->catatan
+                ]);
+                
+                 ApprovalFlow::create([
+                    'permohonan_surat_id' => $permohonan->id,
+                    'step' => ApprovalFlow::STEP_LURAH,
+                    'status' => ApprovalFlow::STATUS_REJECTED,
+                    'catatan' => $request->catatan,
+                    'approved_by' => $user->id,
+                    'approved_at' => now(),
+                    'urutan' => 3
+                ]);
+
+                TimelinePermohonan::create([
+                    'permohonan_surat_id' => $permohonan->id,
+                    'status' => PermohonanSurat::DITOLAK_LURAH,
+                    'keterangan' => 'Ditolak Lurah - ' . $request->catatan,
+                    'updated_by' => $user->id,
+                ]);
+
+                Log::info('Surat rejected by Lurah');
+                $message = 'Permohonan ditolak oleh Lurah.';
             }
 
             Log::info('=== PROCESS SIGN COMPLETED ===');

@@ -86,18 +86,21 @@
                             // Merged fields
                             $displayKeys = array_merge($mainFields, $dynamicFields);
                             
-                            // fallback mapping from User model
+                            // fallback mapping from User model (Prioritize DB Penduduk)
+                            $user = $permohonan->user;
+                            $penduduk = $user->anggotaKeluarga;
+
                             $userMapping = [
-                                'nama_lengkap' => $permohonan->user->name,
-                                'nik' => $permohonan->user->nik,
-                                'tempat_lahir' => $permohonan->user->tempat_lahir,
-                                'tanggal_lahir' => $permohonan->user->tanggal_lahir,
-                                'pekerjaan' => $permohonan->user->pekerjaan,
-                                'jenis_kelamin' => $permohonan->user->jk,
-                                'agama' => $permohonan->user->agama,
-                                'alamat' => $permohonan->user->alamat_lengkap, // Assumed accessor
-                                'status_perkawinan' => $permohonan->user->status_perkawinan,
-                                'kewarganegaraan' => $permohonan->user->kewarganegaraan,
+                                'nama_lengkap' => $penduduk->nama_lengkap ?? $user->name,
+                                'nik' => $user->nik,
+                                'tempat_lahir' => $penduduk->tempat_lahir ?? $user->tempat_lahir,
+                                'tanggal_lahir' => $penduduk->tanggal_lahir ?? $user->tanggal_lahir,
+                                'pekerjaan' => $penduduk->pekerjaan ?? $user->pekerjaan,
+                                'jenis_kelamin' => $penduduk->jk ?? $user->jk,
+                                'agama' => $penduduk->agama ?? $user->agama,
+                                'alamat' => $penduduk && $penduduk->keluarga ? $penduduk->keluarga->alamat : $user->alamat_lengkap,
+                                'status_perkawinan' => $penduduk->status_perkawinan ?? $user->status_perkawinan,
+                                'kewarganegaraan' => $penduduk->kewarganegaraan ?? $user->kewarganegaraan,
                             ];
                             
                             // Merge into dataPemohon if key missing or empty

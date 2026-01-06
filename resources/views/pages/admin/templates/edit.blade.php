@@ -40,47 +40,17 @@
                 <!-- A4 PAPER CONTAINER -->
                 <div class="w-[210mm] min-h-[297mm] bg-white shadow-xl flex flex-col">
                     
-                    <!-- 1. STATIC HEADER (KOP SURAT PREVIEW) -->
-                    <div class="px-8 pt-8 select-none pointer-events-none opacity-80 cursor-not-allowed bg-gray-50 border-b border-dashed border-gray-300">
-                        <div class="text-center text-xs text-gray-400 mb-2 uppercase tracking-widest font-bold">--- Area Kop Surat (Tidak Dapat Diedit) ---</div>
-                        <table style="width: 100%; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 20px; font-family: 'Times New Roman', serif;">
-                            <tr>
-                                <td style="width: 15%; text-align: center; vertical-align: middle;">
-                                    <img src="{{ $logo_url }}" alt="Logo" style="height: 80px;">
-                                </td>
-                                <td style="text-align: center; vertical-align: middle; color: #000;">
-                                    <h3 style="margin: 0; font-size: 14pt; font-weight: bold;">PEMERINTAH KOTA BENGKULU</h3>
-                                    <h2 style="margin: 0; font-size: 14pt; font-weight: bold;">KECAMATAN RATU SAMBAN</h2>
-                                    <h1 style="margin: 0; font-size: 18pt; font-weight: bold;">KELURAHAN PADANG JATI</h1>
-                                    <p style="margin: 0; font-size: 10pt;">JL. Beringin No.01 Telp (0736) 27515 Bengkulu – Kode Pos 38227</p>
-                                </td>
-                            </tr>
-                        </table>
-                        <div style="text-align: center; font-family: 'Times New Roman', serif;">
-                            <h3 style="text-decoration: underline; margin: 0; font-size: 14pt; font-weight: bold; text-transform: uppercase; color: #000;">
-                                {{ $template->jenisSurat->name ?? 'JUDUL SURAT' }}
-                            </h3>
-                            <p style="margin: 2px 0 20px 0; font-size: 12pt; color: #000;">NOMOR: ... / ... / ... / {{ date('Y') }}</p>
-                        </div>
-                    </div>
+                    <!-- 1. STATIC HEADER (KOP SURAT REMOVED) -->
+                    <!-- Kop Surat sekarang bisa diedit langsung di dalam editor jika diinginkan -->
+                    <!-- Jika tidak ada Kop Surat di editor, sistem akan menambahkan default secara otomatis -->
 
                     <!-- 2. EDITABLE BODY (TinyMCE) -->
                     <div class="flex-1 relative">
                         <textarea name="template_content" id="template_content" class="h-full w-full border-none focus:ring-0">{{ old('template_content', $template->template_content) }}</textarea>
                     </div>
 
-                    <!-- 3. STATIC FOOTER (SIGNATURE PREVIEW) -->
-                    <div class="px-12 pb-12 pt-4 select-none pointer-events-none opacity-80 cursor-not-allowed bg-gray-50 border-t border-dashed border-gray-300 font-family-serif">
-                        <div class="text-center text-xs text-gray-400 mb-4 uppercase tracking-widest font-bold">--- Area Tanda Tangan (Otomatis) ---</div>
-                        <div style="float: right; width: 45%; text-align: center; font-family: 'Times New Roman', serif; color: #000; font-size: 12pt;">
-                            <p>Bengkulu, {{ \Carbon\Carbon::now()->isoFormat('D MMMM Y') }}</p>
-                            <p style="margin-bottom: 60px;">LURAH PEMATANG GUBERNUR</p>
-                            
-                            <p style="font-weight: bold; text-decoration: underline;">{{ strtoupper($lurah->name ?? 'EDWIN KURNIAWAN, SH') }}</p>
-                            <p>NIP. {{ $lurah->nip ?? '198205272010011004' }}</p>
-                        </div>
-                        <div style="clear: both;"></div>
-                    </div>
+                    <!-- 3. STATIC FOOTER (SIGNATURE PREVIEW REMOVED) -->
+                    <!-- Tanda tangan akan otomatis ditambahkan oleh sistem pada hasil akhir PDF -->
 
                 </div>
             </div>
@@ -135,14 +105,17 @@
                         </div>
                     </div>
 
-                    <!-- Group: Data Surat -->
+                    <!-- Group: Data Surat & Tanda Tangan -->
                     <div>
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Data Surat</h4>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Data Surat & TTD</h4>
                         <div class="space-y-2">
                              @foreach([
                                 ['[NOMOR_SURAT]', 'Nomor Surat', 'bg-purple-50 text-purple-700'],
                                 ['[TANGGAL_SURAT]', 'Tanggal Hari Ini', 'bg-purple-50 text-purple-700'],
                                 ['[KEPERLUAN]', 'Keperluan', 'bg-purple-50 text-purple-700'],
+                                ['[QR_CODE]', 'QR Code TTE', 'bg-red-50 text-red-700'],
+                                ['[NAMA_LURAH]', 'Nama Lurah', 'bg-red-50 text-red-700'],
+                                ['[NIP_LURAH]', 'NIP Lurah', 'bg-red-50 text-red-700'],
                              ] as $tag)
                             <button type="button" onclick="insertTag('{{ $tag[0] }}')" class="w-full text-left px-3 py-2 bg-white border border-gray-200 rounded-md text-sm hover:border-purple-400 hover:shadow-sm transition flex justify-between items-center group">
                                 <span class="font-medium text-gray-700">{{ $tag[1] }}</span>

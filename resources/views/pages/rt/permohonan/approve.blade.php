@@ -56,15 +56,17 @@
 
                     // Fallback to User profile if data is incomplete
                     $user = $permohonan->user;
+                    $penduduk = $user->anggotaKeluarga;
+                    
                     $userMapping = [
-                        'nama_lengkap' => $user->name,
+                        'nama_lengkap' => $penduduk->nama_lengkap ?? $user->name,
                         'nik' => $user->nik,
-                        'tempat_lahir' => $user->tempat_lahir,
-                        'tanggal_lahir' => $user->tanggal_lahir,
-                        'pekerjaan' => $user->pekerjaan,
-                        'jenis_kelamin' => $user->jk,
-                        'agama' => $user->agama,
-                        'alamat' => $user->alamat_lengkap ?? $user->alamat,
+                        'tempat_lahir' => $penduduk->tempat_lahir ?? $user->tempat_lahir,
+                        'tanggal_lahir' => $penduduk->tanggal_lahir ?? $user->tanggal_lahir,
+                        'pekerjaan' => $penduduk->pekerjaan ?? $user->pekerjaan,
+                        'jenis_kelamin' => $penduduk->jk ?? $user->jk,
+                        'agama' => $penduduk->agama ?? $user->agama,
+                        'alamat' => $penduduk && $penduduk->keluarga ? $penduduk->keluarga->alamat : ($user->alamat_lengkap ?? $user->alamat),
                     ];
 
                     foreach($userMapping as $k => $v) {

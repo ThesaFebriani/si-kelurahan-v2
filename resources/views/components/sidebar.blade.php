@@ -15,12 +15,14 @@ $menus = [
         ['name' => 'Data RT', 'route' => 'admin.wilayah.rt.index', 'icon' => 'fas fa-map-marker-alt'],
         ['name' => 'Data RW', 'route' => 'admin.wilayah.rw.index', 'icon' => 'fas fa-map'],
         ['name' => 'Manajemen Pengguna', 'route' => 'admin.users.index', 'icon' => 'fas fa-users-cog'],
+        ['name' => 'Data Bidang (Kasi)', 'route' => 'admin.bidang.index', 'icon' => 'fas fa-briefcase'],
 
         // Letter Management Section
         ['header' => 'MANAJEMEN SURAT'],
         ['name' => 'Jenis Surat', 'route' => 'admin.jenis-surat.index', 'icon' => 'fas fa-file-alt'],
         ['name' => 'Template Surat', 'route' => 'admin.templates.index', 'icon' => 'fas fa-copy'],
         ['name' => 'Format Pengantar RT', 'route' => 'admin.settings.surat-pengantar', 'icon' => 'fas fa-file-contract'],
+        ['name' => 'Profil Instansi', 'route' => 'admin.settings.index', 'icon' => 'fas fa-landmark'],
 
         // Reports Section
         ['header' => 'LAPORAN & ARSIP'],

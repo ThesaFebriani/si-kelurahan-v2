@@ -26,8 +26,9 @@ class UserManagementController extends Controller
     {
         $roles = Role::where('is_active', true)->get();
         $rt_list = Rt::with('rw')->where('is_active', true)->get();
+        $bidangs = \App\Models\Bidang::all();
 
-        return view('pages.admin.user-management.create', compact('roles', 'rt_list'));
+        return view('pages.admin.user-management.create', compact('roles', 'rt_list', 'bidangs'));
     }
 
     public function edit($id)
@@ -35,8 +36,9 @@ class UserManagementController extends Controller
         $user = User::with(['role', 'rt'])->findOrFail($id);
         $roles = Role::where('is_active', true)->get();
         $rt_list = Rt::with('rw')->where('is_active', true)->get();
+        $bidangs = \App\Models\Bidang::all();
 
-        return view('pages.admin.user-management.edit', compact('user', 'roles', 'rt_list'));
+        return view('pages.admin.user-management.edit', compact('user', 'roles', 'rt_list', 'bidangs'));
     }
     public function store(Request $request)
     {
@@ -58,16 +60,21 @@ class UserManagementController extends Controller
 
         if (in_array($role->name, [Role::LURAH, Role::KASI])) {
             $rules['nip'] = 'required|string|unique:users,nip';
-            $request->merge(['nik' => $request->nik ?? $request->nip]); // Fallback NIK = NIP jika kosong untuk PNS? Atau biarkan nullable? 
-            // Better: User table constraint usually unique NIK. 
-            // Let's assume PNS uses NIP as NIK if not provided, OR allow NIK to be optional if NIP is present?
-            // Schema has NIK as unique string. So it must be provided.
-            // Let's require NIK for everyone as Identity, but NIP mandatory specifically for PNS.
+            $request->merge(['nik' => $request->nik ?? $request->nip]); 
             $rules['nik'] = 'required|string|unique:users,nik'; 
+            
+            // Validation for Bidang if Kasi
+            if ($role->name === Role::KASI) {
+                $rules['bidang'] = 'required|exists:bidangs,code';
+            } else {
+                $rules['bidang'] = 'nullable|string';
+            }
+
         } else {
             // Warga / RT
             $rules['nik'] = 'required|string|unique:users,nik';
             $rules['nip'] = 'nullable|string';
+            $rules['bidang'] = 'nullable|string';
             
             // Khusus Masyarakat wajib isi alamat, Role lain opsional (default '-')
             if ($role->name === Role::MASYARAKAT) {
@@ -137,9 +144,16 @@ class UserManagementController extends Controller
         if (in_array($role->name, [Role::LURAH, Role::KASI])) {
             $rules['nip'] = ['required', 'string', Rule::unique('users')->ignore($user->id)];
             $rules['nik'] = ['required', 'string', Rule::unique('users')->ignore($user->id)];
+            
+            if ($role->name === Role::KASI) {
+                $rules['bidang'] = ['required', 'exists:bidangs,code'];
+            } else {
+                $rules['bidang'] = 'nullable|string';
+            }
         } else {
             $rules['nik'] = ['required', 'string', Rule::unique('users')->ignore($user->id)];
             $rules['nip'] = 'nullable|string';
+            $rules['bidang'] = 'nullable|string';
         }
 
         $request->validate($rules);

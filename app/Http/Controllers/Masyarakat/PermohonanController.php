@@ -16,14 +16,38 @@ class PermohonanController extends Controller
     /** ============================================================
      *  LIST PERMOHONAN
      *  ============================================================ */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
-        $permohonan = PermohonanSurat::with(['jenisSurat', 'timeline'])
-            ->where('user_id', $user->id)
-            ->latest()
-            ->paginate(10);
+        $query = PermohonanSurat::with(['jenisSurat', 'timeline'])
+            ->where('user_id', $user->id);
+
+        // Filter Search
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where('nomor_tiket', 'like', "%{$search}%");
+        }
+
+        // Filter Tab Values
+        $tab = $request->get('tab', 'semua');
+        if ($tab === 'proses') {
+            $query->whereIn('status', [
+                PermohonanSurat::MENUNGGU_RT,
+                PermohonanSurat::DISETUJUI_RT,
+                PermohonanSurat::MENUNGGU_KASI,
+                PermohonanSurat::DISETUJUI_KASI,
+                PermohonanSurat::MENUNGGU_LURAH
+            ]);
+        } elseif ($tab === 'selesai') {
+            $query->whereIn('status', [
+                PermohonanSurat::SELESAI,
+                PermohonanSurat::DITOLAK_RT,
+                PermohonanSurat::DITOLAK_KASI
+            ]);
+        }
+
+        $permohonan = $query->latest()->paginate(10);
 
         return view('pages.masyarakat.permohonan.index', compact('permohonan'));
     }
@@ -80,6 +104,13 @@ class PermohonanController extends Controller
             if ($field->field_type === "select" && !empty($field->options_array)) {
                 $allowed = implode(',', $field->options_array);
                 $rule .= "|in:$allowed";
+            }
+
+            // Jika number/currency → tambahkan min:0
+            if (in_array($field->field_type, ["number", "currency"])) {
+                if (strpos($rule, 'min:') === false) {
+                    $rule .= "|min:0";
+                }
             }
 
             // Jika file → pakai aturan khusus

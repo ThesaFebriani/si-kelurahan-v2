@@ -45,6 +45,22 @@
                     @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
+                <!-- Bidang (Kasi) -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Bidang (Tujuan Kasi)</label>
+                    <select name="bidang" required
+                        class="w-full rounded-lg border-slate-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm">
+                        <option value="" disabled>-- Pilih Bidang / Kasi --</option>
+                        @foreach($bidangs as $bidang)
+                            <option value="{{ $bidang->code }}" {{ old('bidang', $jenis_surat->bidang) == $bidang->code ? 'selected' : '' }}>
+                                {{ $bidang->name }} (Kode: {{ $bidang->code }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-slate-400 mt-1">Surat ini akan masuk ke dashboard Kasi yang dipilih setelah disetujui RT.</p>
+                    @error('bidang') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
                 <!-- Deskripsi -->
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Deskripsi</label>

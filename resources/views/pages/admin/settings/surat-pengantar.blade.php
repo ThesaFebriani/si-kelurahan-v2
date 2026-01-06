@@ -80,6 +80,7 @@
                                 ['[ALAMAT_WARGA]', 'Alamat Domisili'],
                                 ['[STATUS_PERKAWINAN]', 'Status Kawin'],
                                 ['[PENDIDIKAN]', 'Pendidikan'],
+                                ['[BANGSA]', 'Bangsa'],
                                 ['[KEPALA_KELUARGA]', 'Kepala Keluarga'],
                              ] as $tag)
                             <button type="button" onclick="insertTag('{{ $tag[0] }}')" class="w-full text-left px-3 py-2 bg-white border border-gray-200 rounded-md text-sm hover:border-blue-400 hover:shadow-sm transition flex justify-between items-center group">

@@ -15,10 +15,11 @@ class Rw extends Model
     protected $guarded = ['id'];
 
     // RELATIONS
-    public function kelurahan()
+    /* public function kelurahan()
     {
         return $this->belongsTo(Kelurahan::class);
     }
+        */
 
     public function rt()
     {

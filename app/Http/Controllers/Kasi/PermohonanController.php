@@ -144,6 +144,27 @@ class PermohonanController extends Controller
         return view('pages.kasi.permohonan.verify', compact('permohonan', 'defaultContent', 'suggestedNomorSurat'));
     }
 
+    public function previewSurat($id)
+    {
+        $user = Auth::user();
+
+        $permohonan = PermohonanSurat::with(['user.rt.rw', 'jenisSurat', 'surat'])
+            ->when($user->bidang, function($q) use ($user) {
+                $q->whereHas('jenisSurat', function($sub) use ($user) {
+                    $sub->where('bidang', $user->bidang);
+                });
+            })
+            ->findOrFail($id);
+            
+        // Prepare content
+        $suratContent = $permohonan->surat->isi_surat ?? '<p class="text-center text-gray-500">Konten surat tidak tersedia</p>';
+        
+        // If final (SELESAI) and has file, user might prefer download, but this view is for quick HTML preview if available
+        // We will assume isi_surat is preserved in DB even after PDF generation
+
+        return view('pages.kasi.permohonan.preview-surat', compact('permohonan', 'suratContent'));
+    }
+
     public function processVerification(Request $request, $id)
     {
         $user = Auth::user();
@@ -268,41 +289,22 @@ class PermohonanController extends Controller
 
         // 4. Jika Template DB Ada
         if ($template && !empty($template->template_content)) {
-            // Prepend Kop Surat
-            $content = $this->getKopSuratHTML() . $template->template_content;
-            
-            // Append Signature (Penutup)
-            $content .= $this->getPenutupSuratHTML($permohonan);
-            
-            // --- LOGIC BARU: TAG REPLACEMENT ---
-            $replacements = [
-                '[NAMA_WARGA]' => $nama,
-                '[NIK]' => $dataPemohon['nik'] ?? $user->nik ?? '-',
-                '[NO_KK]' => $dataPemohon['no_kk'] ?? $user->kk ?? '-', 
-                '[TTL]' => $ttl,
-                '[JK]' => $jk,
-                '[AGAMA]' => $agama,
-                '[PEKERJAAN]' => $pekerjaan,
-                '[STATUS_PERKAWINAN]' => $dataPemohon['status_perkawinan'] ?? '-',
-                '[KEWARGANEGARAAN]' => $dataPemohon['kewarganegaraan'] ?? 'WNI',
-                '[ALAMAT]' => $alamat,
-                '[RT]' => $rt->nomor_rt ?? '000',
-                '[RW]' => $rw->nomor_rw ?? '000',
-                '[NAMA_AYAH]' => $dataPemohon['nama_ayah'] ?? '-',
-                '[NAMA_IBU]' => $dataPemohon['nama_ibu'] ?? '-',
-                '[NOMOR_SURAT]' => '<span id="nomor_surat_placeholder">... / ... / ... / ' . date('Y') . '</span>',
-                '[TANGGAL_SURAT]' => \Carbon\Carbon::now()->isoFormat('D MMMM Y'),
-                '[KEPERLUAN]' => $dataPemohon['keperluan'] ?? '-',
-                '[NAMA_LURAH]' => ($lurah = \App\Models\User::whereHas('role', function($q){ $q->where('name', 'lurah'); })->first()) ? $lurah->name : 'EDWIN KURNIAWAN, SH',
-                '[NIP_LURAH]' => $lurah->nip ?? '198205272010011004',
-            ];
-
-            foreach ($replacements as $tag => $value) {
-                // Gunakan str_replace agar semua occurrence terganti
-                $content = str_replace($tag, $value, $content);
+            // Prepend Kop Surat only if not present in template
+            $content = $template->template_content;
+            if (!str_contains($content, 'PEMERINTAH KOTA') && !str_contains($content, 'Area Kop Surat')) {
+                $content = $this->getKopSuratHTML() . $content;
             }
-
-            return $content;
+            
+            // Append Signature (Penutup) ONLY if not present in template
+            if (!str_contains($content, '[NAMA_LURAH]') && !str_contains($content, 'NIP.')) {
+                 $content .= $this->getPenutupSuratHTML($permohonan);
+            }
+            
+            // --- LOGIC BARU: TAG REPLACEMENT (Centralized) ---
+            $pdfService = new PDFGeneratorService();
+            // Pass Kasi-specific placeholder format
+            $nomorPlaceholder = '... / ... / ... / ' . date('Y');
+            return $pdfService->applyContentVariables($content, $permohonan, $nomorPlaceholder);
         }
 
 
@@ -396,20 +398,27 @@ class PermohonanController extends Controller
     {
         $data = $permohonan->data_pemohon ?? [];
         $user = $permohonan->user;
+        $penduduk = $user->anggotaKeluarga;
 
-        $nama = strtoupper($data['nama_lengkap'] ?? $user->name ?? '-');
+        // Ensure proper array
+        if (is_string($data)) $data = json_decode($data, true);
+        if (!is_array($data)) $data = [];
+
+        $nama = strtoupper($data['nama_lengkap'] ?? $penduduk->nama_lengkap ?? $user->name ?? '-');
         
-        $tmpLahir = $data['tempat_lahir'] ?? $user->tempat_lahir ?? '-';
-        $tglLahir = isset($data['tanggal_lahir']) ? \Carbon\Carbon::parse($data['tanggal_lahir'])->isoFormat('D MMMM Y') : ($user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->isoFormat('D MMMM Y') : '-');
+        $tmpLahir = $data['tempat_lahir'] ?? $penduduk->tempat_lahir ?? $user->tempat_lahir ?? '-';
+        $tglLahirRaw = $data['tanggal_lahir'] ?? $penduduk->tanggal_lahir ?? $user->tanggal_lahir;
+        $tglLahir = $tglLahirRaw ? \Carbon\Carbon::parse($tglLahirRaw)->isoFormat('D MMMM Y') : '-';
+        
         $ttl = "$tmpLahir, $tglLahir";
 
-        $jk = $data['jenis_kelamin'] ?? $data['jk'] ?? $user->jk ?? '-';
+        $jk = $data['jenis_kelamin'] ?? $data['jk'] ?? $penduduk->jk ?? $user->jk ?? '-';
         if(in_array(strtolower($jk), ['l', 'laki-laki'])) $jk = 'Laki-laki';
         if(in_array(strtolower($jk), ['p', 'perempuan'])) $jk = 'Perempuan';
 
-        $alamat = $data['alamat'] ?? $user->alamat ?? '-';
-        $pekerjaan = $data['pekerjaan'] ?? $user->pekerjaan ?? '-';
-        $agama = $data['agama'] ?? $user->agama ?? '-';
+        $alamat = $data['alamat'] ?? ($penduduk && $penduduk->keluarga ? $penduduk->keluarga->alamat : ($user->alamat_lengkap ?? '-'));
+        $pekerjaan = $data['pekerjaan'] ?? $penduduk->pekerjaan ?? $user->pekerjaan ?? '-';
+        $agama = $data['agama'] ?? $penduduk->agama ?? $user->agama ?? '-';
 
         return "
             <table style=\"width: 100%; margin-left: 40px; margin-bottom: 15px;\">

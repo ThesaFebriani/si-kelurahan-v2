@@ -20,18 +20,6 @@
         {!! $isi_surat !!}
     </div>
     
-    <div class="signature-block">
-        <p>Karawang, {{ $tanggal_surat }}</p>
-        <p>Lurah Desa</p>
-        
-        <div class="qr-code">
-            <img src="data:image/svg+xml;base64, {{ $qr_code }}" alt="QR Code" width="100">
-        </div>
-        
-        <p style="font-weight: bold; text-decoration: underline;">{{ $verificator_name }}</p>
-        <p>Dokumen ini telah ditandatangani secara elektronik</p>
-    </div>
-    
     <div class="clear"></div>
 </body>
 </html>

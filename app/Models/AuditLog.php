@@ -3,13 +3,23 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 
 class AuditLog extends Model
 {
-    use HasFactory;
+    use HasFactory, MassPrunable;
 
     protected $guarded = ['id'];
+
+    /**
+     * Get the prunable model query.
+     */
+    public function prunable()
+    {
+        // Hapus log yang lebih tua dari 1 tahun
+        return static::where('created_at', '<=', now()->subYear());
+    }
 
     // ACTION CONSTANTS
     const ACTION_CREATE = 'create';

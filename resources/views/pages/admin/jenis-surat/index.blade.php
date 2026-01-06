@@ -25,16 +25,15 @@
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-semibold">
-                    <th class="px-6 py-4">Kode & Nama</th>
-                    <th class="px-6 py-4">Deskripsi</th>
-                    <th class="px-6 py-4 text-center">Status</th>
-                    <th class="px-6 py-4 text-right">Aksi</th>
+                    <th class="pl-4 pr-3 py-3">Kode & Nama</th>
+                    <th class="px-3 py-3 text-center w-px whitespace-nowrap">Status</th>
+                    <th class="px-3 py-3 text-center w-px whitespace-nowrap">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @forelse($jenis_surats as $item)
                 <tr class="hover:bg-slate-50/80 transition-colors group">
-                    <td class="px-6 py-4">
+                    <td class="pl-4 pr-3 py-3">
                         <div class="flex items-center gap-3">
                             <div class="h-8 w-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
                                 <i class="fas fa-file-alt"></i>
@@ -47,10 +46,7 @@
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4">
-                        <p class="text-sm text-slate-600 line-clamp-2 max-w-sm">{{ $item->description ?? '-' }}</p>
-                    </td>
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-3 py-3 text-center w-px whitespace-nowrap">
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium {{ $item->is_active ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-100 text-slate-500 border border-slate-200' }}">
                             @if($item->is_active)
                                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -61,17 +57,17 @@
                             @endif
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-right">
-                        <div class="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                            <a href="{{ route('admin.jenis-surat.edit', $item->id) }}" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Edit">
-                                <i class="fas fa-edit"></i>
+                    <td class="px-3 py-3 text-center w-px whitespace-nowrap">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{{ route('admin.jenis-surat.edit', $item->id) }}" class="h-8 w-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="Edit">
+                                <i class="fas fa-edit text-xs"></i>
                             </a>
                             
                             <form action="{{ route('admin.jenis-surat.destroy', $item->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus jenis surat ini?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Hapus">
-                                    <i class="fas fa-trash-alt"></i>
+                                <button type="submit" class="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Hapus">
+                                    <i class="fas fa-trash-alt text-xs"></i>
                                 </button>
                             </form>
                         </div>
@@ -79,7 +75,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" class="px-6 py-12 text-center">
+                    <td colspan="3" class="px-6 py-12 text-center">
                         <div class="flex flex-col items-center justify-center text-slate-400">
                             <div class="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
                                 <i class="fas fa-folder-open text-2xl"></i>

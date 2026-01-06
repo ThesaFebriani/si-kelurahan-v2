@@ -55,11 +55,18 @@ class AuditLogObserver
         $oldData = null;
         $newData = null;
 
+        // Fields to exclude from log for security and space saving
+        $excludedFields = ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'email_verified_at', 'created_at', 'updated_at', 'deleted_at'];
+
         if ($action === AuditLog::ACTION_CREATE) {
             $newData = $model->toArray();
+            // Filter excluded fields
+            $newData = array_diff_key($newData, array_flip($excludedFields));
             $description = "Membuat data baru pada " . class_basename($model);
         } elseif ($action === AuditLog::ACTION_DELETE) {
             $oldData = $model->toArray();
+            // Filter excluded fields
+            $oldData = array_diff_key($oldData, array_flip($excludedFields));
             $description = "Menghapus data pada " . class_basename($model);
         } elseif ($action === AuditLog::ACTION_UPDATE) {
             $changes = $model->getChanges();
@@ -70,7 +77,7 @@ class AuditLogObserver
             $newData = [];
             
             foreach ($changes as $key => $value) {
-                if ($key === 'updated_at') continue; // Skip timestamp
+                if (in_array($key, $excludedFields)) continue; // Skip excluded fields
                 
                 $oldData[$key] = $original[$key] ?? null;
                 $newData[$key] = $value;

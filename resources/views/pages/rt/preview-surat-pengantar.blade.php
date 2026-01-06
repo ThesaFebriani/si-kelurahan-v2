@@ -21,73 +21,9 @@
         <!-- Preview Section -->
         <div class="p-6 border-b border-gray-200">
             <div class="bg-gray-50 border border-gray-300 rounded-lg p-6">
-                <!-- Kop Surat -->
-                <div class="text-center mb-6">
-                    <h1 class="text-lg font-bold uppercase">Pemerintah Kelurahan</h1>
-                    <h2 class="text-md font-semibold">Rukun Tetangga (RT) {{ Auth::user()->rt->nomor_rt }}</h2>
-                    <p class="text-sm">RW {{ Auth::user()->rt->rw->nomor_rw }}</p>
-                    <div class="border-t-2 border-black my-3"></div>
-                </div>
-
-                <!-- Nomor Surat -->
-                <div class="text-right mb-6">
-                    <p class="font-semibold">Nomor : {{ $nomorSurat }}</p>
-                    <p>Tanggal : {{ now()->format('d F Y') }}</p>
-                </div>
-
-                <!-- Perihal -->
-                <div class="mb-6">
-                    <p class="font-semibold">Perihal : Surat Pengantar</p>
-                    <p class="font-semibold">Lampiran : -</p>
-                </div>
-
-                <!-- Salam Pembuka -->
-                <div class="mb-6">
-                    <p>Kepada Yth.</p>
-                    <p class="font-semibold">Kepala Seksi {{ $permohonan->jenisSurat->bidang_display }}</p>
-                    <p>di</p>
-                    <p class="font-semibold">Kelurahan Contoh</p>
-                </div>
-
-                <!-- Isi Surat -->
-                <div class="mb-6 leading-relaxed">
-                    <p class="mb-4">Dengan hormat,</p>
-
-                    <p class="mb-4">
-                        Yang bertanda tangan di bawah ini Ketua RT {{ Auth::user()->rt->nomor_rt }},
-                        menerangkan bahwa:
-                    </p>
-
-                    <div class="ml-6 mb-4">
-                        <p>Nama : <span class="font-semibold">{{ $permohonan->user->name }}</span></p>
-                        <p>NIK : <span class="font-semibold">{{ $permohonan->data_pemohon['nik'] ?? '-' }}</span></p>
-                        <p>Alamat : <span class="font-semibold">{{ $permohonan->user->alamat_lengkap }}</span></p>
-                        <p>Jenis Surat : <span class="font-semibold">{{ $permohonan->jenisSurat->name }}</span></p>
-                    </div>
-
-                    <p class="mb-4">
-                        Adalah benar warga RT {{ Auth::user()->rt->nomor_rt }} dan berdasarkan data yang ada,
-                        yang bersangkutan membutuhkan {{ $permohonan->jenisSurat->name }} untuk keperluan:
-                    </p>
-
-                    <div class="bg-gray-100 p-4 rounded mb-4">
-                        <p class="font-medium">{{ $permohonan->data_pemohon['tujuan'] ?? 'Keperluan administrasi' }}</p>
-                    </div>
-
-                    <p class="mb-4">
-                        Demikian surat pengantar ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
-                    </p>
-                </div>
-
-                <!-- Tanda Tangan -->
-                <div class="mt-12 text-center">
-                    <p>Hormat kami,</p>
-                    <p class="font-semibold mt-8">Ketua RT {{ Auth::user()->rt->nomor_rt }}</p>
-                    <div class="mt-16">
-                        <p class="font-semibold border-t border-black pt-2 inline-block">
-                            {{ Auth::user()->name }}
-                        </p>
-                    </div>
+                <!-- Render Dynamic Content from Controller/Database -->
+                <div class="prose max-w-none">
+                    {!! $content !!}
                 </div>
             </div>
         </div>

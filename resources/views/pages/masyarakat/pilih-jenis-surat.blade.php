@@ -6,12 +6,49 @@
 
 @section('content')
 <div class="space-y-8">
-    <!-- Header Page -->
+    
+    <!-- Integrated Header & Guide -->
     <div class="relative bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-8 shadow-lg overflow-hidden text-white">
-        <div class="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 rounded-full bg-white/10 blur-2xl"></div>
-        <div class="relative z-10">
-            <h2 class="text-3xl font-bold mb-3">Ajukan Permohonan Surat 📝</h2>
-            <p class="text-blue-100 max-w-2xl text-lg">Silakan pilih jenis surat yang sesuai dengan kebutuhan Anda. Pastikan Anda telah melengkapi data diri di halaman profil sebelum melanjutkan.</p>
+        <!-- Decoration -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-white/10 blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -ml-10 -mb-10 w-40 h-40 rounded-full bg-blue-500/20 blur-2xl"></div>
+
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <!-- Left: Title & Intro -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="inline-flex items-center px-3 py-1 rounded-full bg-blue-500/30 border border-blue-400/30 text-blue-50 text-xs font-semibold uppercase tracking-wider">
+                    👋 Layanan Mandiri
+                </div>
+                <h2 class="text-3xl font-bold leading-tight">Ajukan Permohonan Surat</h2>
+                <p class="text-blue-100 text-lg leading-relaxed max-w-xl">
+                    Silakan pilih jenis layanan surat di bawah ini sesuai kebutuhan Anda. Kami siap melayani dengan cepat dan transparan.
+                </p>
+            </div>
+
+            <!-- Right: Quick Guide -->
+            <div class="lg:col-span-1 bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/10 shadow-sm">
+                <h4 class="font-bold text-white mb-3 flex items-center text-sm">
+                    <i class="fas fa-info-circle mr-2 text-blue-200"></i> Panduan Singkat
+                </h4>
+                <ul class="space-y-2.5 text-sm text-blue-50">
+                    <li class="flex items-start">
+                        <span class="mr-2 opacity-70">1.</span>
+                        <span>Pilih jenis surat yang sesuai.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2 opacity-70">2.</span>
+                        <span>Isi formulir & lengkapi data.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2 opacity-70">3.</span>
+                        <span>Unggah dokumen (PDF/JPG, Max 2MB).</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2 opacity-70">4.</span>
+                        <span>Pantau status permohonan anda melalui dashboard atau menu riwayat.</span>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -35,7 +72,7 @@
             
             <div class="p-6 flex-1">
                 <div class="flex items-start justify-between mb-4">
-                    <div class="w-12 h-12 rounded-xl {{ $theme['bg'] }} {{ $theme['text'] }} flex items-center justify-center text-xl shadow-inner">
+                    <div class="w-12 h-12 rounded-xl {{ $theme['bg'] }} {{ $theme['text'] }} flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform duration-300">
                         <i class="fas {{ $theme['icon'] }}"></i>
                     </div>
                     <span class="px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full {{ $theme['bg'] }} {{ $theme['text'] }}">
@@ -52,13 +89,13 @@
                 </p>
             </div>
 
-            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-                <div class="flex items-center text-sm text-gray-500 font-medium">
-                    <i class="far fa-clock mr-2 text-gray-400"></i>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between group-hover:bg-blue-50/50 transition-colors">
+                <div class="flex items-center text-sm text-gray-500 font-medium group-hover:text-blue-600">
+                    <i class="far fa-clock mr-2 text-gray-400 group-hover:text-blue-400"></i>
                     Estimasi {{ $jenis->estimasi_hari }} Hari
                 </div>
                 <span class="text-blue-600 font-semibold text-sm group-hover:underline flex items-center">
-                    Ajukan Sekarang <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                    Ajukan <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
                 </span>
             </div>
         </a>
@@ -73,21 +110,5 @@
         <p class="text-gray-500 max-w-md mx-auto">Saat ini belum ada jenis surat yang tersedia untuk diajukan. Silakan hubungi pihak kelurahan untuk informasi lebih lanjut.</p>
     </div>
     @endif
-
-    <!-- Information Section -->
-    <div class="bg-white rounded-2xl shadow-sm border border-l-4 border-l-blue-500 p-6 flex items-start space-x-4">
-        <div class="hidden sm:flex w-12 h-12 bg-blue-50 text-blue-600 rounded-full items-center justify-center flex-shrink-0">
-            <i class="fas fa-info text-xl"></i>
-        </div>
-        <div>
-            <h4 class="text-lg font-bold text-gray-800 mb-2">Panduan Pengajuan Surat</h4>
-            <div class="text-gray-600 text-sm space-y-1">
-                <p>1. Pilih jenis surat yang sesuai dengan kebutuhan Anda di atas.</p>
-                <p>2. Lengkapi formulir isian dengan data yang valid dan benar.</p>
-                <p>3. Unggah dokumen persyaratan yang diminta (Format: PDF/JPG, Max 2MB).</p>
-                <p>4. Pantau status permohonan Anda melalui Dashboard atau menu Riwayat.</p>
-            </div>
-        </div>
-    </div>
 </div>
 @endsection

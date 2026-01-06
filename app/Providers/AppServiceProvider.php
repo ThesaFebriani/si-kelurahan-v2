@@ -23,10 +23,13 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\User::observe(\App\Observers\AuditLogObserver::class);
         \App\Models\Keluarga::observe(\App\Observers\AuditLogObserver::class);
         \App\Models\AnggotaKeluarga::observe(\App\Observers\AuditLogObserver::class);
+        \App\Models\AnggotaKeluarga::observe(\App\Observers\AnggotaKeluargaObserver::class);
         
         // Surat & Process
         \App\Models\PermohonanSurat::observe(\App\Observers\AuditLogObserver::class);
+        \App\Models\PermohonanSurat::observe(\App\Observers\AuditLogObserver::class);
         \App\Models\PermohonanSurat::observe(\App\Observers\PermohonanSuratNotificationObserver::class);
+        \App\Models\PermohonanSurat::observe(\App\Observers\PermohonanObserver::class); // Global Audit Status Observer
         \App\Models\Surat::observe(\App\Observers\AuditLogObserver::class);
         \App\Models\ApprovalFlow::observe(\App\Observers\AuditLogObserver::class);
         // \App\Models\TimelinePermohonan::observe(\App\Observers\AuditLogObserver::class); // Timeline sudah log, mungkin redundant tapi oke
@@ -38,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\RequiredDocument::observe(\App\Observers\AuditLogObserver::class);
         \App\Models\Rt::observe(\App\Observers\AuditLogObserver::class);
         \App\Models\Rw::observe(\App\Observers\AuditLogObserver::class);
+        \App\Models\Bidang::observe(\App\Observers\AuditLogObserver::class);
         
         // Configuration
         // \App\Models\Role::observe(\App\Observers\AuditLogObserver::class); // Role jarang berubah

@@ -38,7 +38,54 @@ class TemplateController extends Controller
         $lurah = \App\Models\User::whereHas('role', function($q){ $q->where('name', 'lurah'); })->first();
         $logo_url = asset('images/logo-kota-bengkulu.png');
 
-        return view('pages.admin.templates.create', compact('jenisSurat', 'user', 'rt', 'nomor_surat', 'lurah', 'logo_url'));
+        // PREPARE DEFAULT EDITABLE CONTENT
+        $logo_b64 = '';
+        if (file_exists(public_path('images/logo-kota-bengkulu.png'))) {
+            $logo_b64 = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('images/logo-kota-bengkulu.png')));
+        }
+        
+        $default_content = '
+        <div style="font-family: \'Times New Roman\', serif; color: #000; padding: 20px;">
+            <table style="width: 100%; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 25px;">
+                <tr>
+                    <td style="width: 15%; text-align: center; vertical-align: middle;">
+                        <img src="' . $logo_b64 . '" alt="Logo" style="height: 90px;">
+                    </td>
+                    <td style="text-align: center; vertical-align: middle;">
+                        <h3 style="margin: 0; font-size: 14pt; font-weight: normal;">PEMERINTAH KOTA BENGKULU</h3>
+                        <h2 style="margin: 0; font-size: 16pt; font-weight: bold;">KECAMATAN RATU SAMBAN</h2>
+                        <h1 style="margin: 0; font-size: 18pt; font-weight: bold;">KELURAHAN PADANG JATI</h1>
+                        <p style="margin: 0; font-size: 10pt; font-style: italic;">Jl. Jati No. ... Kelurahan Padang Jati Kecamatan Ratu Samban Kota Bengkulu</p>
+                    </td>
+                </tr>
+            </table>
+
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h3 style="text-decoration: underline; margin: 0; font-size: 14pt; font-weight: bold; text-transform: uppercase;">
+                    (JUDUL SURAT)
+                </h3>
+                <p style="margin: 2px 0 0 0; font-size: 12pt;">NOMOR: ... / ... / ... / ' . date('Y') . '</p>
+            </div>
+
+            <div style="font-size: 12pt; line-height: 1.5;">
+                <p>Isi surat dimulai di sini...</p>
+            </div>
+
+            <div style="margin-top: 50px; float: right; width: 45%; text-align: center; font-size: 12pt;">
+                <p>Bengkulu, [TANGGAL_SURAT]</p>
+                <p style="margin-bottom: 10px;">LURAH PEMATANG GUBERNUR</p>
+                
+                <div style="margin: 10px auto; height: 80px;">
+                    [QR_CODE]
+                </div>
+
+                <p style="font-weight: bold; text-decoration: underline; margin-bottom: 0;">[NAMA_LURAH]</p>
+                <p style="margin-top: 2px;">NIP. [NIP_LURAH]</p>
+            </div>
+            <div style="clear: both;"></div>
+        </div>';
+
+        return view('pages.admin.templates.create', compact('jenisSurat', 'user', 'rt', 'nomor_surat', 'lurah', 'logo_url', 'default_content'));
     }
 
     /**
@@ -91,6 +138,37 @@ class TemplateController extends Controller
         // Data untuk Preview Kop & TTD
         $lurah = \App\Models\User::whereHas('role', function($q){ $q->where('name', 'lurah'); })->first();
         $logo_url = asset('images/logo-kota-bengkulu.png');
+
+        // MIGRATION LOGIC:
+        // Jika template lama belum punya Kop Surat di dalam kontennya (karena dulu hardcode),
+        // kita tambahkan Kop Surat otomatis saat Edit agar Admin bisa melihat dan mengeditnya mulai sekarang.
+        if (!str_contains($template->template_content, 'PEMERINTAH KOTA') && !str_contains($template->template_content, 'Area Kop Surat')) {
+            $logo_b64 = '';
+            if (file_exists(public_path('images/logo-kota-bengkulu.png'))) {
+                $logo_b64 = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('images/logo-kota-bengkulu.png')));
+            }
+
+            $kop_html = '
+            <div style="font-family: \'Times New Roman\', serif; color: #000; padding: 20px;">
+                <table style="width: 100%; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 25px;">
+                    <tr>
+                        <td style="width: 15%; text-align: center; vertical-align: middle;">
+                            <img src="' . $logo_b64 . '" alt="Logo" style="height: 90px;">
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">
+                            <h3 style="margin: 0; font-size: 14pt; font-weight: normal;">PEMERINTAH KOTA BENGKULU</h3>
+                            <h2 style="margin: 0; font-size: 16pt; font-weight: bold;">KECAMATAN RATU SAMBAN</h2>
+                            <h1 style="margin: 0; font-size: 18pt; font-weight: bold;">KELURAHAN PADANG JATI</h1>
+                            <p style="margin: 0; font-size: 10pt; font-style: italic;">Jl. Jati No. ... Kelurahan Padang Jati Kecamatan Ratu Samban Kota Bengkulu</p>
+                        </td>
+                    </tr>
+                </table>
+                <div style="font-size: 12pt; line-height: 1.5;">';
+            
+            // Tutup div di akhir konten jika perlu, tapi karena HTML editor permissive, prepend saja cukup
+            // Namun sebaiknya kita wrap konten lama
+            $template->template_content = $kop_html . $template->template_content . '</div></div>';
+        }
 
         return view('pages.admin.templates.edit', compact('template', 'jenisSurat', 'user', 'rt', 'nomor_surat', 'lurah', 'logo_url'));
     }

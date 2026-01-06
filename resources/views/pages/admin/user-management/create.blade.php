@@ -80,6 +80,22 @@
                         </select>
                         @error('role_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
+                    
+                    <!-- Bidang (Khusus Kasi) -->
+                    <div id="wrapper-bidang" style="display: none;">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Bidang (Khusus Kasi)</label>
+                        <select name="bidang" id="bidang"
+                            class="w-full rounded-lg border-slate-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm">
+                            <option value="">-- Pilih Bidang --</option>
+                            @foreach($bidangs as $bidang)
+                                <option value="{{ $bidang->code }}" {{ old('bidang') == $bidang->code ? 'selected' : '' }}>
+                                    {{ $bidang->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                         <p class="text-xs text-slate-400 mt-1">Wajib diisi jika Role adalah Kepala Seksi (Kasi)</p>
+                        @error('bidang') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">RT (Khusus RT/Warga)</label>
                         <select name="rt_id"
@@ -132,3 +148,27 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.querySelector('select[name="role_id"]');
+        const bidangWrapper = document.getElementById('wrapper-bidang');
+        
+        function toggleBidang() {
+            // Asumsi ID Role Kasi bisa berbeda, tapi textnya 'Kasi' atau kita cek backend ID
+            // Tapi karena di frontend kita loop, kita cek text content atau pass variable role kasi ID via PHP
+            // Cara termudah: Check selected option text
+            const selectedText = roleSelect.options[roleSelect.selectedIndex].text.toLowerCase();
+            if (selectedText.includes('kasi') || selectedText.includes('kepala seksi')) {
+                bidangWrapper.style.display = 'block';
+            } else {
+                bidangWrapper.style.display = 'none';
+            }
+        }
+
+        roleSelect.addEventListener('change', toggleBidang);
+        toggleBidang(); // Run on load (for old input)
+    });
+</script>
+@endpush

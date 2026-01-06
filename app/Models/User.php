@@ -15,9 +15,11 @@ use App\Models\ApprovalFlow;
 use App\Models\TimelinePermohonan;
 use App\Models\Notification;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     // CONSTANTS
     const STATUS_ACTIVE = 'active';

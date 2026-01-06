@@ -19,19 +19,22 @@ class JenisSuratController extends Controller
 
     public function create()
     {
-        return view('pages.admin.jenis-surat.create');
+        $bidangs = \App\Models\Bidang::all();
+        return view('pages.admin.jenis-surat.create', compact('bidangs'));
     }
 
     public function edit($id)
     {
         $jenis_surat = JenisSurat::findOrFail($id);
-        return view('pages.admin.jenis-surat.edit', compact('jenis_surat'));
+        $bidangs = \App\Models\Bidang::all();
+        return view('pages.admin.jenis-surat.edit', compact('jenis_surat', 'bidangs'));
     }
     public function store(Request $request)
     {
         $request->validate([
             'kode_surat' => 'required|string|max:50|unique:jenis_surats',
             'name' => 'required|string|max:255',
+            'bidang' => 'required|exists:bidangs,code',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
@@ -49,6 +52,7 @@ class JenisSuratController extends Controller
         $request->validate([
             'kode_surat' => ['required', 'string', 'max:50', Rule::unique('jenis_surats')->ignore($jenis_surat->id)],
             'name' => 'required|string|max:255',
+            'bidang' => 'required|exists:bidangs,code',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ]);

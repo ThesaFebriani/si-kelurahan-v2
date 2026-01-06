@@ -5,7 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\JenisSuratController;
 use App\Http\Controllers\Admin\WilayahController;
-use App\Http\Controllers\Admin\LaporanController;
+
 
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
@@ -22,6 +22,9 @@ Route::middleware(['auth', 'role:admin'])
         Route::resource('jenis-surat', JenisSuratController::class)->parameters([
             'jenis-surat' => 'jenis_surat' // Agar parameter di controller sesuai standar Laravel convention
         ]);
+
+        // Master Data Bidang (Kasi)
+        Route::resource('bidang', \App\Http\Controllers\Admin\BidangController::class);
 
         // Wilayah Management
         Route::prefix('wilayah')->name('wilayah.')->group(function () {
@@ -42,8 +45,7 @@ Route::middleware(['auth', 'role:admin'])
             Route::delete('/rt/{rt}', [WilayahController::class, 'rtDestroy'])->name('rt.destroy');
         });
 
-        // Route::get('/laporan/permohonan', [LaporanController::class, 'permohonan'])
-        //    ->name('laporan.permohonan');
+
         
         // NEW ADVANCED REPORTS
 
@@ -70,6 +72,10 @@ Route::middleware(['auth', 'role:admin'])
         // Pengaturan Global Format Surat Pengantar RT
         Route::get('/pengaturan/surat-pengantar', [\App\Http\Controllers\Admin\PengaturanSuratController::class, 'index'])->name('settings.surat-pengantar');
         Route::put('/pengaturan/surat-pengantar', [\App\Http\Controllers\Admin\PengaturanSuratController::class, 'update'])->name('settings.surat-pengantar.update');
+
+        // Pengaturan Instansi (Global System Settings)
+        Route::get('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'update'])->name('settings.update');
 
         // Required Documents for Jenis Surat
         Route::post('/required-documents', [\App\Http\Controllers\Admin\RequiredDocumentController::class, 'store'])->name('required-documents.store');

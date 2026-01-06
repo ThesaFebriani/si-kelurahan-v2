@@ -240,7 +240,7 @@
                     try {
                         var doc = editor.getDoc();
                         if (doc) {
-                            var placeholder = doc.getElementById('nomor_surat_placeholder');
+                            var placeholder = doc.getElementById('nomor-surat-display');
                             if (placeholder) {
                                 placeholder.innerText = nomorBaru;
                             }

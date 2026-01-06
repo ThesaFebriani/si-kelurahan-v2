@@ -1,0 +1,56 @@
+﻿ M app/Http/Controllers/Admin/JenisSuratController.php
+ D app/Http/Controllers/Admin/LaporanController.php
+ M app/Http/Controllers/Admin/PengaturanSuratController.php
+ M app/Http/Controllers/Admin/TemplateController.php
+ M app/Http/Controllers/Admin/UserManagementController.php
+ M app/Http/Controllers/Kasi/DashboardController.php
+ M app/Http/Controllers/Kasi/PermohonanController.php
+ D app/Http/Controllers/Kasi/TemplateController.php
+ D app/Http/Controllers/Lurah/LaporanController.php
+ M app/Http/Controllers/Lurah/PermohonanController.php
+ M app/Http/Controllers/Masyarakat/PermohonanController.php
+ D app/Http/Controllers/ProfileController.php
+ M app/Http/Controllers/RT/PermohonanController.php
+ D app/Http/Controllers/Services/SuratGeneratorController.php
+ M app/Models/AuditLog.php
+ M app/Models/Rw.php
+ M app/Observers/AuditLogObserver.php
+ M app/Providers/AppServiceProvider.php
+ M app/Services/PDFGeneratorService.php
+ M resources/views/auth/login.blade.php
+ M resources/views/auth/register.blade.php
+ M resources/views/components/sidebar.blade.php
+ M resources/views/pages/admin/jenis-surat/create.blade.php
+ M resources/views/pages/admin/jenis-surat/edit.blade.php
+ M resources/views/pages/admin/jenis-surat/index.blade.php
+ M resources/views/pages/admin/settings/surat-pengantar.blade.php
+ M resources/views/pages/admin/templates/create.blade.php
+ M resources/views/pages/admin/templates/edit.blade.php
+ M resources/views/pages/admin/user-management/create.blade.php
+ M resources/views/pages/admin/user-management/edit.blade.php
+ M resources/views/pages/admin/user-management/index.blade.php
+ M resources/views/pages/admin/wilayah/rt-index.blade.php
+ M resources/views/pages/admin/wilayah/rw-index.blade.php
+ M resources/views/pages/kasi/permohonan/verify.blade.php
+ M resources/views/pages/lurah/profile.blade.php
+ M resources/views/pages/masyarakat/form-dinamis.blade.php
+ M resources/views/pages/masyarakat/permohonan/index.blade.php
+ M resources/views/pages/masyarakat/pilih-jenis-surat.blade.php
+ M resources/views/pages/masyarakat/profile.blade.php
+ M resources/views/pages/rt/permohonan/approve.blade.php
+ M resources/views/pages/rt/permohonan/detail.blade.php
+ M resources/views/pages/rt/preview-surat-pengantar.blade.php
+ M resources/views/profile/edit.blade.php
+ M resources/views/profile/partials/update-password-form.blade.php
+ M resources/views/profile/partials/update-profile-information-form.blade.php
+ M resources/views/templates/surat-kelurahan.blade.php
+ M resources/views/templates/surat-pengantar-rt.blade.php
+ M resources/views/welcome.blade.php
+ M routes/admin.php
+?? app/Http/Controllers/Admin/BidangController.php
+?? app/Models/Bidang.php
+?? app/Observers/AnggotaKeluargaObserver.php
+?? database/migrations/2025_12_16_055315_create_bidangs_table.php
+?? database/seeders/FixTemplateRTSeeder.php
+?? resources/views/pages/admin/bidang/
+?? status_full.txt

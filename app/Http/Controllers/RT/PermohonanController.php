@@ -126,7 +126,7 @@ class PermohonanController extends Controller
         $pdfService = new PDFGeneratorService();
         $nomorSurat = $pdfService->generateNomorSuratPengantar($user->rt);
 
-        // Default content for editing
+        // Default content for editing (LOAD FROM CONTROLLER HELPER WHICH USES DB TEMPLATE)
         $defaultContent = $this->getDefaultSuratPengantarContent($permohonan, $nomorSurat);
 
         return view('pages.rt.permohonan.approve', compact('permohonan', 'nomorSurat', 'defaultContent'));
@@ -145,71 +145,9 @@ class PermohonanController extends Controller
             return "<p>Error: Template Surat Pengantar RT belum disetting oleh Admin. Harap hubungi Operator Kelurahan.</p>";
         }
             
-        $user = $permohonan->user;
-        $rt = $user->rt;
-        $rw = $rt->rw; 
-        $dataPemohon = $permohonan->data_pemohon;
-        
-        // Ensure array
-        if (is_string($dataPemohon)) $dataPemohon = json_decode($dataPemohon, true);
-        if (!is_array($dataPemohon)) $dataPemohon = [];
-
-        // Data Preparation
-        $tglLahirUser = $user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->translatedFormat('d F Y') : '-';
-        $nik = !empty($dataPemohon['nik']) ? $dataPemohon['nik'] : ($user->nik ?? '-');
-        $tempatLahir = !empty($dataPemohon['tempat_lahir']) ? $dataPemohon['tempat_lahir'] : ($user->tempat_lahir ?? '-');
-        
-        $tglLahir = '-';
-        if (!empty($dataPemohon['tanggal_lahir'])) {
-             $tglLahir = \Carbon\Carbon::parse($dataPemohon['tanggal_lahir'])->isoFormat('D MMMM Y');
-        } elseif (!empty($user->tanggal_lahir)) {
-             $tglLahir = \Carbon\Carbon::parse($user->tanggal_lahir)->isoFormat('D MMMM Y');
-        }
-
-        $jkRaw = !empty($dataPemohon['jenis_kelamin']) ? $dataPemohon['jenis_kelamin'] : 
-                (!empty($dataPemohon['jk']) ? $dataPemohon['jk'] : ($user->jk ?? '-'));
-        $jk = match(strtolower($jkRaw)) {
-            'l', 'laki-laki' => 'Laki-laki',
-            'p', 'perempuan' => 'Perempuan',
-            default => $jkRaw
-        };
-
-        $pekerjaan = !empty($dataPemohon['pekerjaan']) ? $dataPemohon['pekerjaan'] : ($user->pekerjaan ?? '-');
-        $agama = !empty($dataPemohon['agama']) ? $dataPemohon['agama'] : ($user->agama ?? '-');
-        $statusPerkawinan = !empty($dataPemohon['status_perkawinan']) ? $dataPemohon['status_perkawinan'] : ($user->status_perkawinan ?? '-');
-        $alamat = !empty($dataPemohon['alamat']) ? $dataPemohon['alamat'] : ($user->alamat_lengkap ?? '-');
-        $namaKepalaKeluarga = $user->keluarga ? $user->keluarga->kepala_keluarga : '-';
-
-        // Logo Logic
-        $logoPath = public_path('images/logo-kota-bengkulu.png');
-        $logoSrc = '';
-        if (file_exists($logoPath)) {
-            $logoData = base64_encode(file_get_contents($logoPath));
-            $logoSrc = 'data:image/png;base64,' . $logoData;
-        }
-
-        // Replacements Map
-        $replacements = [
-            '{{ $logo_src }}' => $logoSrc,
-            '{{ $rt_nomor }}' => str_pad($rt->nomor_rt, 3, '0', STR_PAD_LEFT),
-            '{{ $rw_nomor }}' => $rw ? str_pad($rw->nomor_rw, 3, '0', STR_PAD_LEFT) : '-',
-            '{{ $nomor_surat }}' => $nomorSurat ?? '.../RT-.../.../'.date('Y'),
-            
-            '{{ $nama_warga }}' => $user->name,
-            '{{ $ttl }}' => $tempatLahir . ', ' . $tglLahir,
-            '{{ $jenis_kelamin }}' => $jk,
-            '{{ $kepala_keluarga }}' => $namaKepalaKeluarga,
-            '{{ $agama }}' => $agama,
-            '{{ $status_perkawinan }}' => $statusPerkawinan,
-            '{{ $pekerjaan }}' => $pekerjaan,
-            '{{ $nik }}' => $nik,
-            '{{ $alamat }}' => $alamat,
-            
-            // Dynamic Fields from Users
-            '{{ $keperluan }}' => $dataPemohon['tujuan'] ?? $dataPemohon['keperluan'] ?? '-',
-        ];
-        
-        return strtr($template->template_content, $replacements);
+        // Use Centralized Service Logic for cleaner code
+        $pdfService = new PDFGeneratorService();
+        return $pdfService->applyContentVariables($template->template_content, $permohonan, $nomorSurat);
     }
 
 
@@ -227,7 +165,9 @@ class PermohonanController extends Controller
         $pdfService = new PDFGeneratorService();
         $nomorSurat = $pdfService->generateNomorSuratPengantar($user->rt);
 
-        return view('pages.rt.preview-surat-pengantar', compact('permohonan', 'nomorSurat'));
+        $content = $this->getDefaultSuratPengantarContent($permohonan, $nomorSurat);
+
+        return view('pages.rt.preview-surat-pengantar', compact('permohonan', 'nomorSurat', 'content'));
     }
     public function processApproval(Request $request, $id)
     {
@@ -270,7 +210,8 @@ class PermohonanController extends Controller
                     $permohonan,
                     $request->nomor_surat_pengantar,
                     $user->rt,
-                    strip_tags($request->isi_surat, '<p><br><b><i><u><strong><em><ul><ol><li><div><span>') // Sanitize XSS
+                    // IZINKAN IMG DAN TABLE AGAR FORMAT TIDAK HILANG DAN BASE64 IMAGE BEKERJA
+                    strip_tags($request->isi_surat, '<div><p><br><b><i><u><strong><em><ul><ol><li><span><img><table><tbody><tr><td><th><h1><h2><h3><h4><h5><h6>') 
                 );
 
                 // Update permohonan

@@ -25,17 +25,17 @@
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-semibold">
-                    <th class="px-6 py-4">User Info</th>
-                    <th class="px-6 py-4">Role & Jabatan</th>
-                    <th class="px-6 py-4">Wilayah</th>
-                    <th class="px-6 py-4 text-center">Status</th>
-                    <th class="px-6 py-4 text-right">Aksi</th>
+                    <th class="pl-4 pr-3 py-3">User Info</th>
+                    <th class="px-3 py-3">Role & Jabatan</th>
+                    <th class="px-3 py-3">Wilayah</th>
+                    <th class="px-3 py-3 text-center w-px whitespace-nowrap">Status</th>
+                    <th class="px-3 py-3 text-center w-px whitespace-nowrap">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @forelse($users as $user)
                 <tr class="hover:bg-slate-50/80 transition-colors group">
-                    <td class="px-6 py-4">
+                    <td class="pl-4 pr-3 py-3">
                         <div class="flex items-center gap-4">
                             <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
                                 {{ substr($user->name, 0, 1) }}
@@ -47,7 +47,7 @@
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 py-3">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
                             {{ $user->role->name === 'admin' ? 'bg-purple-50 text-purple-700 border-purple-100' : '' }}
                             {{ $user->role->name === 'rt' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : '' }}
@@ -63,7 +63,7 @@
                             </div>
                         @endif
                     </td>
-                    <td class="px-6 py-4 align-middle">
+                    <td class="px-3 py-3 align-middle">
                         @if($user->rt)
                             <div class="flex flex-col">
                                 <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded w-fit">RT {{ $user->rt->nomor_rt }}</span>
@@ -73,24 +73,24 @@
                             <span class="text-slate-400 text-xs italic">-</span>
                         @endif
                     </td>
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-3 py-3 text-center w-px whitespace-nowrap">
                         <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-600 border border-emerald-100">
                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                             Aktif
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-right">
-                        <div class="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                            <a href="{{ route('admin.users.edit', $user->id) }}" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Edit">
-                                <i class="fas fa-edit"></i>
+                    <td class="px-3 py-3 text-center w-px whitespace-nowrap">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{{ route('admin.users.edit', $user->id) }}" class="h-8 w-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="Edit">
+                                <i class="fas fa-edit text-xs"></i>
                             </a>
                             
                             @if(Auth::id() !== $user->id)
                             <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus user ini?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Hapus">
-                                    <i class="fas fa-trash-alt"></i>
+                                <button type="submit" class="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Hapus">
+                                    <i class="fas fa-trash-alt text-xs"></i>
                                 </button>
                             </form>
                             @endif

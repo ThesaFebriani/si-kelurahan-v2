@@ -82,7 +82,7 @@
                 <div class="space-y-8 text-center lg:text-left">
                     <div>
                         <span class="inline-block py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-sm font-semibold mb-6 border border-blue-100">
-                            Smart Village System 4.0
+                            Smart Village System
                         </span>
                         <h1 class="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
                             Urus Surat Jadi <br>
@@ -268,7 +268,7 @@
                         </div>
                         <span class="font-bold text-gray-900 text-lg">SIP Kelurahan</span>
                     </div>
-                    <p class="text-gray-500 text-sm mt-2">© 2025 Pemerintah Kelurahan. All rights reserved.</p>
+                    <p class="text-gray-500 text-sm mt-2">© 2025 Pemerintah Kelurahan Padang Jati. All rights reserved.</p>
                 </div>
                 
                 <div class="flex space-x-6">
