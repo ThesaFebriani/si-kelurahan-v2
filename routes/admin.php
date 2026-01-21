@@ -16,6 +16,7 @@ Route::middleware(['auth', 'role:admin'])
             ->name('dashboard');
 
         // User Management
+        Route::put('users/{user}/verify', [UserManagementController::class, 'verify'])->name('users.verify');
         Route::resource('users', UserManagementController::class);
 
         // Jenis Surat

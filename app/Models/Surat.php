@@ -22,6 +22,16 @@ class Surat extends Model
         return $this->belongsTo(PermohonanSurat::class);
     }
 
+    /**
+     * Alias untuk permohonanSurat (mengatasi RelationNotFoundException di PublicController)
+     */
+    public function permohonan()
+    {
+        return $this->belongsTo(PermohonanSurat::class, 'permohonan_surat_id');
+    }
+
+
+
     public function signedBy()
     {
         return $this->belongsTo(User::class, 'signed_by');

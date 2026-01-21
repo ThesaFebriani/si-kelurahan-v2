@@ -30,11 +30,17 @@
 
     @include('components.sidebar')
 
-    <div class="lg:ml-64 sidebar-transition min-h-screen">
+    <div class="{{ auth()->check() ? 'lg:ml-64' : '' }} sidebar-transition min-h-screen">
 
-        @include('components.header')
+        @auth
+            @include('components.header')
+        @else
+            @include('components.landing-navbar')
+            <!-- Spacer for fixed navbar -->
+            <div class="h-20"></div>
+        @endauth
 
-        <main class="p-4 lg:p-6 min-h-screen bg-gray-50">
+        <main class="p-4 lg:p-4 min-h-screen bg-gray-50">
 
             @if(session('success'))
             @php

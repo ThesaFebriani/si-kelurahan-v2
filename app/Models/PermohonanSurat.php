@@ -94,6 +94,11 @@ class PermohonanSurat extends Model
         return $this->hasMany(Lampiran::class);
     }
 
+    public function survei()
+    {
+        return $this->hasOne(SurveiKepuasan::class, 'permohonan_surat_id');
+    }
+
     // STATUS METHODS
     public function isMenungguRT()
     {

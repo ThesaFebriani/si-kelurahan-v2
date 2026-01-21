@@ -15,6 +15,7 @@ Route::prefix('masyarakat')
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
+        Route::post('/feedback', [\App\Http\Controllers\FeedbackController::class, 'store'])->name('feedback.store');
         // Profile
         Route::get('/profile', [App\Http\Controllers\Masyarakat\ProfileController::class, 'index'])
             ->name('profile.index');

@@ -29,7 +29,7 @@
                     <th class="px-3 py-3">Role & Jabatan</th>
                     <th class="px-3 py-3">Wilayah</th>
                     <th class="px-3 py-3 text-center w-px whitespace-nowrap">Status</th>
-                    <th class="px-3 py-3 text-center w-px whitespace-nowrap">Aksi</th>
+                    <th class="px-3 py-3 text-right w-px whitespace-nowrap">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -62,6 +62,11 @@
                                 {{ $user->jabatan }}
                             </div>
                         @endif
+                        
+                        <div class="text-xs text-slate-400 mt-1.5">
+                            <i class="fab fa-whatsapp text-green-500 mr-1"></i> 
+                            {{ $user->telepon ?? '-' }}
+                        </div>
                     </td>
                     <td class="px-3 py-3 align-middle">
                         @if($user->rt)
@@ -74,25 +79,52 @@
                         @endif
                     </td>
                     <td class="px-3 py-3 text-center w-px whitespace-nowrap">
-                        <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-600 border border-emerald-100">
-                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            Aktif
-                        </span>
+                        @if($user->status === 'active')
+                            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                Aktif
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-600 border border-amber-100">
+                                <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                Pending
+                            </span>
+                        @endif
                     </td>
-                    <td class="px-3 py-3 text-center w-px whitespace-nowrap">
-                        <div class="flex items-center justify-center gap-2">
-                            <a href="{{ route('admin.users.edit', $user->id) }}" class="h-8 w-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="Edit">
-                                <i class="fas fa-edit text-xs"></i>
+                    <td class="px-4 py-3 text-right w-px whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-3">
+                            {{-- Primary Action: Toggle Status --}}
+                            @if($user->status !== 'active')
+                                {{-- Tombol Verifikasi (Prominen) --}}
+                                <form action="{{ route('admin.users.verify', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Verifikasi dan aktifkan user ini?');">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-sm shadow-emerald-200 text-xs font-medium" title="Verifikasi User">
+                                        <i class="fas fa-check"></i>
+                                        <span>Setujui</span>
+                                    </button>
+                                </form>
+
+                                {{-- Divider only when Verify button exists --}}
+                                <div class="h-4 w-px bg-slate-200 mx-1"></div>
+                            @endif
+
+                            {{-- Standard Actions --}}
+                            <a href="{{ route('admin.users.edit', $user->id) }}" class="h-8 w-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="Edit Data">
+                                <i class="fas fa-edit"></i>
                             </a>
                             
                             @if(Auth::id() !== $user->id)
                             <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus user ini?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Hapus">
-                                    <i class="fas fa-trash-alt text-xs"></i>
+                                <button type="submit" class="h-8 w-8 flex items-center justify-center rounded-lg text-red-500 hover:bg-red-50 transition-colors" title="Hapus User">
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                             </form>
+                            @else
+                                {{-- Placeholder agar tombol Admin tetap sejajar --}}
+                                <div class="h-8 w-8"></div>
                             @endif
                         </div>
                     </td>

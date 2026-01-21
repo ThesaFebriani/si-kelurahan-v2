@@ -1,7 +1,6 @@
+@auth
 @php
 $user = Auth::user();
-// Fetch notifications directly here for simplicity in this component or passed from layout
-// We will use a View Composer ideally, but for now let's query raw if not passed
 $unreadNotifications = \App\Models\Notification::where('user_id', $user->id)
     ->where('is_read', false)
     ->latest()
@@ -83,3 +82,4 @@ $unreadCount = \App\Models\Notification::where('user_id', $user->id)->where('is_
         </div>
     </div>
 </div>
+@endauth

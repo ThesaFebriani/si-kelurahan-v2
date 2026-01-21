@@ -22,6 +22,12 @@ class DashboardController extends Controller
                 ->count(),
         ];
 
-        return view('pages.masyarakat.dashboard', compact('stats'));
+        $recent_permohonan = PermohonanSurat::with(['jenisSurat'])
+            ->where('user_id', $user->id)
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        return view('pages.masyarakat.dashboard', compact('stats', 'recent_permohonan'));
     }
 }

@@ -13,6 +13,20 @@ use Illuminate\Validation\Rule;
 
 class UserManagementController extends Controller
 {
+    public function verify(User $user)
+    {
+        // Toggle Status
+        if ($user->status === User::STATUS_ACTIVE) {
+            $user->update(['status' => User::STATUS_REJECTED]); // Or Pending/Suspended
+            $message = 'User telah dinonaktifkan.';
+        } else {
+            $user->update(['status' => User::STATUS_ACTIVE]);
+            $message = 'User berhasil diverifikasi dan diaktifkan.';
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+
     public function index()
     {
         $users = User::with(['role', 'rt.rw'])->latest()->get();
@@ -59,7 +73,7 @@ class UserManagementController extends Controller
         $rules = [];
 
         if (in_array($role->name, [Role::LURAH, Role::KASI])) {
-            $rules['nip'] = 'required|string|unique:users,nip';
+            $rules['nip'] = 'required|numeric|digits:18|unique:users,nip';
             $request->merge(['nik' => $request->nik ?? $request->nip]); 
             $rules['nik'] = 'required|string|unique:users,nik'; 
             
@@ -134,6 +148,7 @@ class UserManagementController extends Controller
             'alamat' => 'nullable|string',
             'rt_id' => 'nullable|exists:rt,id',
             'jabatan' => 'nullable|string',
+            'status' => 'required|string|in:active,pending,rejected', // Tambahkan validasi status
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
@@ -142,7 +157,7 @@ class UserManagementController extends Controller
         $rules = [];
 
         if (in_array($role->name, [Role::LURAH, Role::KASI])) {
-            $rules['nip'] = ['required', 'string', Rule::unique('users')->ignore($user->id)];
+            $rules['nip'] = ['required', 'numeric', 'digits:18', Rule::unique('users')->ignore($user->id)];
             $rules['nik'] = ['required', 'string', Rule::unique('users')->ignore($user->id)];
             
             if ($role->name === Role::KASI) {

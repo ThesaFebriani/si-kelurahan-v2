@@ -59,7 +59,7 @@ class PDFGeneratorService
         $path = "{$directory}/{$filename}";
 
         // Simpan ke storage
-        Storage::disk('public')->put($path, $pdf->output());
+        Storage::disk('local')->put($path, $pdf->output());
 
         return $path;
     }
@@ -162,7 +162,7 @@ class PDFGeneratorService
         $directory = 'surat-final';
         $path = "{$directory}/{$filename}";
         
-        Storage::disk('public')->put($path, $pdf->output());
+        Storage::disk('local')->put($path, $pdf->output());
         
         return $path;
     }

@@ -49,7 +49,14 @@ class PermohonanController extends Controller
 
         $permohonan = $query->latest()->paginate(10);
 
-        return view('pages.masyarakat.permohonan.index', compact('permohonan'));
+        // Check for Pending Survey (Selesai tapi belum review)
+        $pendingSurvey = PermohonanSurat::where('user_id', $user->id)
+            ->where('status', PermohonanSurat::SELESAI)
+            ->doesntHave('survei')
+            ->latest()
+            ->first();
+
+        return view('pages.masyarakat.permohonan.index', compact('permohonan', 'pendingSurvey'));
     }
 
     /** ============================================================
@@ -200,7 +207,7 @@ class PermohonanController extends Controller
                         $ext = $file->getClientOriginalExtension();
                         $fileName = Str::slug($docName) . "_" . time() . "." . $ext;
 
-                        $path = $file->storeAs("dokumen-pendukung", $fileName, "public");
+                        $path = $file->storeAs("dokumen-pendukung", $fileName, "local");
 
                         $permohonan->lampirans()->create([
                             "nama_file" => $original,
@@ -239,7 +246,7 @@ class PermohonanController extends Controller
                         $ext = $file->getClientOriginalExtension();
                         $fileName = Str::slug($field->field_name) . "_" . time() . "." . $ext;
 
-                        $path = $file->storeAs("form-files", $fileName, "public");
+                        $path = $file->storeAs("form-files", $fileName, "local");
 
                         $permohonan->lampirans()->create([
                             "nama_file" => $original,
@@ -272,6 +279,20 @@ class PermohonanController extends Controller
                 "keterangan" => "Permohonan diajukan. Jenis surat: " . $jenisSurat->name,
                 "updated_by" => $user->id,
             ]);
+
+            // --- NOTIFIKASI WHATSAPP KE RT ---
+            if ($user->rt && $user->rt->ketuaRt && $user->rt->ketuaRt->telepon) {
+                $rtName = $user->rt->ketuaRt->name;
+                $rtPhone = $user->rt->ketuaRt->telepon;
+                $msg = "Halo Bapak/Ibu Ketau RT {$user->rt->nomor_rt} ({$rtName}),\n\n" .
+                       "Terdapat permohonan surat baru dari warga Anda:\n" .
+                       "Nama: *{$user->name}*\n" .
+                       "Jenis Surat: *{$jenisSurat->name}*\n" .
+                       "Tanggal: " . now()->format('d-m-Y H:i') . "\n\n" .
+                       "Mohon segera login ke aplikasi SI-KELURAHAN untuk melakukan verifikasi.";
+                
+                \App\Services\WhatsAppService::sendMessage($rtPhone, $msg);
+            }
 
             DB::commit();
 
@@ -306,7 +327,8 @@ class PermohonanController extends Controller
         $permohonan = PermohonanSurat::with([
             "jenisSurat",
             "timeline" => fn($q) => $q->latest(),
-            "lampirans"
+            "lampirans",
+            "survei"
         ])
             ->where("user_id", $user->id)
             ->findOrFail($id);

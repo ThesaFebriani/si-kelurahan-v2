@@ -153,9 +153,9 @@
             </div>
         </div>
 
-        <div class="mt-6 flex justify-end gap-3 pt-6 border-t border-slate-100">
-            <a href="{{ route('admin.kependudukan.keluarga.show', $penduduk->keluarga_id) }}" class="px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium text-sm">Batal</a>
-            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm">Simpan Perubahan</button>
+        <div class="mt-6 flex justify-end gap-3 pt-6 border-t border-slate-100 sticky bottom-0 bg-white/95 backdrop-blur-sm p-4 -mx-6 -mb-6 rounded-b-lg shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-20">
+            <a href="{{ route('admin.kependudukan.keluarga.show', $penduduk->keluarga_id) }}" class="px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium text-sm transition-colors">Batal</a>
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm shadow-md hover:shadow-lg transition-all">Simpan Perubahan</button>
         </div>
     </form>
 </div>

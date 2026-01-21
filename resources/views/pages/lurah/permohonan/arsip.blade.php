@@ -99,7 +99,7 @@
                                     <i class="fas fa-eye mr-1"></i> Detail
                                 </a>
                                 @if($item->surat && $item->surat->file_path)
-                                    <a href="{{ Storage::url($item->surat->file_path) }}" target="_blank"
+                                    <a href="{{ route('documents.show', ['filename' => basename($item->surat->file_path)]) }}" target="_blank"
                                         class="text-green-600 hover:text-green-900 border border-green-600 px-2 py-1 rounded text-xs">
                                         <i class="fas fa-file-pdf mr-1"></i> Unduh PDF
                                     </a>

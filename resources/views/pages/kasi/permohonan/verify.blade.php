@@ -15,158 +15,213 @@
             <p class="text-gray-600 mt-1">Nomor Tiket: <code class="bg-gray-100 px-2 py-1 rounded">{{ $permohonan->nomor_tiket }}</code></p>
         </div>
 
-        <!-- Informasi Permohonan -->
-        <div class="p-6 border-b border-gray-200">
-            <h4 class="text-md font-semibold text-gray-800 mb-4">Informasi Permohonan</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Pemohon</label>
-                    <p class="mt-1 text-sm text-gray-900">{{ $permohonan->user->name }}</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Jenis Surat</label>
-                    <p class="mt-1 text-sm text-gray-900">{{ $permohonan->jenisSurat->name }}</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Tanggal Pengajuan</label>
-                    <p class="mt-1 text-sm text-gray-900">{{ $permohonan->created_at->format('d/m/Y H:i') }}</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">RT/RW</label>
-                    <p class="mt-1 text-sm text-gray-900">
-                        @if($permohonan->user->rt && $permohonan->user->rt->rw)
-                        RT {{ $permohonan->user->rt->nomor_rt }} / RW {{ $permohonan->user->rt->rw->nomor_rw }}
-                        @else
-                        Tidak terdaftar
+    <div class="space-y-6">
+        <!-- Applicant Data Section (Readonly) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+             <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 flex items-center">
+                    <i class="fas fa-user-check text-cyan-600 mr-2.5"></i> Review Data Pemohon
+                </h3>
+            </div>
+            <div class="p-6">
+                @php
+                    $dataPemohon = $permohonan->data_pemohon;
+                    if (is_string($dataPemohon)) $dataPemohon = json_decode($dataPemohon, true) ?? [];
+                    $dataPemohon = is_array($dataPemohon) ? $dataPemohon : [];
+                    
+                    // Fallback Logic
+                    $user = $permohonan->user;
+                    $penduduk = $user->anggotaKeluarga;
+                    $userMapping = [
+                        'nama_lengkap' => $penduduk->nama_lengkap ?? $user->name,
+                        'nik' => $user->nik,
+                        'tempat_lahir' => $penduduk->tempat_lahir ?? $user->tempat_lahir,
+                        'tanggal_lahir' => $penduduk->tanggal_lahir ?? $user->tanggal_lahir,
+                        'pekerjaan' => $penduduk->pekerjaan ?? $user->pekerjaan,
+                        'jenis_kelamin' => $penduduk->jk ?? $user->jk,
+                        'agama' => $penduduk->agama ?? $user->agama,
+                        'alamat' => $penduduk && $penduduk->keluarga ? $penduduk->keluarga->alamat : $user->alamat_lengkap,
+                        'status_perkawinan' => $penduduk->status_perkawinan ?? $user->status_perkawinan,
+                        'kewarganegaraan' => $penduduk->kewarganegaraan ?? $user->kewarganegaraan,
+                    ];
+                    foreach($userMapping as $k => $v) {
+                        if(empty($dataPemohon[$k]) || $dataPemohon[$k] === '-') $dataPemohon[$k] = $v;
+                    }
+
+                    // Grid Config
+                    $excludeCommon = ['tujuan', 'user_id', 'user_name'];
+                    $priorityKeys = ['nik', 'nama_lengkap', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'pekerjaan', 'agama', 'alamat'];
+                    
+                     $colSpans = [
+                        'alamat' => 'col-span-12',
+                        'tempat_lahir' => 'col-span-6',
+                        'tanggal_lahir' => 'col-span-6',
+                        'nik' => 'col-span-12 md:col-span-6',
+                        'nama_lengkap' => 'col-span-12 md:col-span-6',
+                        'jenis_kelamin' => 'col-span-6',
+                        'pekerjaan' => 'col-span-12 md:col-span-6',
+                        'agama' => 'col-span-6',
+                    ];
+                @endphp
+
+                <div class="grid grid-cols-12 gap-5">
+                     @foreach($priorityKeys as $key)
+                        @if(!empty($dataPemohon[$key]))
+                             @php $span = $colSpans[$key] ?? 'col-span-12 md:col-span-6'; @endphp
+                            <div class="{{ $span }}">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block pl-0.5">
+                                    {{ ucwords(str_replace('_', ' ', $key)) }}
+                                </label>
+                                <div class="bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2.5 text-slate-700 font-bold text-sm shadow-sm">
+                                    @if($key === 'tanggal_lahir')
+                                        {{ \Carbon\Carbon::parse($dataPemohon[$key])->format('d F Y') }}
+                                    @elseif($key === 'jenis_kelamin')
+                                        {{ $dataPemohon[$key] == 'L' ? 'Laki-laki' : 'Perempuan' }}
+                                    @else
+                                        {{ $dataPemohon[$key] }}
+                                    @endif
+                                </div>
+                            </div>
                         @endif
-                    </p>
+                    @endforeach
                 </div>
             </div>
         </div>
 
-        <!-- Lampiran -->
-        <div class="p-6 border-b border-gray-200">
-            <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-paperclip text-orange-600 mr-2"></i>
-                Lampiran Dokumen
-            </h4>
-
-            <div class="space-y-4">
-                <!-- Surat Pengantar RT -->
-                <div class="border border-green-200 bg-green-50 rounded-lg p-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <i class="fas fa-file-pdf text-red-500 mr-3 text-lg"></i>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900">Surat Pengantar RT</p>
-                                <p class="text-xs text-gray-500">Nomor: {{ $permohonan->nomor_surat_pengantar_rt ?? '-' }}</p>
-                            </div>
-                        </div>
-                        @if($permohonan->file_surat_pengantar_rt)
-                        <a href="{{ Storage::url($permohonan->file_surat_pengantar_rt) }}"
-                            target="_blank"
-                            class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
-                            <i class="fas fa-external-link-alt mr-1"></i> Lihat
-                        </a>
-                        @else
-                        <span class="text-gray-400 text-sm italic">Belum tersedia</span>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Lampiran Warga -->
-                @if($permohonan->lampirans && $permohonan->lampirans->count() > 0)
+        <!-- Lampiran Section -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+             <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                <h3 class="font-bold text-slate-800 flex items-center">
+                    <i class="fas fa-paperclip text-orange-500 mr-2"></i> Kelengkapan Berkas
+                </h3>
+            </div>
+            <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    @foreach($permohonan->lampirans as $lampiran)
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <i class="fas fa-file text-gray-400 mr-3 text-lg"></i>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">{{ $lampiran->nama_file }}</p>
-                                    <p class="text-xs text-gray-500">
-                                        {{ $lampiran->file_type ?? 'Unknown' }} •
-                                        {{ $lampiran->file_size ? number_format($lampiran->file_size / 1024, 2) . ' KB' : 'Unknown size' }}
-                                    </p>
-                                </div>
-                            </div>
-                            @if($lampiran->file_path)
-                            <a href="{{ Storage::url($lampiran->file_path) }}"
-                                target="_blank"
-                                class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                Lihat
-                            </a>
-                            @else
-                            <span class="text-gray-400 text-sm">File tidak tersedia</span>
-                            @endif
+                    <!-- Surat Pengantar RT -->
+                    @if($permohonan->file_surat_pengantar_rt)
+                    <div class="flex items-center p-3 border border-blue-100 bg-blue-50/20 rounded-xl">
+                        <div class="w-10 h-10 bg-white text-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm border border-blue-100">
+                            <i class="fas fa-file-invoice"></i>
                         </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-slate-800">Surat Pengantar RT</p>
+                            <p class="text-xs text-blue-600">Nomor: {{ $permohonan->nomor_surat_pengantar_rt }}</p>
+                        </div>
+                        <a href="{{ route('documents.show', ['filename' => basename($permohonan->file_surat_pengantar_rt)]) }}" target="_blank"
+                           class="ml-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors shadow-sm">
+                            <i class="fas fa-eye mr-1"></i> Cek
+                        </a>
+                    </div>
+                    @else
+                    <div class="flex items-center p-3 border border-red-200 bg-red-50 rounded-xl">
+                         <div class="w-10 h-10 bg-white text-red-500 rounded-lg flex items-center justify-center mr-3 shadow-sm">
+                             <i class="fas fa-exclamation-triangle"></i>
+                         </div>
+                         <div class="flex-1">
+                             <p class="text-sm font-bold text-red-700">Surat Pengantar RT Belum Ada</p>
+                             <p class="text-xs text-red-500">Mohon cek status approval RT.</p>
+                         </div>
+                    </div>
+                    @endif
+
+                    <!-- Lampiran Lain -->
+                    @foreach($permohonan->lampirans as $lampiran)
+                    <div class="flex items-center p-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
+                        <div class="w-10 h-10 bg-red-100 text-red-500 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-slate-800 truncate">{{ $lampiran->nama_file }}</p>
+                            <p class="text-xs text-slate-500">{{ number_format($lampiran->file_size / 1024, 0) }} KB</p>
+                        </div>
+                        @if($lampiran->file_path)
+                        <a href="{{ route('documents.show', ['filename' => basename($lampiran->file_path)]) }}" target="_blank"
+                           class="ml-2 p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        @endif
                     </div>
                     @endforeach
                 </div>
-                @else
-                <div class="text-center py-4 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                    <p class="text-sm text-gray-500">Tidak ada lampiran tambahan dari pemohon.</p>
-                </div>
-                @endif
             </div>
         </div>
 
         <!-- Form Verification -->
         <form action="{{ route('kasi.permohonan.process', $permohonan->id) }}" method="POST">
             @csrf
-            <div class="p-6 border-b border-gray-200">
-                <h4 class="text-md font-semibold text-gray-800 mb-4">Tindakan Verifikasi</h4>
+            <div class="p-6 border-b border-slate-100 bg-white">
+                <h4 class="text-sm font-bold text-slate-800 mb-4 uppercase tracking-wider">Tindakan Verifikasi</h4>
 
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <!-- Action Radio -->
+                    <!-- Action Radio (Cards) -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Pilih Tindakan</label>
-                        <div class="space-y-2">
-                            <div class="flex items-center">
-                                <input type="radio" id="approve" name="action" value="approve" class="focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300" required>
-                                <label for="approve" class="ml-3 block text-sm font-medium text-gray-700">
-                                    <span class="flex items-center">
-                                        <i class="fas fa-check-circle text-green-600 mr-2"></i>
-                                        Setujui Permohonan
-                                    </span>
-                                </label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="radio" id="reject" name="action" value="reject" class="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300" required>
-                                <label for="reject" class="ml-3 block text-sm font-medium text-gray-700">
-                                    <span class="flex items-center">
-                                        <i class="fas fa-times-circle text-red-600 mr-2"></i>
-                                        Tolak permohonan
-                                    </span>
-                                </label>
-                            </div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Pilih Tindakan</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Approve Card -->
+                            <label class="relative cursor-pointer group">
+                                <input type="radio" id="approve" name="action" value="approve" class="peer sr-only" required>
+                                <div class="p-4 rounded-xl border-2 border-slate-200 hover:border-blue-400 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition-all shadow-sm">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-bold text-slate-800 text-sm">Setujui Permohonan</h6>
+                                            <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Teruskan ke Lurah</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="absolute top-4 right-4 text-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity transform peer-checked:scale-110">
+                                    <i class="fas fa-check-circle text-xl"></i>
+                                </div>
+                            </label>
+
+                            <!-- Reject Card -->
+                            <label class="relative cursor-pointer group">
+                                <input type="radio" id="reject" name="action" value="reject" class="peer sr-only" required>
+                                <div class="p-4 rounded-xl border-2 border-slate-200 hover:border-red-400 peer-checked:border-red-600 peer-checked:bg-red-50 transition-all shadow-sm">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-colors">
+                                            <i class="fas fa-times"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-bold text-slate-800 text-sm">Tolak Permohonan</h6>
+                                            <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Kembalikan ke Pemohon</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="absolute top-4 right-4 text-red-600 opacity-0 peer-checked:opacity-100 transition-opacity transform peer-checked:scale-110">
+                                    <i class="fas fa-times-circle text-xl"></i>
+                                </div>
+                            </label>
                         </div>
                     </div>
 
                     <!-- Input Nomor Surat (Muncul jika Approve dipilih) -->
                     <div id="approve-section" class="hidden space-y-4">
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                            <h5 class="text-blue-800 font-semibold mb-2 flex items-center">
+                        <div class="bg-blue-50/50 border border-blue-100 rounded-xl p-6">
+                            <h5 class="text-blue-800 font-bold mb-2 flex items-center text-sm uppercase">
                                 <i class="fas fa-edit mr-2"></i> Draft Surat Kelurahan
                             </h5>
-                            <p class="text-sm text-blue-700 mb-4">
-                                Silakan periksa dan edit isi surat di bawah ini sebelum meneruskan ke Lurah.
+                            <p class="text-xs text-blue-600 mb-4 leading-relaxed">
+                                Silakan periksa dan edit isi surat di bawah ini sebelum meneruskan ke Lurah. Pastikan nomor surat sudah sesuai.
                             </p>
                             
                             <!-- Nomor Surat -->
                             <div class="mb-4">
-                                <label for="nomor_surat" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="nomor_surat" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                                     Nomor Surat
                                 </label>
                                 <input type="text" name="nomor_surat" id="nomor_surat" 
-                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring focus:ring-blue-200"
+                                    class="w-full border border-slate-300 rounded-lg px-4 py-2 text-slate-800 font-medium focus:border-blue-500 focus:ring focus:ring-blue-100 transition-all shadow-sm"
                                     value="{{ $suggestedNomorSurat ?? '' }}">
-                                <p class="text-xs text-gray-500 mt-1">Nomor surat akan otomatis terupdate di dalam dokumen.</p>
+                                <p class="text-[10px] text-slate-400 mt-1">Nomor surat akan otomatis terupdate di dalam dokumen preview di bawah.</p>
                             </div>
 
                             <!-- Editor Surat -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Isi Surat</label>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Isi Surat</label>
                                 <textarea name="isi_surat" id="isi_surat" rows="15">{{ $defaultContent ?? '' }}</textarea>
                             </div>
                         </div>
@@ -174,37 +229,35 @@
 
                     <!-- Catatan -->
                     <div>
-                        <label for="catatan" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="catatan" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                             Catatan (Opsional)
                         </label>
-                        <textarea name="catatan" id="catatan" rows="4"
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-colors"
-                            placeholder="Berikan catatan verifikasi..."></textarea>
+                        <textarea name="catatan" id="catatan" rows="3"
+                            class="w-full border border-slate-300 rounded-lg px-4 py-2 text-slate-700 focus:border-blue-500 focus:ring focus:ring-blue-100 transition-all shadow-sm"
+                            placeholder="Berikan catatan tambahan untuk pemohon atau Lurah..."></textarea>
                     </div>
                 </div>
             </div>
 
             <!-- Action Buttons -->
-            <div class="p-6 bg-gray-50 flex justify-between items-center">
+            <div class="p-6 bg-slate-50 flex justify-between items-center rounded-b-2xl border-t border-slate-200">
                 <a href="{{ route('kasi.permohonan.index') }}"
-                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                    class="px-5 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-600 font-bold text-sm hover:bg-slate-50 hover:text-slate-800 transition-all shadow-sm">
                     <i class="fas fa-arrow-left mr-2"></i>Kembali
                 </a>
 
-                <div class="space-x-3">
+                <div class="flex items-center gap-3">
                     <button type="button" onclick="history.back()"
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                        class="px-5 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-600 font-bold text-sm hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all shadow-sm">
                         Batal
                     </button>
                     <button type="submit"
-                        class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        class="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30">
                         <i class="fas fa-paper-plane mr-2"></i>Proses & Kirim
                     </button>
                 </div>
             </div>
         </form>
-    </div>
-</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.5.1/tinymce.min.js" referrerpolicy="origin"></script>
 <script>

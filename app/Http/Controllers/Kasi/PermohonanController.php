@@ -222,6 +222,33 @@ class PermohonanController extends Controller
                     'updated_by' => $user->id,
                 ]);
 
+                // WA Notification
+                if ($permohonan->user->telepon) {
+                    $waMsg = "*STATUS: DISETUJUI KASI* ✅\n\n" .
+                             "Yth. Saudara/i *{$permohonan->user->name}*,\n\n" .
+                             "Permohonan Anda:\n" .
+                             "📄 *{$permohonan->jenisSurat->name}*\n\n" .
+                             "Telah diverifikasi oleh Kasi dan diteruskan ke Lurah untuk ditandatangani.\n\n" .
+                             "Mohon kesediaannya menunggu.";
+                    \App\Services\WhatsAppService::sendMessage($permohonan->user->telepon, $waMsg);
+                }
+
+                // --- NOTIFIKASI WHATSAPP KE LURAH ---
+                $lurahUsers = \App\Models\User::whereHas('role', function($q) {
+                    $q->where('name', 'lurah');
+                })->where('status', 'active')->get();
+
+                foreach ($lurahUsers as $lurah) {
+                    if ($lurah->telepon) {
+                        $msgLurah = "Yth. Pak Lurah ({$lurah->name}),\n\n" .
+                                    "Terdapat permohonan surat yang telah diverifikasi Kasi dan MENUNGGU TANDA TANGAN (TTE) Anda:\n" .
+                                    "Pemohon: *{$permohonan->user->name}*\n" .
+                                    "Jenis Surat: *{$permohonan->jenisSurat->name}*\n\n" .
+                                    "Mohon segera cek dashboard Lurah untuk proses penandatanganan.";
+                        \App\Services\WhatsAppService::sendMessage($lurah->telepon, $msgLurah);
+                    }
+                }
+
                 return redirect()->route('kasi.permohonan.index')
                     ->with('success', 'Permohonan disetujui dan Surat telah diteruskan ke Lurah.');
 
@@ -248,6 +275,18 @@ class PermohonanController extends Controller
                     'keterangan' => 'Ditolak Kasi - ' . $request->catatan,
                     'updated_by' => $user->id,
                 ]);
+
+                // WA Notification
+                if ($permohonan->user->telepon) {
+                    $waMsg = "*STATUS: DITOLAK KASI* ❌\n\n" .
+                             "Yth. Saudara/i *{$permohonan->user->name}*,\n\n" .
+                             "Permohonan Anda:\n" .
+                             "📄 *{$permohonan->jenisSurat->name}*\n\n" .
+                             "Ditolak setelah verifikasi Kasi dengan catatan:\n" .
+                             "_{$request->catatan}_\n\n" .
+                             "Mohon lengkapi sesuai catatan tersebut.";
+                    \App\Services\WhatsAppService::sendMessage($permohonan->user->telepon, $waMsg);
+                }
 
                 return redirect()->route('kasi.permohonan.index')
                     ->with('success', 'Permohonan berhasil ditolak.');

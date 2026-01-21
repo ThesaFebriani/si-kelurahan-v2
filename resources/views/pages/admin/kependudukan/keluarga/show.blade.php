@@ -63,7 +63,7 @@
         <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
             <h3 class="text-lg font-bold text-slate-800">Daftar Anggota Keluarga</h3>
             <button onclick="document.getElementById('addMemberModal').showModal()" 
-                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm flex items-center gap-2">
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm flex items-center gap-2">
                 <i class="fas fa-user-plus"></i> Tambah Anggota
             </button>
         </div>

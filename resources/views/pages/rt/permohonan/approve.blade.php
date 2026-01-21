@@ -16,31 +16,37 @@
         </div>
 
         <!-- Informasi Permohonan -->
+        <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h4 class="font-bold text-gray-800 text-lg">Informasi Permohonan</h4>
+            <span class="text-[10px] font-bold uppercase text-gray-400 bg-white border border-gray-200 px-2 py-1 rounded tracking-wider">Read-Only</span>
+        </div>
+        
         <div class="p-6 border-b border-gray-200">
-            <h4 class="text-md font-semibold text-gray-800 mb-4">Informasi Permohonan</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Pemohon</label>
-                    <p class="mt-1 text-sm text-gray-900">{{ $permohonan->user->name }}</p>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Pemohon</label>
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-slate-700 font-medium text-sm">{{ $permohonan->user->name }}</div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Jenis Surat</label>
-                    <p class="mt-1 text-sm text-gray-900">{{ $permohonan->jenisSurat->name }}</p>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Jenis Surat</label>
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-slate-700 font-medium text-sm">{{ $permohonan->jenisSurat->name }}</div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Tanggal Pengajuan</label>
-                    <p class="mt-1 text-sm text-gray-900">{{ $permohonan->created_at->format('d/m/Y H:i') }}</p>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Tanggal Pengajuan</label>
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-slate-700 font-medium text-sm">{{ $permohonan->created_at->format('d/m/Y H:i') }}</div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Alamat</label>
-                    <p class="mt-1 text-sm text-gray-900">{{ $permohonan->user->alamat_lengkap ?? 'Tidak ada alamat' }}</p>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Alamat</label>
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-slate-700 font-medium text-sm">{{ $permohonan->user->alamat_lengkap ?? 'Tidak ada alamat' }}</div>
                 </div>
             </div>
 
             <!-- Data Pemohon -->
-            <div class="mt-6">
-                <h5 class="text-sm font-medium text-gray-700 mb-2">Data Pemohon</h5>
-                <div class="bg-gray-50 rounded-lg p-4">
+            <div class="mt-8">
+                <h5 class="flex items-center text-sm font-bold text-slate-800 uppercase tracking-wide mb-4 pb-2 border-b border-gray-100">
+                    <i class="fas fa-user-circle text-blue-500 mr-2"></i> Data Pemohon
+                </h5>
+                <div class="bg-white rounded-lg">
                     @php
                     // Handle data pemohon dengan safe approach
                     $dataPemohon = $permohonan->data_pemohon;
@@ -77,41 +83,61 @@
                     @endphp
 
                     @if(!empty($dataPemohon) && count($dataPemohon) > 0)
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div><strong>NIK:</strong> {{ $dataPemohon['nik'] ?? '-' }}</div>
-                        <div><strong>Tempat Lahir:</strong> {{ $dataPemohon['tempat_lahir'] ?? '-' }}</div>
-                        <div><strong>Tanggal Lahir:</strong>
-                            @if(!empty($dataPemohon['tanggal_lahir']))
-                            @php
-                            try {
-                            $tanggalLahir = \Carbon\Carbon::parse($dataPemohon['tanggal_lahir'])->format('d/m/Y');
-                            } catch (Exception $e) {
-                            $tanggalLahir = $dataPemohon['tanggal_lahir'];
-                            }
-                            @endphp
-                            {{ $tanggalLahir }}
-                            @else
-                            -
-                            @endif
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">NIK</label>
+                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-slate-700 font-medium text-sm font-mono">{{ $dataPemohon['nik'] ?? '-' }}</div>
                         </div>
-                        <div><strong>Jenis Kelamin:</strong>
-                            @if(isset($dataPemohon['jenis_kelamin']))
-                            {{ $dataPemohon['jenis_kelamin'] == 'L' ? 'Laki-laki' : 'Perempuan' }}
-                            @else
-                            -
-                            @endif
+                        <div>
+                             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Tempat Lahir</label>
+                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-slate-700 font-medium text-sm">{{ $dataPemohon['tempat_lahir'] ?? '-' }}</div>
                         </div>
-                        <div><strong>Agama:</strong> {{ $dataPemohon['agama'] ?? $permohonan->user->agama ?? '-' }}</div>
-                        <div><strong>Pekerjaan:</strong> {{ $dataPemohon['pekerjaan'] ?? $permohonan->user->pekerjaan ?? '-' }}</div>
+                        <div>
+                             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Tanggal Lahir</label>
+                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-slate-700 font-medium text-sm">
+                                @if(!empty($dataPemohon['tanggal_lahir']))
+                                @php
+                                try {
+                                $tanggalLahir = \Carbon\Carbon::parse($dataPemohon['tanggal_lahir'])->format('d/m/Y');
+                                } catch (Exception $e) {
+                                $tanggalLahir = $dataPemohon['tanggal_lahir'];
+                                }
+                                @endphp
+                                {{ $tanggalLahir }}
+                                @else
+                                -
+                                @endif
+                            </div>
+                        </div>
+                        <div>
+                             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Jenis Kelamin</label>
+                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-slate-700 font-medium text-sm">
+                                @if(isset($dataPemohon['jenis_kelamin']))
+                                {{ $dataPemohon['jenis_kelamin'] == 'L' ? 'Laki-laki' : 'Perempuan' }}
+                                @else
+                                -
+                                @endif
+                            </div>
+                        </div>
+                        <div>
+                             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Agama</label>
+                             <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-slate-700 font-medium text-sm">{{ $dataPemohon['agama'] ?? $permohonan->user->agama ?? '-' }}</div>
+                        </div>
+                        <div>
+                             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Pekerjaan</label>
+                             <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-slate-700 font-medium text-sm">{{ $dataPemohon['pekerjaan'] ?? $permohonan->user->pekerjaan ?? '-' }}</div>
+                        </div>
                     </div>
-                    <div class="mt-3">
-                        <strong>Tujuan:</strong>
-                        <p class="text-sm text-gray-700 mt-1">{{ $dataPemohon['tujuan'] ?? 'Tidak ada keterangan' }}</p>
+                    <div class="mt-6">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Keperluan / Tujuan</label>
+                        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 text-slate-700 font-medium text-sm leading-relaxed border-l-4 border-l-blue-400">
+                             {{ $dataPemohon['tujuan'] ?? 'Tidak ada keterangan' }}
+                        </div>
                     </div>
                     @else
-                    <div class="text-center py-4 text-gray-500">
-                        <i class="fas fa-info-circle text-gray-300 text-xl mb-2"></i>
-                        <p>Data pemohon tidak tersedia</p>
+                    <div class="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                        <i class="fas fa-info-circle text-slate-300 text-2xl mb-2"></i>
+                        <p class="text-slate-500 text-sm font-medium">Data pemohon tidak tersedia</p>
                     </div>
                     @endif
                 </div>
@@ -125,28 +151,48 @@
                 <h4 class="text-md font-semibold text-gray-800 mb-4">Tindakan</h4>
 
                 <div class="space-y-4">
-                    <!-- Action Radio -->
+                <div class="space-y-6">
+                    <!-- Action Radio (Cards) -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Pilih Tindakan</label>
-                        <div class="space-y-2">
-                            <div class="flex items-center">
-                                <input type="radio" id="approve" name="action" value="approve" class="focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300" required>
-                                <label for="approve" class="ml-3 block text-sm font-medium text-gray-700">
-                                    <span class="flex items-center">
-                                        <i class="fas fa-check-circle text-green-600 mr-2"></i>
-                                        Setujui dan teruskan ke Kasi
-                                    </span>
-                                </label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="radio" id="reject" name="action" value="reject" class="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300" required>
-                                <label for="reject" class="ml-3 block text-sm font-medium text-gray-700">
-                                    <span class="flex items-center">
-                                        <i class="fas fa-times-circle text-red-600 mr-2"></i>
-                                        Tolak permohonan
-                                    </span>
-                                </label>
-                            </div>
+                        <label class="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Pilih Tindakan</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Approve Card -->
+                            <label class="relative cursor-pointer group">
+                                <input type="radio" name="action" value="approve" class="peer sr-only" required>
+                                <div class="p-4 rounded-xl border-2 border-slate-200 hover:border-blue-400 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition-all">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-bold text-slate-800">Setujui Permohonan</h6>
+                                            <p class="text-xs text-slate-500">Teruskan ke Kasi/Lurah</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="absolute top-4 right-4 text-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                    <i class="fas fa-check-circle text-xl"></i>
+                                </div>
+                            </label>
+
+                            <!-- Reject Card -->
+                            <label class="relative cursor-pointer group">
+                                <input type="radio" name="action" value="reject" class="peer sr-only">
+                                <div class="p-4 rounded-xl border-2 border-slate-200 hover:border-red-400 peer-checked:border-red-600 peer-checked:bg-red-50 transition-all">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-colors">
+                                            <i class="fas fa-times"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-bold text-slate-800">Tolak Permohonan</h6>
+                                            <p class="text-xs text-slate-500">Kembalikan ke pemohon</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="absolute top-4 right-4 text-red-600 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                    <i class="fas fa-check-circle text-xl"></i>
+                                </div>
+                            </label>
                         </div>
                     </div>
 

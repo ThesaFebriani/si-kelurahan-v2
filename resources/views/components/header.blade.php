@@ -12,6 +12,7 @@ $user = Auth::user();
 
         <!-- User Info -->
         <div class="flex items-center space-x-4">
+            @auth
             <!-- Notifications -->
             @include('components.notification-dropdown')
 
@@ -61,6 +62,12 @@ $user = Auth::user();
                     </form>
                 </div>
             </div>
+            @else
+            <!-- Guest View -->
+            <a href="{{ route('login') }}" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors">
+                Masuk
+            </a>
+            @endauth
         </div>
     </div>
 </header>

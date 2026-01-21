@@ -1,235 +1,231 @@
 @extends('components.layout')
 
 @section('title', 'Ajukan ' . $jenisSurat->name . ' - Sistem Kelurahan')
-@section('page-title', 'Ajukan ' . $jenisSurat->name)
-@section('page-description', 'Isi formulir pengajuan surat keterangan')
+@section('page-title', 'Ajukan Layanan')
+@section('page-description', 'Formulir pengajuan ' . $jenisSurat->name)
 
 @section('content')
-<div class="max-w-3xl mx-auto py-6">
+<div class="max-w-4xl mx-auto space-y-6">
     
-    <!-- Navigation (Outside) -->
-    <div class="mb-6">
-        <a href="{{ route('masyarakat.permohonan.create') }}" 
-           class="inline-flex items-center text-gray-500 hover:text-blue-600 transition-colors bg-white px-4 py-2 rounded-full shadow-sm text-sm font-medium border border-gray-100 hover:shadow-md">
-            <i class="fas fa-arrow-left mr-2"></i> 
-            Kembali ke Pilih Surat
+    <!-- Back Button -->
+    <div>
+        <a href="{{ route('masyarakat.permohonan.create') }}" class="text-gray-500 hover:text-blue-600 text-sm font-medium flex items-center transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Kembali ke Daftar Layanan
         </a>
     </div>
 
-    <!-- Title Card (Google Form Style) -->
-    <div class="bg-white rounded-xl shadow-sm border-t-[10px] border-blue-600 p-8 mb-6 relative overflow-hidden">
-        
-        <!-- Bidang Badge (Floating Top Right) -->
-        <div class="absolute top-0 right-0 mt-4 mr-4">
-             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 tracking-wide uppercase">
-                {{ $jenisSurat->bidang_display }}
-            </span>
-        </div>
-
-        <h1 class="text-3xl font-bold text-gray-900 mb-2 mt-2">{{ $jenisSurat->name }}</h1>
-        <p class="text-gray-600 text-lg leading-relaxed border-b border-gray-100 pb-6 mb-6">
-            Silakan lengkapi data di bawah ini dengan benar untuk mengajukan permohonan.
-        </p>
-
-        <div class="flex items-center text-sm font-medium text-gray-500 bg-gray-50 py-2 px-3 rounded-lg w-fit">
-            <i class="far fa-clock mr-2 text-blue-500"></i> 
-            Estimasi Proses: <span class="text-gray-800 ml-1">{{ $jenisSurat->estimasi_hari }} Hari Kerja</span>
+    <!-- Header Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 uppercase tracking-wide border border-blue-100">
+                        {{ $jenisSurat->bidang_display }}
+                    </span>
+                    <span class="flex items-center text-[10px] text-slate-500 font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                        <i class="far fa-clock mr-1"></i> {{ $jenisSurat->estimasi_hari }} Hari Kerja
+                    </span>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">{{ $jenisSurat->name }}</h2>
+                <p class="text-slate-500 text-sm mt-1">Silakan lengkapi formulir di bawah ini dengan data yang valid.</p>
+            </div>
         </div>
     </div>
 
     <!-- Error Alert -->
     @if ($errors->any())
-    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl shadow-sm mb-6 animation-shake">
-        <div class="flex items-start">
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+        <div class="flex">
             <div class="flex-shrink-0">
-                <i class="fas fa-exclamation-circle text-red-500 mt-0.5"></i>
+                <i class="fas fa-exclamation-circle text-red-500"></i>
             </div>
             <div class="ml-3">
-                <h3 class="text-sm font-bold text-red-800">Mohon perbaiki kesalahan berikut:</h3>
-                <ul class="mt-1 list-disc list-inside text-sm text-red-700">
-                    @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+                <h3 class="text-sm font-bold text-red-800">Terdapat Kesalahan Input</h3>
+                <div class="mt-1 text-sm text-red-700">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
     @endif
 
-    <form action="{{ route('masyarakat.permohonan.store.dinamis', $jenisSurat->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+    <form action="{{ route('masyarakat.permohonan.store.dinamis', $jenisSurat->id) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
         @csrf
 
-        <!-- 2. Data Isian Surat -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 bg-blue-50/50 flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
-                    <i class="fas fa-user-edit text-sm"></i>
-                </div>
-                <h3 class="font-bold text-gray-800">Data Isian Surat</h3>
-            </div>
-            
-            <div class="p-6 grid grid-cols-1 gap-6">
-                @foreach($jenisSurat->templateFields as $field)
-                <div class="form-group group">
-                     <label for="field_{{ $field->id }}" class="block text-sm font-semibold text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors">
-                        {{ $field->field_label }}
-                        @if($field->required) <span class="text-red-500">*</span> @endif
-                    </label>
+        <!-- Data Isian Form -->
+        <div class="space-y-6">
+            <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                <h3 class="text-sm font-bold text-blue-600 mb-6 pb-2 border-b border-blue-100 flex items-center gap-2">
+                    <i class="fas fa-edit"></i> DATA FORMULIR
+                </h3>
+                
+                <div class="grid grid-cols-1 gap-6">
+                    @foreach($jenisSurat->templateFields as $field)
+                    <div class="form-group">
+                         <label for="field_{{ $field->id }}" class="block text-xs font-bold text-slate-700 uppercase mb-2">
+                            {{ $field->field_label }}
+                            @if($field->required) <span class="text-red-500">*</span> @endif
+                        </label>
 
-                    @php
+                        @php
+                            $value = old('data.'.$field->field_name);
+                            $isAutoFilled = false;
+                            
+                            // Check logic if value appears empty (initially)
+                            if (empty($value)) {
+                                $user = Auth::user();
+                                $penduduk = $user->anggotaKeluarga;
+                                $dbValue = null;
 
-                        $value = old('data.'.$field->field_name);
-                        if (empty($value)) {
-                            $user = Auth::user();
-                            $penduduk = $user->anggotaKeluarga;
+                                if ($field->field_name === 'nama_lengkap') $dbValue = $penduduk->nama_lengkap ?? $user->name;
+                                elseif ($field->field_name === 'nik') $dbValue = $user->nik;
+                                elseif ($field->field_name === 'alamat') $dbValue = $penduduk && $penduduk->keluarga ? $penduduk->keluarga->alamat : ($user->alamat_lengkap ?? $user->alamat);
+                                elseif ($field->field_name === 'pekerjaan') $dbValue = $penduduk->pekerjaan ?? $user->pekerjaan;
+                                elseif ($field->field_name === 'tempat_lahir') $dbValue = $penduduk->tempat_lahir ?? $user->tempat_lahir;
+                                elseif ($field->field_name === 'tanggal_lahir') $dbValue = $penduduk->tanggal_lahir ?? $user->tanggal_lahir;
+                                elseif ($field->field_name === 'jenis_kelamin') $dbValue = $penduduk->jk ?? $user->jk; 
+                                elseif ($field->field_name === 'agama') $dbValue = $penduduk->agama ?? $user->agama;
+                                elseif ($field->field_name === 'status_perkawinan') $dbValue = $penduduk->status_perkawinan ?? $user->status_perkawinan;
+                                elseif ($field->field_name === 'kewarganegaraan') $dbValue = $penduduk->kewarganegaraan ?? $user->kewarganegaraan;
+                                elseif ($field->field_name === 'pendidikan') $dbValue = $penduduk->pendidikan ?? '';
+                                
+                                // If we found a value from DB, use it and mark as autofilled
+                                if (!empty($dbValue)) {
+                                    $value = $dbValue;
+                                    $isAutoFilled = true;
+                                }
+                            }
+                        @endphp
 
-                            if ($field->field_name === 'nama_lengkap') $value = $penduduk->nama_lengkap ?? $user->name;
-                            elseif ($field->field_name === 'nik') $value = $user->nik;
-                            elseif ($field->field_name === 'alamat') $value = $penduduk && $penduduk->keluarga ? $penduduk->keluarga->alamat : ($user->alamat_lengkap ?? $user->alamat);
-                            elseif ($field->field_name === 'pekerjaan') $value = $penduduk->pekerjaan ?? $user->pekerjaan;
-                            elseif ($field->field_name === 'tempat_lahir') $value = $penduduk->tempat_lahir ?? $user->tempat_lahir;
-                            elseif ($field->field_name === 'tanggal_lahir') $value = $penduduk->tanggal_lahir ?? $user->tanggal_lahir;
-                            elseif ($field->field_name === 'jenis_kelamin') $value = $penduduk->jk ?? $user->jk; 
-                            elseif ($field->field_name === 'agama') $value = $penduduk->agama ?? $user->agama;
-                            elseif ($field->field_name === 'status_perkawinan') $value = $penduduk->status_perkawinan ?? $user->status_perkawinan;
-                            elseif ($field->field_name === 'kewarganegaraan') $value = $penduduk->kewarganegaraan ?? $user->kewarganegaraan;
-                            elseif ($field->field_name === 'pendidikan') $value = $penduduk->pendidikan ?? '';
-                        }
-                    @endphp
+                        @if($field->field_type == 'text' || $field->field_type == 'date')
+                            <input type="{{ $field->field_type }}" 
+                                   name="data[{{ $field->field_name }}]"
+                                   id="field_{{ $field->id }}"
+                                   value="{{ $value }}"
+                                   class="w-full h-11 border-2 border-slate-200 rounded-lg shadow-sm focus:ring-0 focus:border-blue-500 text-sm px-4 {{ $isAutoFilled ? 'bg-slate-50 text-slate-800 font-medium cursor-not-allowed border-slate-300' : 'bg-white text-slate-700 font-medium' }}"
+                                   {{ $field->required ? 'required' : '' }}
+                                   {{ $isAutoFilled ? 'readonly' : '' }}>
 
-                    @if($field->field_type == 'text' || $field->field_type == 'date')
-                        <input type="{{ $field->field_type }}" 
-                               name="data[{{ $field->field_name }}]"
-                               id="field_{{ $field->id }}"
-                               value="{{ $value }}"
-                               class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block p-3.5 transition-all"
-                               {{ $field->required ? 'required' : '' }}>
+                        @elseif($field->field_type == 'number' || $field->field_type == 'currency')
+                            <input type="number" 
+                                   name="data[{{ $field->field_name }}]"
+                                   id="field_{{ $field->id }}"
+                                   value="{{ $value }}"
+                                   min="0"
+                                   class="w-full h-11 border-2 border-slate-200 rounded-lg shadow-sm focus:ring-0 focus:border-blue-500 text-sm px-4 {{ $isAutoFilled ? 'bg-slate-50 text-slate-800 font-medium cursor-not-allowed border-slate-300' : 'bg-white text-slate-700 font-medium' }}"
+                                   {{ $field->required ? 'required' : '' }}
+                                   {{ $isAutoFilled ? 'readonly' : '' }}>
 
-                    @elseif($field->field_type == 'number' || $field->field_type == 'currency')
-                        <input type="number" 
-                               name="data[{{ $field->field_name }}]"
-                               id="field_{{ $field->id }}"
-                               value="{{ $value }}"
-                               min="0"
-                               class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block p-3.5 transition-all"
-                               {{ $field->required ? 'required' : '' }}>
+                        @elseif($field->field_type == 'textarea')
+                            <textarea name="data[{{ $field->field_name }}]"
+                                      id="field_{{ $field->id }}"
+                                      rows="3"
+                                      class="w-full border-2 border-slate-200 rounded-lg shadow-sm focus:ring-0 focus:border-blue-500 text-sm p-4 {{ $isAutoFilled ? 'bg-slate-50 text-slate-800 font-medium cursor-not-allowed border-slate-300' : 'bg-white text-slate-700 font-medium' }}"
+                                      {{ $field->required ? 'required' : '' }}
+                                      {{ $isAutoFilled ? 'readonly' : '' }}>{{ $value }}</textarea>
 
-                    @elseif($field->field_type == 'textarea')
-                        <textarea name="data[{{ $field->field_name }}]"
-                                  id="field_{{ $field->id }}"
-                                  rows="4"
-                                  class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block p-3.5 transition-all"
-                                  {{ $field->required ? 'required' : '' }}>{{ $value }}</textarea>
-
-                    @elseif($field->field_type == 'select')
-                        <div class="relative">
-                            <select name="data[{{ $field->field_name }}]"
-                                    id="field_{{ $field->id }}"
-                                    class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block p-3.5 transition-all appearance-none"
-                                    {{ $field->required ? 'required' : '' }}>
-                                <option value="">-- Pilih {{ $field->field_label }} --</option>
-                                @foreach($field->options_array as $option)
-                                <option value="{{ $option }}" {{ $value == $option ? 'selected' : '' }}>{{ $option }}</option>
-                                @endforeach
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                                <i class="fas fa-chevron-down text-xs"></i>
-                            </div>
-                        </div>
-                    
-                     @elseif($field->field_type == 'file')
-                        <div class="relative border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-gray-50 transition-colors">
+                        @elseif($field->field_type == 'select')
+                            @if($isAutoFilled)
+                                {{-- If Select is autofilled, we show a disabled select for display, and a hidden input to submit the value --}}
+                                <input type="hidden" name="data[{{ $field->field_name }}]" value="{{ $value }}">
+                                <select disabled
+                                        class="w-full h-11 border-2 border-slate-300 rounded-lg shadow-sm bg-slate-50 text-slate-800 font-medium cursor-not-allowed text-sm px-4 opacity-100">
+                                    <option value="{{ $value }}" selected>{{ $value }}</option>
+                                </select>
+                            @else
+                                <div class="relative">
+                                    <select name="data[{{ $field->field_name }}]"
+                                            id="field_{{ $field->id }}"
+                                            class="w-full h-11 border-2 border-slate-200 rounded-lg shadow-sm focus:ring-0 focus:border-blue-500 text-sm px-4 appearance-none font-medium text-slate-700"
+                                            {{ $field->required ? 'required' : '' }}>
+                                        <option value="">-- PILIH --</option>
+                                        @foreach($field->options_array as $option)
+                                        <option value="{{ $option }}" {{ $value == $option ? 'selected' : '' }}>{{ $option }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                                        <i class="fas fa-chevron-down text-xs"></i>
+                                    </div>
+                                </div>
+                            @endif
+                        
+                         @elseif($field->field_type == 'file')
                             <input type="file" 
                                    name="data[{{ $field->field_name }}]"
                                    id="field_{{ $field->id }}"
-                                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                   class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-l-lg file:border-0 file:text-xs file:font-bold file:uppercase file:bg-blue-600 file:text-white hover:file:bg-blue-700 {{ $isAutoFilled ? 'cursor-not-allowed opacity-60' : '' }} border-2 border-slate-200 rounded-lg"
                                    accept=".jpg,.jpeg,.png,.pdf"
-                                   {{ $field->required ? 'required' : '' }}>
-                            
-                            <div class="flex flex-col items-center">
-                                <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
-                                <p class="text-sm font-medium text-gray-700">Klik untuk unggah {{ $field->field_label }}</p>
-                                <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, PDF (Max 2MB)</p>
-                            </div>
-                        </div>
-                    @endif
-                </div>
-                @endforeach
-            </div>
-        </div>
-
-        <!-- 3. Dokumen Pendukung (Moved to Main Flow) -->
-        @if($jenisSurat->requiredDocuments->count() > 0)
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 bg-orange-50/50 flex items-center space-x-3">
-                 <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center">
-                    <i class="fas fa-folder text-sm"></i>
-                </div>
-                <h3 class="font-bold text-gray-800">Dokumen Pendukung</h3>
-            </div>
-            
-            <div class="p-6 space-y-4">
-                @foreach($jenisSurat->requiredDocuments as $doc)
-                <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-1">
-                            <p class="text-sm font-bold text-gray-800">{{ $doc->document_label }}</p>
-                             @if($doc->required) <span class="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full">Wajib</span> @else <span class="bg-gray-200 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded-full">Opsional</span> @endif
-                        </div>
-                        <p class="text-xs text-gray-500">Format: JPG/PDF, Max 2MB</p>
+                                   {{ $field->required ? 'required' : '' }}
+                                   {{ $isAutoFilled ? 'disabled' : '' }}>
+                             <p class="mt-2 text-[10px] text-slate-500 font-medium">Format: JPG, PNG, PDF (Max 2MB)</p>
+                        @endif
                     </div>
-                    
-                    <div class="relative w-full md:w-64">
-                         <input type="file" 
-                               name="documents[{{ $doc->document_name }}]"
-                               class="block w-full text-xs text-gray-500
-                                      file:mr-2 file:py-2 file:px-4
-                                      file:rounded-lg file:border-0
-                                      file:text-xs file:font-semibold
-                                      file:bg-blue-50 file:text-blue-700
-                                      hover:file:bg-blue-100 transition-all cursor-pointer"
-                               {{ $doc->required ? 'required' : '' }}
-                               accept=".jpg,.jpeg,.png,.pdf">
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Dokumen Pendukung -->
+            @if($jenisSurat->requiredDocuments->count() > 0)
+            <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                <h3 class="text-sm font-bold text-blue-600 mb-6 pb-2 border-b border-blue-100 flex items-center justify-between">
+                    <span class="flex items-center gap-2"><i class="fas fa-folder-open"></i> DOKUMEN PENDUKUNG</span>
+                    <span class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded ml-2 border border-green-200">
+                        <i class="fas fa-lock text-[9px] mr-1"></i> Terenkripsi
+                    </span>
+                </h3>
+                
+                <div class="space-y-5">
+                    @foreach($jenisSurat->requiredDocuments as $doc)
+                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 py-2 border-b border-slate-200 last:border-0">
+                        <div class="flex-1">
+                            <label class="block text-xs font-bold text-slate-700 uppercase">
+                                {{ $doc->document_label }}
+                                @if($doc->required) <span class="text-red-500">*</span> @endif
+                            </label>
+                            <p class="text-[10px] text-slate-500 mt-1 font-medium">Format: JPG/PDF, Max 2MB</p>
+                        </div>
+                        
+                        <div class="w-full md:w-1/2">
+                             <input type="file" 
+                                   name="documents[{{ $doc->document_name }}]"
+                                   class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:uppercase file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300"
+                                   {{ $doc->required ? 'required' : '' }}
+                                   accept=".jpg,.jpeg,.png,.pdf">
+                        </div>
                     </div>
+                    @endforeach
                 </div>
-                @endforeach
             </div>
-        </div>
-        @endif
+            @endif
 
-        <!-- 4. Informasi Tambahan -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 bg-purple-50/50 flex items-center space-x-3">
-                 <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
-                    <i class="fas fa-comment-alt text-sm"></i>
+            <!-- Informasi Tambahan -->
+            <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                <h3 class="text-sm font-bold text-blue-600 mb-4 pb-2 border-b border-blue-100 flex items-center gap-2">
+                    <i class="fas fa-sticky-note"></i> CATATAN TAMBAHAN
+                </h3>
+                <div>
+                    <textarea name="keterangan_tambahan"
+                              rows="3"
+                              class="w-full border-2 border-slate-200 rounded-lg shadow-sm focus:ring-0 focus:border-blue-500 text-sm placeholder-slate-400"
+                              placeholder="Tulis catatan jika ada...">{{ old('keterangan_tambahan') }}</textarea>
                 </div>
-                 <h3 class="font-bold text-gray-800">Informasi Tambahan</h3>
-            </div>
-            <div class="p-6">
-                <textarea name="keterangan_tambahan"
-                          rows="3"
-                          class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 block p-3.5 transition-all placeholder-gray-400"
-                          placeholder="Tambahkan catatan khusus untuk petugas jika diperlukan...">{{ old('keterangan_tambahan') }}</textarea>
             </div>
         </div>
 
-        <!-- 5. Footer Actions -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-             <div>
-                <h4 class="font-bold text-gray-800">Konfirmasi Pengajuan</h4>
-                <p class="text-xs text-gray-500 mt-1">Pastikan seluruh data yang Anda masukkan sudah benar.</p>
-            </div>
-            
-            <div class="flex items-center space-x-3">
-                 <button type="button" onclick="window.history.back()" 
-                        class="px-6 py-2.5 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl font-bold transition-colors text-sm">
-                    Batal
-                </button>
-                <button type="submit" 
-                        class="px-8 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 flex items-center text-sm">
-                    <i class="fas fa-paper-plane mr-2"></i> Kirim Permohonan
-                </button>
-            </div>
+        <!-- Submit Button -->
+        <div class="flex justify-end gap-3 pt-6 border-t border-slate-100">
+             <button type="button" onclick="window.history.back()" 
+                    class="px-5 py-2.5 bg-white text-slate-600 border border-slate-300 rounded-lg font-bold text-sm hover:bg-slate-50 transition-colors">
+                Batal
+            </button>
+            <button type="submit" 
+                    class="px-8 py-2.5 bg-blue-600 text-white rounded-lg font-bold shadow-md hover:bg-blue-700 transition-all text-sm flex items-center gap-2 transform hover:-translate-y-0.5">
+                <i class="fas fa-paper-plane"></i> KIRIM PERMOHONAN
+            </button>
         </div>
 
     </form>

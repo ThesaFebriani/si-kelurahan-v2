@@ -5,7 +5,30 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('landing');
+
+Route::get('/kebijakan-privasi', function () {
+    return view('pages.public.privacy-policy');
+})->name('privacy.policy');
+
+// Public Verification Routes
+// IMPORTANT: Specific routes must verify BEFORE greedy wildcard routes
+
+Route::get('/verify/surat/{nomor_surat}/view', [\App\Http\Controllers\PublicController::class, 'viewSurat'])
+    ->where('nomor_surat', '.*')
+    ->name('public.verify.surat.view');
+
+Route::get('/verify/surat/{nomor_surat}', [\App\Http\Controllers\PublicController::class, 'verifySurat'])
+    ->where('nomor_surat', '.*') // Allow slashes in nomor_surat
+    ->name('public.verify.surat');
+
+Route::get('/verify/surat-pengantar/{id}', [\App\Http\Controllers\PublicController::class, 'verifyPengantar'])
+    ->name('public.verify.pengantar');
+
+Route::get('/verify/surat-pengantar/{id}/view', [\App\Http\Controllers\PublicController::class, 'viewPengantar'])
+    ->name('public.verify.pengantar.view');
+
+Route::get('/peta-digital', [\App\Http\Controllers\GisController::class, 'index'])->name('gis.index');
 
 Route::get('/verification-pending', function () {
     return view('auth.verification-pending');
@@ -29,6 +52,11 @@ Route::middleware(['auth'])->get('/dashboard', function () {
 Route::middleware(['auth'])->group(function () {
     Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])
         ->name('notifications.mark-all-read');
+
+    // Secure Document Routes
+    Route::get('/documents/{filename}', [\App\Http\Controllers\DocumentController::class, 'show'])
+        ->where('filename', '.*')
+        ->name('documents.show');
 });
 
 // Load file routes per-role

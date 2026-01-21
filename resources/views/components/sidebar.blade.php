@@ -1,6 +1,7 @@
+@auth
 @php
 $user = Auth::user();
-$roleName = $user->role->name;
+$roleName = $user->role->name ?? 'guest'; // Safety fallback, though @auth handles it
 
 // Menu berdasarkan role
 $menus = [
@@ -44,6 +45,7 @@ $menus = [
         ['name' => 'Dashboard', 'route' => 'lurah.dashboard', 'icon' => 'fas fa-tachometer-alt'],
         ['name' => 'Permohonan TTE', 'route' => 'lurah.permohonan.index', 'icon' => 'fas fa-signature'],
         ['name' => 'Arsip Surat', 'route' => 'lurah.permohonan.arsip', 'icon' => 'fas fa-archive'],
+        ['name' => 'Peta Digital (GIS)', 'route' => 'gis.index', 'icon' => 'fas fa-map-marked-alt'],
         ['name' => 'Profil Lurah', 'route' => 'lurah.profile', 'icon' => 'fas fa-user-tie'],
     ],
     'masyarakat' => [
@@ -56,6 +58,7 @@ $menus = [
 
 $currentMenu = $menus[$roleName] ?? [];
 $currentRoute = Route::currentRouteName();
+$pendingCount = 0;
 
 // Hitung permohonan pending untuk RT
 if ($roleName === 'rt') {
@@ -81,7 +84,7 @@ if ($roleName === 'lurah') {
 }
 @endphp
 
-<aside class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white transform -translate-x-full lg:translate-x-0 sidebar-transition shadow-2xl flex flex-col justify-between">
+<aside class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white transform -translate-x-full lg:translate-x-0 sidebar-transition shadow-2xl flex flex-col justify-between overflow-y-auto custom-scrollbar">
     <div class="p-0">
         <!-- Logo -->
         <div class="flex items-center space-x-3 p-6 bg-gradient-to-r from-blue-700 to-blue-900 border-b border-blue-800/50">
@@ -134,15 +137,18 @@ if ($roleName === 'lurah') {
                 @endforeach
             </ul>
 
-            <!-- Coming Soon / Additional Sections -->
-             @if(in_array($roleName, ['rt', 'kasi', 'lurah']))
-            <div class="mt-8 mb-2 px-4">
-                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Fitur Mendatang</span>
-            </div>
-            @endif
-
             <ul class="space-y-1.5">
-                <!-- Additional RT Links if needed -->
+                <!-- Additional Information Links -->
+                <li class="px-4 mt-6 mb-2">
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider pl-2">Informasi</span>
+                </li>
+                <li>
+                    <a href="{{ route('privacy.policy') }}"
+                        class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all duration-200 text-slate-300 hover:bg-slate-800 hover:text-white">
+                        <i class="fas fa-shield-alt w-5 text-center text-slate-400 group-hover:text-blue-400"></i>
+                        <span class="font-medium text-sm tracking-wide">Kebijakan Privasi</span>
+                    </a>
+                </li>
             </ul>
         </nav>
     </div>
@@ -158,3 +164,4 @@ if ($roleName === 'lurah') {
         </form>
     </div>
 </aside>
+@endauth

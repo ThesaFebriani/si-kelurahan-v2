@@ -163,6 +163,16 @@ class PermohonanController extends Controller
                 Log::info('Surat signed and generated: ' . $finalPath);
                 $message = 'Dokumen berhasil ditandatangani dan diterbitkan.';
 
+                // WA Notification (Selesai)
+            if ($permohonan->user->telepon) {
+                $waMsg = "*STATUS: SELESAI* 🎉\n\n" .
+                         "Yth. Saudara/i *{$permohonan->user->name}*,\n\n" .
+                         "Permohonan Anda:\n" .
+                         "📄 *{$permohonan->jenisSurat->name}*\n\n" .
+                         "Telah *SELESAI* dan ditandatangani Elektronik (TTE) oleh Lurah.\n\n" .
+                         "Silakan unduh dokumen melalui Dashboard Warga.";
+                \App\Services\WhatsAppService::sendMessage($permohonan->user->telepon, $waMsg);
+            }
             } else {
                 // REJECT Logic
                 $permohonan->update([
@@ -189,6 +199,18 @@ class PermohonanController extends Controller
 
                 Log::info('Surat rejected by Lurah');
                 $message = 'Permohonan ditolak oleh Lurah.';
+
+                // WA Notification
+                if ($permohonan->user->telepon) {
+                    $waMsg = "*STATUS: DITOLAK LURAH* ❌\n\n" .
+                             "Yth. Saudara/i *{$permohonan->user->name}*,\n\n" .
+                             "Permohonan Anda:\n" .
+                             "📄 *{$permohonan->jenisSurat->name}*\n\n" .
+                             "Tidak disetujui oleh Lurah dengan catatan:\n" .
+                             "_{$request->catatan}_\n\n" .
+                             "Silakan hubungi Kelurahan untuk info lanjut.";
+                    \App\Services\WhatsAppService::sendMessage($permohonan->user->telepon, $waMsg);
+                }
             }
 
             Log::info('=== PROCESS SIGN COMPLETED ===');

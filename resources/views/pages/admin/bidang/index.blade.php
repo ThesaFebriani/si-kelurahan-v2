@@ -100,12 +100,17 @@
 
     <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" id="modalPanel">
+            <div class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" id="modalPanel">
                 
                 <div class="bg-white">
-                    <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                        <h3 class="font-bold text-lg text-slate-800" id="modalTitle">Tambah Bidang Baru</h3>
-                        <button onclick="closeFormModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                <i class="fas fa-layer-group text-lg"></i>
+                            </div>
+                            <h3 class="font-bold text-lg text-slate-800" id="modalTitle">Tambah Bidang Baru</h3>
+                        </div>
+                        <button onclick="closeFormModal()" class="text-slate-400 hover:text-slate-600 transition-colors bg-white rounded-full p-1 hover:bg-slate-100">
                             <i class="fas fa-times text-lg"></i>
                         </button>
                     </div>
@@ -114,27 +119,26 @@
                         @csrf
                         <div id="methodField"></div> 
 
-                        <div class="space-y-5">
+                        <div class="space-y-6">
                             <div>
-                                <label class="block text-sm font-bold text-slate-700 mb-1">Nama Bidang <span class="text-red-500">*</span></label>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Nama Bidang <span class="text-red-500">*</span></label>
                                 <input type="text" name="name" id="formName" required placeholder="Contoh: Kesejahteraan Rakyat" 
-                                    class="w-full rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500 text-sm shadow-sm transition-shadow hover:border-slate-400">
+                                    class="w-full h-12 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:ring-0 text-sm shadow-sm transition-all hover:border-slate-300 px-4 placeholder-slate-400 font-medium text-slate-700">
                             </div>
                             <div>
-                                <label class="block text-sm font-bold text-slate-700 mb-1">Kode Bidang <span class="text-red-500">*</span></label>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Kode Bidang <span class="text-red-500">*</span></label>
                                 <input type="text" name="code" id="formCode" required placeholder="Contoh: kesra" 
-                                    class="w-full rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500 text-sm shadow-sm font-mono bg-slate-50 transition-shadow hover:border-slate-400">
-                                <p class="text-xs text-slate-400 mt-1">Gunakan huruf kecil, tanpa spasi (Unique).</p>
-                            </div>
+                                    class="w-full h-12 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:ring-0 text-sm shadow-sm font-mono bg-slate-50 transition-all hover:border-slate-300 px-4 text-slate-600">
+                                <p class="text-[10px] text-slate-400 mt-1.5 font-medium ml-1">Gunakan huruf kecil, tanpa spasi (Unique).</p>
                             </div>
                         </div>
 
-                        <div class="mt-8 flex flex-row-reverse gap-3">
-                            <button type="submit" class="inline-flex w-full justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700 sm:w-auto transition-colors">
-                                Simpan Data
-                            </button>
-                            <button type="button" onclick="closeFormModal()" class="inline-flex w-full justify-center rounded-lg bg-white border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:w-auto transition-colors">
+                        <div class="mt-8 grid grid-cols-2 gap-4">
+                            <button type="button" onclick="closeFormModal()" class="w-full h-12 justify-center rounded-lg bg-white border-2 border-slate-200 px-4 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300 transition-all">
                                 Batal
+                            </button>
+                            <button type="submit" class="w-full h-12 justify-center rounded-lg bg-blue-600 px-4 text-sm font-bold text-white shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-blue-300 transition-all transform hover:-translate-y-0.5">
+                                Simpan Data
                             </button>
                         </div>
                     </form>

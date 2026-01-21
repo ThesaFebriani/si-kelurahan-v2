@@ -1,128 +1,176 @@
 @extends('components.layout')
 
-@section('title', 'Masyarakat Dashboard - Sistem Kelurahan')
-@section('page-title', 'Masyarakat Dashboard')
-@section('page-description', 'Dashboard Masyarakat')
+@section('title', 'Dashboard - Sistem Kelurahan')
+@section('page-title', 'Dashboard')
+@section('page-description', 'Overview pelayanan surat Anda')
 
 @section('content')
-<div class="space-y-8">
-    
-    <!-- Welcome Banner/Greeting -->
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-lg p-6 lg:p-8 text-white flex flex-col md:flex-row items-center justify-between relative overflow-hidden">
-         <!-- Deco circles -->
-        <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 rounded-full bg-white/10 blur-2xl"></div>
-
-        <div class="relative z-10">
-            <h2 class="text-2xl lg:text-3xl font-bold mb-2">Halo, {{ Auth::user()->name }}! 👋</h2>
-            <p class="text-blue-100 max-w-xl">Selamat datang di Dashboard Pelayanan Digital. Pantau status surat dan ajukan permohonan baru dengan mudah.</p>
-        </div>
-        <div class="relative z-10 mt-6 md:mt-0">
-            <span class="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-sm font-medium">
-                <i class="fas fa-calendar-alt mr-2"></i> {{ \Carbon\Carbon::now()->format('d F Y') }}
-            </span>
-        </div>
-    </div>
-
+<div class="space-y-6">
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Card Total -->
-        <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 relative group overflow-hidden transition-all hover:shadow-lg">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-            
-            <div class="relative z-10">
-                <div class="flex items-center space-x-4 mb-4">
-                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl shadow-sm">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <span class="text-gray-500 font-medium text-sm uppercase tracking-wide">Total Pengajuan</span>
+        <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm">Total Pengajuan</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['total_permohonan'] }}</h3>
+                    <p class="text-blue-600 text-xs mt-1">
+                        <i class="fas fa-file-alt"></i> Semua surat
+                    </p>
                 </div>
-                <h3 class="text-4xl font-bold text-gray-800">{{ $stats['total_permohonan'] }}</h3>
+                <div class="p-2.5 bg-blue-100 rounded-lg">
+                    <i class="fas fa-file-alt text-blue-600 text-lg"></i>
+                </div>
             </div>
         </div>
 
         <!-- Card Pending -->
-        <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 relative group overflow-hidden transition-all hover:shadow-lg">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-yellow-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-            
-            <div class="relative z-10">
-                <div class="flex items-center space-x-4 mb-4">
-                    <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center text-xl shadow-sm">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <span class="text-gray-500 font-medium text-sm uppercase tracking-wide">Dalam Proses</span>
+        <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm">Dalam Proses</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['permohonan_pending'] }}</h3>
+                    <p class="text-yellow-600 text-xs mt-1">
+                        <i class="fas fa-clock"></i> Belum selesai
+                    </p>
                 </div>
-                <h3 class="text-4xl font-bold text-gray-800">{{ $stats['permohonan_pending'] }}</h3>
+                <div class="p-2.5 bg-yellow-100 rounded-lg">
+                    <i class="fas fa-clock text-yellow-600 text-lg"></i>
+                </div>
             </div>
         </div>
 
         <!-- Card Selesai -->
-        <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 relative group overflow-hidden transition-all hover:shadow-lg">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-green-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-            
-            <div class="relative z-10">
-                <div class="flex items-center space-x-4 mb-4">
-                    <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-xl shadow-sm">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <span class="text-gray-500 font-medium text-sm uppercase tracking-wide">Selesai</span>
+        <div class="bg-white rounded-lg shadow p-4 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm">Selesai</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $stats['permohonan_selesai'] }}</h3>
+                    <p class="text-green-600 text-xs mt-1">
+                        <i class="fas fa-check-circle"></i> Sudah diterbitkan
+                    </p>
                 </div>
-                <h3 class="text-4xl font-bold text-gray-800">{{ $stats['permohonan_selesai'] }}</h3>
+                <div class="p-2.5 bg-green-100 rounded-lg">
+                    <i class="fas fa-check-circle text-green-600 text-lg"></i>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div>
-        <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
-            <i class="fas fa-bolt text-yellow-500 mr-2"></i> Akses Cepat
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <a href="{{ route('masyarakat.permohonan.create') }}" class="group bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div class="flex items-start space-x-5">
-                    <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-green-500/30 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-plus"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-lg font-bold text-gray-800 group-hover:text-green-600 transition-colors">Ajukan Surat Baru</h4>
-                        <p class="text-gray-500 text-sm mt-1 leading-relaxed">Buat permohonan surat pengantar atau keterangan baru.</p>
-                    </div>
-                    <div class="ml-auto flex items-center justify-center h-full">
-                         <i class="fas fa-chevron-right text-gray-300 group-hover:text-green-600 transition-colors"></i>
-                    </div>
+    <!-- Recent Permohonan Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white rounded-lg border border-slate-200 flex items-center justify-center shadow-sm text-slate-500">
+                    <i class="fas fa-history text-sm"></i>
                 </div>
-            </a>
-
-            <a href="{{ route('masyarakat.permohonan.index') }}" class="group bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div class="flex items-start space-x-5">
-                    <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-history"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">Lihat Riwayat</h4>
-                        <p class="text-gray-500 text-sm mt-1 leading-relaxed">Pantau proses dan histori pengajuan yang telah dibuat.</p>
-                    </div>
-                    <div class="ml-auto flex items-center justify-center h-full">
-                         <i class="fas fa-chevron-right text-gray-300 group-hover:text-blue-600 transition-colors"></i>
-                    </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-800">Permohonan Terbaru</h3>
+                    <p class="text-[10px] text-slate-500 font-medium">Pantau status pengajuan Anda</p>
                 </div>
-            </a>
-            
-             <a href="{{ route('masyarakat.profile.index') }}" class="group bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div class="flex items-start space-x-5">
-                    <div class="w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-user-edit"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-lg font-bold text-gray-800 group-hover:text-purple-600 transition-colors">Kelola Profil</h4>
-                        <p class="text-gray-500 text-sm mt-1 leading-relaxed">Update data diri untuk pengisian formulir otomatis.</p>
-                    </div>
-                    <div class="ml-auto flex items-center justify-center h-full">
-                         <i class="fas fa-chevron-right text-gray-300 group-hover:text-purple-600 transition-colors"></i>
-                    </div>
-                </div>
+            </div>
+            <a href="{{ route('masyarakat.permohonan.index') }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 font-bold text-[10px] shadow-sm transition-all">
+                LIHAT SEMUA
             </a>
         </div>
+        <div class="overflow-x-auto">
+            @if($recent_permohonan->count() > 0)
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">No. Tiket</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Jenis Surat</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Tanggal</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-slate-200">
+                    @foreach($recent_permohonan as $permohonan)
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded border border-slate-200">
+                                {{ $permohonan->nomor_tiket }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <span class="text-sm font-bold text-slate-700">{{ $permohonan->jenisSurat->name }}</span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            @php
+                                $statusContext = match($permohonan->status) {
+                                    'menunggu_rt' => ['bg' => 'bg-yellow-50', 'text' => 'text-yellow-700', 'border' => 'border-yellow-200', 'label' => 'Menunggu RT', 'dot' => 'bg-yellow-500'],
+                                    'disetujui_rt' => ['bg' => 'bg-blue-50', 'text' => 'text-blue-700', 'border' => 'border-blue-200', 'label' => 'Disetujui RT', 'dot' => 'bg-blue-500'],
+                                    'menunggu_kasi' => ['bg' => 'bg-orange-50', 'text' => 'text-orange-700', 'border' => 'border-orange-200', 'label' => 'Menunggu Verifikasi', 'dot' => 'bg-orange-500'],
+                                    'disetujui_kasi' => ['bg' => 'bg-indigo-50', 'text' => 'text-indigo-700', 'border' => 'border-indigo-200', 'label' => 'Disetujui Kasi', 'dot' => 'bg-indigo-500'],
+                                    'menunggu_lurah' => ['bg' => 'bg-purple-50', 'text' => 'text-purple-700', 'border' => 'border-purple-200', 'label' => 'Menunggu TTE', 'dot' => 'bg-purple-500'],
+                                    'selesai' => ['bg' => 'bg-green-50', 'text' => 'text-green-700', 'border' => 'border-green-200', 'label' => 'Selesai', 'dot' => 'bg-green-500'],
+                                    'ditolak_rt', 'ditolak_kasi', 'ditolak_lurah' => ['bg' => 'bg-red-50', 'text' => 'text-red-700', 'border' => 'border-red-200', 'label' => 'Ditolak', 'dot' => 'bg-red-500'],
+                                    default => ['bg' => 'bg-slate-50', 'text' => 'text-slate-600', 'border' => 'border-slate-200', 'label' => 'Pending', 'dot' => 'bg-slate-500'],
+                                };
+                            @endphp
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border {{ $statusContext['bg'] }} {{ $statusContext['text'] }} {{ $statusContext['border'] }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $statusContext['dot'] }} mr-1.5"></span>
+                                {{ $statusContext['label'] }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-xs text-slate-500 font-medium">
+                            {{ $permohonan->created_at->format('d/m/Y H:i') }}
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            @else
+            <div class="text-center py-8">
+                <div class="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-slate-100">
+                    <i class="fas fa-inbox text-slate-300 text-xl"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-800">Belum ada riwayat permohonan</h3>
+                <a href="{{ route('masyarakat.permohonan.create') }}" class="mt-3 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold text-xs shadow-lg shadow-blue-500/30 transition-all">
+                    Ajukan Sekarang
+                </a>
+            </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a href="{{ route('masyarakat.permohonan.create') }}" class="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-green-100 rounded-lg">
+                    <i class="fas fa-plus text-green-600 text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800 text-sm">Ajukan Surat</h3>
+                    <p class="text-gray-600 text-xs mt-0.5">Buat permohonan baru</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('masyarakat.permohonan.index') }}" class="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-blue-100 rounded-lg">
+                    <i class="fas fa-history text-blue-600 text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800 text-sm">Riwayat</h3>
+                    <p class="text-gray-600 text-xs mt-0.5">Lihat status pengajuan</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('masyarakat.profile.index') }}" class="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-purple-100 rounded-lg">
+                    <i class="fas fa-user-circle text-purple-600 text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800 text-sm">Profil Saya</h3>
+                    <p class="text-gray-600 text-xs mt-0.5">Update data diri</p>
+                </div>
+            </div>
+        </a>
     </div>
 </div>
 @endsection

@@ -59,7 +59,7 @@
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap text-sm">
                                 @if($item->file_surat_pengantar_rt)
-                                    <a href="{{ Storage::url($item->file_surat_pengantar_rt) }}" target="_blank" class="text-red-600 hover:text-red-900 flex items-center">
+                                    <a href="{{ route('documents.show', ['filename' => basename($item->file_surat_pengantar_rt)]) }}" target="_blank" class="text-red-600 hover:text-red-900 flex items-center">
                                         <i class="fas fa-file-pdf mr-1"></i> Unduh
                                     </a>
                                 @else

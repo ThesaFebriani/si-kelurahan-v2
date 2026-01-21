@@ -24,15 +24,30 @@ class PermohonanSuratNotificationObserver
         );
 
         // 2. Notifikasi ke RT (Ada surat baru)
-        // Ambil RT dari data pemohon (relasi user->rt_id)
-        if ($permohonanSurat->user && $permohonanSurat->user->rt_id) {
-            NotificationService::notifyRT(
-                $permohonanSurat->user->rt_id,
-                'Permohonan Surat Baru',
-                'Warga ' . $permohonanSurat->user->name . ' mengajukan surat baru.',
-                $permohonanSurat->id,
-                'PermohonanSurat'
-            );
+        // Cek User -> RT -> Ketua RT User
+        $user = $permohonanSurat->user;
+        if ($user && $user->rt) {
+            $ketuaRt = $user->rt->ketuaRt; // Relasi ke User Ketua RT
+            if ($ketuaRt) {
+                // Info Lonceng (Website)
+                NotificationService::send(
+                    $ketuaRt->id,
+                    'Permohonan Baru',
+                    "Warga {$user->name} mengajukan permohonan surat baru.",
+                    'info',
+                    $permohonanSurat->id,
+                    'PermohonanSurat'
+                );
+
+                // Info WhatsApp (KEBUTUHAN RT: STANDBY DI RUMAH)
+                // MOVED TO CONTROLLER (Masyarakat/PermohonanController@store)
+                /*
+                if ($ketuaRt->telepon) {
+                    $msg = "Halo Ketua RT {$user->rt->nomor_rt}, Ada permohonan surat baru dari warga Anda ({$user->name}). Mohon segera dicek di sistem.";
+                    \App\Services\WhatsAppService::sendMessage($ketuaRt->telepon, $msg);
+                }
+                */
+            }
         }
     }
 
@@ -44,8 +59,8 @@ class PermohonanSuratNotificationObserver
         if ($permohonanSurat->isDirty('status')) {
             $newStatus = $permohonanSurat->status;
             
-            // A. DISETUJUI RT -> MENUNGGU KASI
-            if ($newStatus == PermohonanSurat::MENUNGGU_KASI) {
+            // A. MENUNGGU RT -> DISETUJUI RT (Masuk ke Kasi)
+            if ($newStatus == PermohonanSurat::MENUNGGU_KASI) { // Alias: Disetujui RT
                 // Info ke Warga
                 NotificationService::send(
                     $permohonanSurat->user_id,
@@ -55,8 +70,17 @@ class PermohonanSuratNotificationObserver
                     $permohonanSurat->id,
                     'PermohonanSurat'
                 );
+
+                // WA Notification (Warga)
+                // MOVED TO CONTROLLER (RT/PermohonanController@processApproval/approve)
+                /*
+                if ($permohonanSurat->user && $permohonanSurat->user->telepon) {
+                    $msg = "Halo {$permohonanSurat->user->name}, Permohonan surat Anda ({$permohonanSurat->jenisSurat->name}) telah DISETUJUI RT. Saat ini sedang diteruskan ke Kelurahan untuk verifikasi.";
+                    \App\Services\WhatsAppService::sendMessage($permohonanSurat->user->telepon, $msg);
+                }
+                */
                 
-                // Info ke Kasi (Sesuai Bidang)
+                // Info ke Kasi (Website Only - Standby di Kantor)
                 $bidang = $permohonanSurat->jenisSurat->bidang ?? null;
                 NotificationService::notifyKasi(
                     $bidang,
@@ -69,12 +93,37 @@ class PermohonanSuratNotificationObserver
 
             // B. DISETUJUI KASI -> MENUNGGU LURAH
             elseif ($newStatus == PermohonanSurat::MENUNGGU_LURAH) {
+                // Info ke Lurah (Website)
                 NotificationService::notifyLurah(
                     'Permohonan TTE',
                     'Surat baru menunggu Tanda Tangan Elektronik Anda.',
                     $permohonanSurat->id,
                     'PermohonanSurat'
                 );
+
+                // Info WhatsApp (KEBUTUHAN LURAH: DINAS LUAR)
+                // MOVED TO CONTROLLER (Kasi/PermohonanController@processVerification)
+                /*
+                $lurahUsers = \App\Models\User::whereHas('role', function($q) {
+                    $q->where('name', 'lurah');
+                })->where('status', 'active')->get();
+
+                foreach ($lurahUsers as $lurah) {
+                    if ($lurah->telepon) {
+                        $msg = "Yth. Pak Lurah, Terdapat permohonan surat ({$permohonanSurat->jenisSurat->name}) yang telah diverifikasi dan menunggu Tanda Tangan Elektronik (TTE) Anda.";
+                        \App\Services\WhatsAppService::sendMessage($lurah->telepon, $msg);
+                    }
+                }
+                */
+
+                // WA Notification (Warga - Tetap Dapat)
+                // MOVED TO CONTROLLER (Kasi/PermohonanController@processVerification)
+                /*
+                if ($permohonanSurat->user && $permohonanSurat->user->telepon) {
+                    $msg = "Halo {$permohonanSurat->user->name}, Permohonan surat Anda ({$permohonanSurat->jenisSurat->name}) telah DISETUJUI KASI. Saat ini sedang menunggu Tanda Tangan Elektronik Lurah.";
+                    \App\Services\WhatsAppService::sendMessage($permohonanSurat->user->telepon, $msg);
+                }
+                */
             }
 
             // C. SELESAI
@@ -87,6 +136,15 @@ class PermohonanSuratNotificationObserver
                     $permohonanSurat->id,
                     'PermohonanSurat'
                 );
+
+                // WA Notification
+                // MOVED TO CONTROLLER (Lurah/PermohonanController@processSign)
+                /*
+                if ($permohonanSurat->user && $permohonanSurat->user->telepon) {
+                    $msg = "Halo {$permohonanSurat->user->name}, Surat permohonan Anda ({$permohonanSurat->jenisSurat->name}) telah SELESAI. Silakan login ke aplikasi SI-KELURAHAN untuk mengunduh dokumen.";
+                    \App\Services\WhatsAppService::sendMessage($permohonanSurat->user->telepon, $msg);
+                }
+                */
             }
 
             // D. DITOLAK (RT/Kasi/Lurah)
@@ -99,6 +157,15 @@ class PermohonanSuratNotificationObserver
                     $permohonanSurat->id,
                     'PermohonanSurat'
                 );
+
+                // WA Notification
+                // MOVED TO CONTROLLER (Reject actions)
+                /*
+                if ($permohonanSurat->user && $permohonanSurat->user->telepon) {
+                    $msg = "Halo {$permohonanSurat->user->name}, Mohon maaf, permohonan surat Anda ({$permohonanSurat->jenisSurat->name}) DITOLAK. Silakan cek aplikasi untuk melihat alasan dan melakukan revisi secepatnya.";
+                    \App\Services\WhatsAppService::sendMessage($permohonanSurat->user->telepon, $msg);
+                }
+                */
             }
         }
     }

@@ -26,24 +26,27 @@ class PermohonanController extends Controller
             ->get();
 
         // Stats untuk dashboard RT
-        // Hitung total semua status untuk statistik
-        $allPermohonan = PermohonanSurat::whereHas('user', function ($q) use ($user) {
-                $q->where('rt_id', $user->rt_id);
-            })->get();
+        // Stats untuk dashboard RT
+        // Hitung total semua status untuk statistik dengan query terpisah (Optimasi Memory)
+        
+        // Base query helper
+        $baseQuery = PermohonanSurat::whereHas('user', function ($q) use ($user) {
+            $q->where('rt_id', $user->rt_id);
+        });
 
         $stats = [
-            'pending' => $allPermohonan->where('status', PermohonanSurat::MENUNGGU_RT)->count(),
-            'approved' => $allPermohonan->whereIn('status', [
+            'pending' => (clone $baseQuery)->where('status', PermohonanSurat::MENUNGGU_RT)->count(),
+            'approved' => (clone $baseQuery)->whereIn('status', [
                 PermohonanSurat::MENUNGGU_KASI,
                 PermohonanSurat::DISETUJUI_KASI,
                 PermohonanSurat::MENUNGGU_LURAH,
                 PermohonanSurat::SELESAI
             ])->count(),
-            'rejected' => $allPermohonan->whereIn('status', [
+            'rejected' => (clone $baseQuery)->whereIn('status', [
                 PermohonanSurat::DITOLAK_RT,
                 PermohonanSurat::DITOLAK_KASI
             ])->count(),
-            'total' => $allPermohonan->count(),
+            'total' => (clone $baseQuery)->count(),
         ];
 
         return view('pages.rt.permohonan.index', compact('permohonan', 'stats'));
@@ -241,6 +244,18 @@ class PermohonanController extends Controller
                 ]);
 
                 $message = 'Permohonan berhasil disetujui, surat pengantar telah dibuat dan ditandatangani secara digital.';
+
+                // WA Notification
+                if ($permohonan->user->telepon) {
+                    $waMsg = "*STATUS: DISETUJUI RT* ✅\n\n" .
+                             "Yth. Saudara/i *{$permohonan->user->name}*,\n\n" .
+                             "Permohonan Anda:\n" .
+                             "📄 *{$permohonan->jenisSurat->name}*\n\n" .
+                             "Telah *DISETUJUI* oleh Ketua RT dan diteruskan ke Kasi untuk verifikasi.\n\n" .
+                             "Mohon menunggu informasi selanjutnya melalui sistem.";
+                    \App\Services\WhatsAppService::sendMessage($permohonan->user->telepon, $waMsg);
+                }
+
             } else {
                 // Reject logic
                 $permohonan->update([
@@ -266,6 +281,18 @@ class PermohonanController extends Controller
                 ]);
 
                 $message = 'Permohonan berhasil ditolak';
+
+                // WA Notification
+                if ($permohonan->user->telepon) {
+                    $waMsg = "*STATUS: DITOLAK RT* ❌\n\n" .
+                             "Yth. Saudara/i *{$permohonan->user->name}*,\n\n" .
+                             "Permohonan Anda:\n" .
+                             "📄 *{$permohonan->jenisSurat->name}*\n\n" .
+                             "Ditolak oleh Ketua RT dengan catatan:\n" .
+                             "_{$request->catatan}_\n\n" .
+                             "Silakan perbaiki data dan ajukan kembali.";
+                    \App\Services\WhatsAppService::sendMessage($permohonan->user->telepon, $waMsg);
+                }
             }
 
             return redirect()->route('rt.permohonan.index')

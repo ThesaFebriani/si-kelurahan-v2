@@ -82,7 +82,10 @@ class WilayahController extends Controller
         $request->validate([
             'nomor_rt' => 'required|string|max:5',
             'rw_id' => 'required|exists:rw,id',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'warna_wilayah' => 'nullable|string|max:7'
         ]);
 
         // Cek unikan kombinasi RW + RT (opsional, tapi bagus)
@@ -95,6 +98,9 @@ class WilayahController extends Controller
             'nomor_rt' => $request->nomor_rt,
             'rw_id' => $request->rw_id,
             'is_active' => $request->has('is_active') ? true : false,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'warna_wilayah' => $request->warna_wilayah,
         ]);
 
         return redirect()->route('admin.wilayah.rt.index')->with('success', 'Data RT berhasil ditambahkan.');
@@ -111,7 +117,10 @@ class WilayahController extends Controller
         $request->validate([
             'nomor_rt' => 'required|string|max:5',
             'rw_id' => 'required|exists:rw,id',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'warna_wilayah' => 'nullable|string|max:7'
         ]);
 
          // Cek unikan kombinasi RW + RT jika berubah
@@ -126,6 +135,9 @@ class WilayahController extends Controller
             'nomor_rt' => $request->nomor_rt,
             'rw_id' => $request->rw_id,
             'is_active' => $request->has('is_active') ? true : false,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'warna_wilayah' => $request->warna_wilayah,
         ]);
 
         return redirect()->route('admin.wilayah.rt.index')->with('success', 'Data RT berhasil diperbarui.');
