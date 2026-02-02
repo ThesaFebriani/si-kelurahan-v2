@@ -17,6 +17,7 @@ Route::middleware(['auth', 'role:admin'])
 
         // User Management
         Route::put('users/{user}/verify', [UserManagementController::class, 'verify'])->name('users.verify');
+        Route::put('users/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('users.toggle-status');
         Route::resource('users', UserManagementController::class);
 
         // Jenis Surat
@@ -77,6 +78,9 @@ Route::middleware(['auth', 'role:admin'])
         // Pengaturan Instansi (Global System Settings)
         Route::get('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('settings.index');
         Route::put('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'update'])->name('settings.update');
+
+        // Manajemen Berita (CMS)
+        Route::resource('berita', \App\Http\Controllers\Admin\BeritaController::class);
 
         // Required Documents for Jenis Surat
         Route::post('/required-documents', [\App\Http\Controllers\Admin\RequiredDocumentController::class, 'store'])->name('required-documents.store');

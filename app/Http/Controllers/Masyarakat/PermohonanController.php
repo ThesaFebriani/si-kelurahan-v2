@@ -76,12 +76,69 @@ class PermohonanController extends Controller
      *  ============================================================ */
     public function createForm($jenis_surat_id)
     {
+        // --- CEK JAM KERJA (Senin - Jumat, 08:00 - 16:00) ---
+        // Jika permintaan User: "Hanya bisa mengajukan di jam kerja"
+        $now = now();
+        $startHour = '08:00';
+        $endHour   = '16:00';
+        $isWeekend = $now->isWeekend(); // Sabtu/Minggu
+        $currentTime = $now->format('H:i');
+
+        if ($isWeekend || $currentTime < $startHour || $currentTime > $endHour) {
+            
+            // LOGIKA HITUNG ESTIMASI SELESAI (Smart Date Calculation)
+            // Aturan: Start hari kerja berikutnya + 3 Hari Kerja Proses
+            $startProcess = $now->copy();
+            
+            // 1. Cari Hari Kerja Berikutnya untuk Mulai Proses
+            do {
+                $startProcess->addDay(); // Maju besok
+            } while ($startProcess->isWeekend()); // Kalau ketemu sabtu/minggu, maju lagi
+
+            // 2. Hitung Durasi Proses (Misal 3 Hari Kerja)
+            $estimasiSelesai = $startProcess->copy();
+            $durasiHari = 3; 
+
+            for ($i = 0; $i < $durasiHari; $i++) {
+                $estimasiSelesai->addDay();
+                while ($estimasiSelesai->isWeekend()) {
+                    $estimasiSelesai->addDay(); // Skip weekend saat proses berjalan
+                }
+            }
+
+            // Format Tanggal Indo
+            $tglIndo = $estimasiSelesai->translatedFormat('l, d F Y');
+
+            // Q13 RELIABILITY: Tidak diblokir, hanya dikasih peringatan + Estimasi Pasti
+            session()->flash('warning', "⚠️ Anda mengajukan di luar jam kerja. Surat mulai diproses pada hari kerja berikutnya. Estimasi Selesai: **{$tglIndo}**.");
+        }
+
         $jenisSurat = JenisSurat::with([
             'templateFields',
             'requiredDocuments'
         ])->findOrFail($jenis_surat_id);
 
-        return view('pages.masyarakat.form-dinamis', compact('jenisSurat'));
+        // --- 1 KK 1 Akun Logic ---
+        $user = Auth::user();
+        
+        // Ambil Data Penduduk User Login
+        $pendudukUser = \App\Models\AnggotaKeluarga::where('nik', $user->nik)->first();
+        
+        // Ambil Semua Anggota Keluarga dalam 1 KK (Jika ada)
+        $keluargaMembers = collect([]);
+        if ($pendudukUser) {
+            $keluargaMembers = \App\Models\AnggotaKeluarga::where('keluarga_id', $pendudukUser->keluarga_id)
+                ->orderBy('tanggal_lahir', 'asc') // Urutkan biar rapi (opsional)
+                ->get();
+        } else {
+             // Fallback jika user tidak punya data penduduk (misal admin test), minimal dirinya sendiri
+             $keluargaMembers->push((object)[
+                'nik' => $user->nik, 
+                'nama_lengkap' => $user->name . ' (Data Penduduk Tidak Ditemukan)'
+             ]);
+        }
+
+        return view('pages.masyarakat.form-dinamis', compact('jenisSurat', 'keluargaMembers', 'pendudukUser'));
     }
 
     /** ============================================================
@@ -89,6 +146,17 @@ class PermohonanController extends Controller
      *  ============================================================ */
     public function storeDinamis(Request $request, $jenis_surat_id)
     {
+        // --- CEK JAM KERJA (Double Protection - DILONGGARKAN) ---
+        // Sesuai revisi Q13 Reliability: Warga boleh submit kapan saja.
+        /*
+        $now = now();
+        $isWeekend = $now->isWeekend();
+        $currentTime = $now->format('H:i');
+        if ($isWeekend || $currentTime < '08:00' || $currentTime > '16:00') {
+             return back()->with('error', 'Gagal memproses. Pelayanan hanya buka pada Jam Kerja (08:00 - 16:00). Silakan coba lagi besok pagi.');
+        }
+        */
+
         $jenisSurat = JenisSurat::with(['templateFields', 'requiredDocuments'])
             ->findOrFail($jenis_surat_id);
 
@@ -168,10 +236,35 @@ class PermohonanController extends Controller
             $dataPemohon = $request->data ?? [];
 
             // Tambahkan info otomatis
-            $dataPemohon["user_id"] = $user->id;
-            $dataPemohon["user_name"] = $user->name;
-            $dataPemohon["user_email"] = $user->email;
-            $dataPemohon["user_telepon"] = $user->telepon;
+            $dataPemohon["user_id"] = $user->id; // Akun yg mengajukan tetap akun login
+            
+            // --- 1 KK 1 AKUN LOGIC ---
+            // Cek apakah NIK di form beda dengan NIK user login?
+            $nikForm = $request->input('data.nik');
+            
+            if ($nikForm && $nikForm !== $user->nik) {
+                // Cari data anggota keluarga yang sesuai NIK form
+                $anggota = \App\Models\AnggotaKeluarga::where('nik', $nikForm)->first();
+                
+                if ($anggota) {
+                    // Pakai data anggota keluarga
+                    $dataPemohon["user_name"] = $anggota->nama_lengkap;
+                    $dataPemohon["user_nik"]  = $anggota->nik; // Simpan NIK asli pemohon
+                    // Email & Telp tetap pakai akun login karena anggota mungkin gak punya
+                    $dataPemohon["user_email"] = $user->email; 
+                    $dataPemohon["user_telepon"] = $user->telepon;
+                } else {
+                    // Fallback ke user login logic lama
+                    $dataPemohon["user_name"] = $user->name;
+                    $dataPemohon["user_email"] = $user->email;
+                    $dataPemohon["user_telepon"] = $user->telepon;
+                }
+            } else {
+                // Diri Sendiri
+                $dataPemohon["user_name"] = $user->name;
+                $dataPemohon["user_email"] = $user->email;
+                $dataPemohon["user_telepon"] = $user->telepon;
+            }
 
             if ($user->rt) {
                 $dataPemohon["rt"] = $user->rt->nomor_rt;

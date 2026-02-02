@@ -74,6 +74,26 @@ class PendudukSeeder extends Seeder
                 'kewarganegaraan' => 'WNI',
             ]);
         }
+        
+        // 3. Buat Data Anggota Keluarga untuk Akun 'Warga Contoh' (UserSeeder)
+        // NIK: 1234567890123456
+        $nikWargaContoh = '1234567890123456';
+        if (!AnggotaKeluarga::where('nik', $nikWargaContoh)->exists()) {
+             AnggotaKeluarga::create([
+                'keluarga_id' => $keluarga->id, // Masuk ke KK Budi Santoso saja sebagai contoh
+                'nik' => $nikWargaContoh,
+                'nama_lengkap' => 'Warga Contoh',
+                'jk' => 'L',
+                'tempat_lahir' => 'Bengkulu',
+                'tanggal_lahir' => '1995-08-17',
+                'status_hubungan' => 'anak',
+                'status_perkawinan' => 'belum_kawin',
+                'agama' => 'Islam',
+                'pendidikan' => 'SMA',
+                'pekerjaan' => 'Pelajar/Mahasiswa',
+                'kewarganegaraan' => 'WNI',
+            ]);
+        }
 
         // --- TAMBAHAN DATA BARU (Integrasi dari AdditionalKKSeeder) ---
         

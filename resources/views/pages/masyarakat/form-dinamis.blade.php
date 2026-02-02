@@ -32,6 +32,23 @@
         </div>
     </div>
 
+    <!-- Warning Alert (Q13 Reliability) -->
+    @if(session('warning'))
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg shadow-sm">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-clock text-yellow-600 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-bold text-yellow-800">Perhatian: Di Luar Jam Kerja</h3>
+                <div class="mt-1 text-sm text-yellow-700">
+                    {!! session('warning') !!}
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Error Alert -->
     @if ($errors->any())
     <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
@@ -58,6 +75,44 @@
 
         <!-- Data Isian Form -->
         <div class="space-y-6">
+        <div class="space-y-6">
+            
+            <!-- 1 KK 1 Akun: PILIH ANGGOTA KELUARGA -->
+            @if(isset($keluargaMembers) && $keluargaMembers->count() > 0)
+            <div class="bg-blue-50 p-6 rounded-lg border border-blue-100 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 -mr-16 -mt-16"></div>
+                
+                <h3 class="text-sm font-bold text-blue-800 mb-4 flex items-center gap-2 relative z-10">
+                    <i class="fas fa-users"></i> SURAT INI UNTUK SIAPA?
+                </h3>
+                
+                <div class="relative z-10">
+                    <select id="pilih_anggota_keluarga" class="w-full h-11 border-2 border-blue-200 rounded-lg shadow-sm focus:ring-0 focus:border-blue-500 text-sm px-4 font-bold text-blue-900 bg-white">
+                        <option value="">-- Pilih Anggota Keluarga --</option>
+                        @foreach($keluargaMembers as $member)
+                            <option value="{{ $member->nik }}" 
+                                data-nama="{{ $member->nama_lengkap }}"
+                                data-nik="{{ $member->nik }}"
+                                data-pekerjaan="{{ $member->pekerjaan ?? '-' }}"
+                                data-tempatlahir="{{ $member->tempat_lahir ?? '-' }}"
+                                data-tanggallahir="{{ $member->tanggal_lahir ?? '-' }}"
+                                data-agama="{{ $member->agama ?? '-' }}"
+                                data-jk="{{ $member->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}"
+                                data-statuskawin="{{ $member->status_perkawinan ?? '-' }}"
+                                data-kewarganegaraan="{{ $member->kewarganegaraan ?? 'WNI' }}"
+                                {{ (Auth::user()->nik == $member->nik) ? 'selected' : '' }}
+                            >
+                                {{ $member->nama_lengkap }} ({{ ucfirst($member->status_hubungan ?? 'Sendiri') }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-blue-600 mt-2 font-medium">
+                        <i class="fas fa-info-circle mr-1"></i> Data formulir otomatis terisi sesuai pilihan di atas.
+                    </p>
+                </div>
+            </div>
+            @endif
+
             <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
                 <h3 class="text-sm font-bold text-blue-600 mb-6 pb-2 border-b border-blue-100 flex items-center gap-2">
                     <i class="fas fa-edit"></i> DATA FORMULIR
@@ -248,4 +303,72 @@
 
     </form>
 </div>
+</div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAnggota = document.getElementById('pilih_anggota_keluarga');
+        if(!selectAnggota) return;
+
+        // Fungsi Auto Fill
+        function fillForm(data) {
+            // Mapping Field Name (Database) -> Input Name (Form)
+            const map = {
+                'nama_lengkap': data.nama,
+                'nik': data.nik,
+                'pekerjaan': data.pekerjaan,
+                'tempat_lahir': data.tempatlahir,
+                'tanggal_lahir': data.tanggallahir,
+                'agama': data.agama,
+                'jenis_kelamin': data.jk,
+                'status_perkawinan': data.statuskawin,
+                'kewarganegaraan': data.kewarganegaraan
+            };
+
+            // Loop setiap mapping dan isi inputnya
+            for (const [key, value] of Object.entries(map)) {
+                // Cari input dengan name="data[key]"
+                const input = document.querySelector(`[name="data[${key}]"]`);
+                if (input) {
+                    // Isi nilai
+                    if(input.tagName === 'SELECT') {
+                         // Untuk Select, coba cari option yg cocok
+                         // Reset dulu
+                         input.value = value; 
+                         // Jika tidak ketemu persis (case sensitive), coba cari manual
+                         if(!input.value) {
+                             Array.from(input.options).forEach(opt => {
+                                 if(opt.text.toLowerCase() === value.toLowerCase()) {
+                                     input.value = opt.value;
+                                 }
+                             });
+                         }
+                    } else if (input.type !== 'file') {
+                        input.value = value;
+                    }
+
+                    // Efek Visual (Kuning sebentar tanda berubah)
+                    input.classList.add('bg-yellow-50', 'transition-colors', 'duration-500');
+                    setTimeout(() => {
+                        input.classList.remove('bg-yellow-50');
+                    }, 1000);
+                }
+            }
+        }
+
+        // Event Listener Change
+        selectAnggota.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if(selectedOption.value) {
+                const data = selectedOption.dataset; // Ambil semua data- attributes
+                fillForm(data);
+            }
+        });
+
+        // Trigger saat load pertama kali (agar terisi data diri sendiri/default select)
+        selectAnggota.dispatchEvent(new Event('change'));
+    });
+</script>
+@endpush
 @endsection

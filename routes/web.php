@@ -4,7 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    return view('welcome');
+    $beritas = \App\Models\Berita::where('status', 'published')->latest()->take(3)->get();
+    return view('welcome', compact('beritas'));
 })->name('landing');
 
 Route::get('/kebijakan-privasi', function () {

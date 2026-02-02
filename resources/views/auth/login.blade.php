@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Masuk - Sistem Pelayanan Kelurahan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,7 +11,7 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-blue-50/50 min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+<body class="bg-blue-50/50 min-h-screen flex items-center justify-center p-4 relative">
 
     <!-- Decorative Blurred Background -->
     <div class="absolute inset-0 z-0 pointer-events-none">
@@ -38,11 +38,11 @@
 
             <!-- Email -->
             <div>
-                <label for="email" class="block text-sm font-bold text-gray-700 mb-2">Alamat Email</label>
+                <label for="email" class="block text-sm font-bold text-gray-700 mb-2">NIK / Email</label>
                 <div class="relative">
-                    <input type="email" name="email" id="email" required autofocus
+                    <input type="text" name="email" id="email" required autofocus
                         class="w-full rounded-lg bg-gray-50 border border-gray-200 text-gray-900 px-4 py-3 outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-gray-400"
-                        placeholder="Masukkan email anda">
+                        placeholder="Masukkan NIK atau Email">
                 </div>
                 @error('email')
                 <p class="text-red-500 text-xs mt-1.5 font-medium ml-1">{{ $message }}</p>
@@ -77,8 +77,15 @@
             </div>
 
             <button type="submit" class="w-full bg-[#1d4ed8] hover:bg-blue-800 text-white font-bold py-3.5 rounded-lg transition-all shadow-lg shadow-blue-700/20 active:transform active:scale-[0.98]">
-                Masuk
+              Masuk
             </button>
+            
+            <!-- Register Link -->
+            <div class="text-center mt-4">
+                <p class="text-sm text-gray-600">Belum punya akun? 
+                    <a href="{{ route('register') }}" class="text-blue-600 hover:text-blue-800 font-bold hover:underline">Daftar di sini</a>
+                </p>
+            </div>
         </form>
 
         <!-- Info Box -->
@@ -105,5 +112,13 @@
             }
         }
     </script>
+    <!-- Floating Help Button -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <a href="https://wa.me/{{ $adminPhone }}" target="_blank" 
+            class="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white rounded-full px-4 py-3 shadow-lg transition-transform hover:scale-105">
+            <i class="fab fa-whatsapp text-2xl"></i>
+            <span class="font-semibold hidden md:inline">Bantuan</span>
+        </a>
+    </div>
 </body>
 </html>

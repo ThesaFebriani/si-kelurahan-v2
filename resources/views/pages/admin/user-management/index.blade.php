@@ -84,28 +84,45 @@
                                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Aktif
                             </span>
-                        @else
+                        @elseif($user->status === 'pending')
                             <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-600 border border-amber-100">
                                 <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
                                 Pending
+                            </span>
+                        @else {{-- Rejected / Inactive --}}
+                            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200">
+                                <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                                Non-Aktif
                             </span>
                         @endif
                     </td>
                     <td class="px-4 py-3 text-right w-px whitespace-nowrap">
                         <div class="flex items-center justify-end gap-3">
-                            {{-- Primary Action: Toggle Status --}}
-                            @if($user->status !== 'active')
-                                {{-- Tombol Verifikasi (Prominen) --}}
-                                <form action="{{ route('admin.users.verify', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Verifikasi dan aktifkan user ini?');">
-                                    @csrf
-                                    @method('PUT')
-                                    <button type="submit" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-sm shadow-emerald-200 text-xs font-medium" title="Verifikasi User">
-                                        <i class="fas fa-check"></i>
-                                        <span>Setujui</span>
-                                    </button>
-                                </form>
-
-                                {{-- Divider only when Verify button exists --}}
+                            
+                            {{-- Action: Toggle Status (Aktifkan / Non-aktifkan) --}}
+                            @if(Auth::id() !== $user->id) 
+                                @if($user->status === 'active')
+                                    <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Non-aktifkan user ini? User tidak akan bisa login.');">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="status" value="rejected">
+                                        <button type="submit" class="flex items-center justify-center p-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-red-500 transition-colors" title="Non-aktifkan User">
+                                            <i class="fas fa-power-off"></i>
+                                        </button>
+                                    </form>
+                                @else
+                                    {{-- Jika Pending atau Rejected, tombolnya "Aktifkan" --}}
+                                    <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Aktifkan user ini?');">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="status" value="active">
+                                        <button type="submit" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-sm shadow-emerald-200 text-xs font-medium" title="Aktifkan User">
+                                            <i class="fas fa-power-off"></i>
+                                            <span>Aktifkan</span>
+                                        </button>
+                                    </form>
+                                @endif
+                                
                                 <div class="h-4 w-px bg-slate-200 mx-1"></div>
                             @endif
 

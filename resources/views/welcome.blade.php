@@ -150,6 +150,57 @@
         </div>
     </section>
 
+    <!-- News Section (Q6: Up-to-date News) -->
+    @if($beritas->count() > 0)
+    <section id="berita" class="py-16 bg-white border-y border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+                <div class="max-w-xl">
+                    <span class="inline-block py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-3 uppercase tracking-wider">
+                        Pusat Informasi
+                    </span>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Berita & Pengumuman Terbaru</h2>
+                    <p class="text-gray-600">Dapatkan informasi terkini mengenai kegiatan dan kebijakan di lingkungan Kelurahan.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                @foreach($beritas as $berita)
+                <div class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <!-- Image -->
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="{{ $berita->gambar_url }}" alt="{{ $berita->judul }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute top-4 left-4">
+                            <span class="bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase">
+                                {{ $berita->created_at->format('d M Y') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-3 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
+                            {{ $berita->judul }}
+                        </h3>
+                        <p class="text-gray-500 text-sm mb-6 line-clamp-3">
+                            {{ $berita->excerpt }}
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-400">
+                                <i class="fas fa-user-circle mr-1"></i> Admin Kelurahan
+                            </span>
+                            <a href="#" class="text-blue-600 font-bold text-xs flex items-center group-hover:underline">
+                                Baca Selengkapnya <i class="fas fa-arrow-right ml-2 text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
+
     <!-- Fitur Section -->
     <section id="fitur" class="py-24 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

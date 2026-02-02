@@ -27,7 +27,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
@@ -41,7 +41,39 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        // 1. Tentukan Tipe Input (NIK atau Email)
+        $inputType = filter_var($this->input('email'), FILTER_VALIDATE_EMAIL) ? 'email' : 'nik';
+        $inputValue = $this->input('email');
+
+        // 2. Cek User berdasarkan Input
+        $user = \App\Models\User::where($inputType, $inputValue)->first();
+
+        // 3. Validasi Aturan Login (STRICT RULE)
+        if ($user) {
+            // Jika login pakai NIK, pastikan dia Role Masyarakat (Role ID 2)
+            // Pejabat (Role 1, 3, 4, 5) TIDAK BOLEH login pakai NIK (harus pakai email dinas)
+            if ($inputType === 'nik' && $user->role_id !== 2) {
+                throw ValidationException::withMessages([
+                    'email' => 'Pejabat/Staf wajib login menggunakan Email Dinas.',
+                ]);
+            }
+
+            // Jika login pakai Email, pastikan dia BUKAN Masyarakat
+            // Aturan Strict: Warga WAJIB pakai NIK.
+            if ($inputType === 'email' && $user->role_id === 2) {
+                throw ValidationException::withMessages([
+                    'email' => 'Warga wajib login menggunakan NIK (Nomor Induk Kependudukan).',
+                ]);
+            }
+        }
+
+        // 4. Proses Autentikasi Laravel
+        $credentials = [
+            $inputType => $inputValue,
+            'password' => $this->input('password')
+        ];
+
+        if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

@@ -33,7 +33,8 @@ class RegisteredUserController extends Controller
         // 1. Validasi Input Dasar
         $request->validate([
             'nik' => ['required', 'string', 'size:16', 'unique:users,nik'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+            // 'email' => removed from validation
+            // 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'telepon' => ['required', 'string', 'max:15'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
@@ -53,7 +54,7 @@ class RegisteredUserController extends Controller
 
             // Input User
             'nik' => $request->nik,
-            'email' => $request->email,
+            'email' => $request->nik . '@warga.local', // Auto-generated dummy email
             'telepon' => $request->telepon,
             'password' => Hash::make($request->password),
 

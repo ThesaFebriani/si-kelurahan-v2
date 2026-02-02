@@ -50,5 +50,18 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Login::class, [\App\Listeners\AuthLogger::class, 'handleLogin']);
         \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Logout::class, [\App\Listeners\AuthLogger::class, 'handleLogout']);
         \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Failed::class, [\App\Listeners\AuthLogger::class, 'handleFailed']);
+        
+        // Share Admin Phone to All Views
+        \Illuminate\Support\Facades\View::composer('*', function ($view) {
+            $admin = \App\Models\User::where('role_id', 1)->first(); // Asumsi Role 1 = Admin
+            $adminPhone = $admin ? $admin->telepon : '6281234567890'; // Default valid number
+            
+            // Format 08 to 628
+            if (str_starts_with($adminPhone, '08')) {
+                $adminPhone = '62' . substr($adminPhone, 1);
+            }
+            
+            $view->with('adminPhone', $adminPhone);
+        });
     }
 }

@@ -112,6 +112,17 @@
     </script>
 
     @stack('scripts')
+    
+    <!-- Floating Help Button (Hanya tampil untuk Warga / Tamu) -->
+    @if(!auth()->check() || (auth()->check() && auth()->user()->role_id == 2))
+    <div class="fixed bottom-6 right-6 z-50">
+        <a href="https://wa.me/{{ $adminPhone }}" target="_blank" 
+            class="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white rounded-full px-4 py-3 shadow-lg transition-transform hover:scale-105">
+            <i class="fab fa-whatsapp text-2xl"></i>
+            <span class="font-semibold hidden md:inline">Bantuan</span>
+        </a>
+    </div>
+    @endif
 </body>
 
 </html>

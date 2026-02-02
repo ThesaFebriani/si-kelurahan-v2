@@ -24,6 +24,7 @@ $menus = [
         ['name' => 'Template Surat', 'route' => 'admin.templates.index', 'icon' => 'fas fa-copy'],
         ['name' => 'Format Pengantar RT', 'route' => 'admin.settings.surat-pengantar', 'icon' => 'fas fa-file-contract'],
         ['name' => 'Profil Instansi', 'route' => 'admin.settings.index', 'icon' => 'fas fa-landmark'],
+        ['name' => 'Pusat Informasi (Berita)', 'route' => 'admin.berita.index', 'icon' => 'fas fa-bullhorn'],
 
         // Reports Section
         ['header' => 'LAPORAN & ARSIP'],

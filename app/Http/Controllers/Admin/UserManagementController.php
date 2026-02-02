@@ -15,9 +15,9 @@ class UserManagementController extends Controller
 {
     public function verify(User $user)
     {
-        // Toggle Status
+        // Toggle Status (Legacy Method - Kept for backup)
         if ($user->status === User::STATUS_ACTIVE) {
-            $user->update(['status' => User::STATUS_REJECTED]); // Or Pending/Suspended
+            $user->update(['status' => User::STATUS_REJECTED]); 
             $message = 'User telah dinonaktifkan.';
         } else {
             $user->update(['status' => User::STATUS_ACTIVE]);
@@ -25,6 +25,22 @@ class UserManagementController extends Controller
         }
 
         return redirect()->back()->with('success', $message);
+    }
+
+    // New Method for Explicit Toggle (Aktif/Non-Aktif)
+    public function toggleStatus(Request $request, User $user)
+    {
+        $status = $request->input('status');
+        
+        // Validasi input status agar aman
+        if (!in_array($status, [User::STATUS_ACTIVE, User::STATUS_REJECTED])) {
+            return back()->with('error', 'Status tidak valid.');
+        }
+
+        $user->update(['status' => $status]);
+
+        $msg = ($status === User::STATUS_ACTIVE) ? 'User berhasil diaktifkan.' : 'User berhasil dinonaktifkan.';
+        return redirect()->back()->with('success', $msg);
     }
 
     public function index()
