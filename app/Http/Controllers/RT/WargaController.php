@@ -64,3 +64,8 @@ class WargaController extends Controller
         return redirect()->back()->with('success', $message);
     }
 }
+
+/*
+File belum atau tidak jadi dipakai, karena saat ini tidak ada fitur verifikasi warga
+Warga langhsung active(Auto aproved by system) karena NIK nya cocok dengan datavse penduduk
+*/

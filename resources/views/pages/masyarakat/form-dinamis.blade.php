@@ -75,30 +75,48 @@
                             $value = old('data.'.$field->field_name);
                             $isAutoFilled = false;
                             
-                            // Check logic if value appears empty (initially)
-                            if (empty($value)) {
-                                $user = Auth::user();
-                                $penduduk = $user->anggotaKeluarga;
-                                $dbValue = null;
+                                // Jika nilai kosong, coba ambil dari database
+                                if (empty($value)) {
+                                    $user = Auth::user();
+                                    $penduduk = $user->anggotaKeluarga;
+                                    $dbValue = null;
 
-                                if ($field->field_name === 'nama_lengkap') $dbValue = $penduduk->nama_lengkap ?? $user->name;
-                                elseif ($field->field_name === 'nik') $dbValue = $user->nik;
-                                elseif ($field->field_name === 'alamat') $dbValue = $penduduk && $penduduk->keluarga ? $penduduk->keluarga->alamat : ($user->alamat_lengkap ?? $user->alamat);
-                                elseif ($field->field_name === 'pekerjaan') $dbValue = $penduduk->pekerjaan ?? $user->pekerjaan;
-                                elseif ($field->field_name === 'tempat_lahir') $dbValue = $penduduk->tempat_lahir ?? $user->tempat_lahir;
-                                elseif ($field->field_name === 'tanggal_lahir') $dbValue = $penduduk->tanggal_lahir ?? $user->tanggal_lahir;
-                                elseif ($field->field_name === 'jenis_kelamin') $dbValue = $penduduk->jk ?? $user->jk; 
-                                elseif ($field->field_name === 'agama') $dbValue = $penduduk->agama ?? $user->agama;
-                                elseif ($field->field_name === 'status_perkawinan') $dbValue = $penduduk->status_perkawinan ?? $user->status_perkawinan;
-                                elseif ($field->field_name === 'kewarganegaraan') $dbValue = $penduduk->kewarganegaraan ?? $user->kewarganegaraan;
-                                elseif ($field->field_name === 'pendidikan') $dbValue = $penduduk->pendidikan ?? '';
-                                
-                                // If we found a value from DB, use it and mark as autofilled
-                                if (!empty($dbValue)) {
-                                    $value = $dbValue;
-                                    $isAutoFilled = true;
+                                    if ($field->field_name === 'nama_lengkap') {
+                                        $dbValue = $penduduk->nama_lengkap ?? $user->name;
+                                    } elseif ($field->field_name === 'nik') {
+                                        $dbValue = $user->nik;
+                                    } elseif ($field->field_name === 'alamat') {
+                                        $dbValue = $penduduk && $penduduk->keluarga ? $penduduk->keluarga->alamat : ($user->alamat_lengkap ?? $user->alamat);
+                                    } elseif ($field->field_name === 'pekerjaan') {
+                                        $dbValue = $penduduk->pekerjaan ?? $user->pekerjaan;
+                                    } elseif ($field->field_name === 'tempat_lahir') {
+                                        // User table tidak punya tempat_lahir, jadi hanya bisa dari penduduk
+                                        $dbValue = $penduduk->tempat_lahir ?? $user->tempat_lahir ?? null;
+                                    } elseif ($field->field_name === 'tanggal_lahir') {
+                                        // User table tidak punya tanggal_lahir
+                                        $dbValue = $penduduk->tanggal_lahir ?? $user->tanggal_lahir ?? null;
+                                    } elseif ($field->field_name === 'jenis_kelamin') {
+                                        // Normalisasi data JK (User: laki-laki/perempuan, Penduduk: L/P)
+                                        $rawJk = $penduduk->jk ?? $user->jk;
+                                        if ($rawJk === 'L' || $rawJk === 'laki-laki') $dbValue = 'Laki-laki';
+                                        elseif ($rawJk === 'P' || $rawJk === 'perempuan') $dbValue = 'Perempuan';
+                                        else $dbValue = $rawJk;
+                                    } elseif ($field->field_name === 'agama') {
+                                        $dbValue = $penduduk->agama ?? $user->agama;
+                                    } elseif ($field->field_name === 'status_perkawinan') {
+                                        $dbValue = $penduduk->status_perkawinan ?? $user->status_perkawinan;
+                                    } elseif ($field->field_name === 'kewarganegaraan') {
+                                        $dbValue = $penduduk->kewarganegaraan ?? $user->kewarganegaraan;
+                                    } elseif ($field->field_name === 'pendidikan') {
+                                        $dbValue = $penduduk->pendidikan ?? '';
+                                    }
+                                    
+                                    // Jika ketemu, set value dan kunci field
+                                    if (!empty($dbValue)) {
+                                        $value = $dbValue;
+                                        $isAutoFilled = true;
+                                    }
                                 }
-                            }
                         @endphp
 
                         @if($field->field_type == 'text' || $field->field_type == 'date')
@@ -144,7 +162,7 @@
                                             {{ $field->required ? 'required' : '' }}>
                                         <option value="">-- PILIH --</option>
                                         @foreach($field->options_array as $option)
-                                        <option value="{{ $option }}" {{ $value == $option ? 'selected' : '' }}>{{ $option }}</option>
+                                        <option value="{{ $option }}" {{ strcasecmp($value, $option) == 0 ? 'selected' : '' }}>{{ $option }}</option>
                                         @endforeach
                                     </select>
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">

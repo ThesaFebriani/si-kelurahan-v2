@@ -41,10 +41,7 @@ class DashboardController extends Controller
                 $q->where('rt_id', $rtId);
             })->count(),
 
-            'pending_warga' => \App\Models\User::where('rt_id', $rtId)
-                ->where('status', \App\Models\User::STATUS_PENDING)
-                ->where('role_id', '!=', 1)
-                ->count(),
+
         ];
 
         // Recent permohonan

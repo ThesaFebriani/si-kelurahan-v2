@@ -7,14 +7,71 @@
 @section('content')
 <div class="space-y-6">
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
             <h3 class="text-lg font-bold text-slate-800 flex items-center">
                 <i class="fas fa-archive text-slate-500 mr-2.5"></i>
                 Data Arsip Permohonan
             </h3>
-            <a href="{{ route('kasi.permohonan.index') }}" class="text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-lg font-bold uppercase tracking-wide transition-colors shadow-sm">
-                <i class="fas fa-arrow-left mr-1.5"></i> Kembali ke Aktif
-            </a>
+            
+            <div class="flex items-center gap-2">
+                <a href="{{ route('kasi.permohonan.index') }}" class="text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-lg font-bold uppercase tracking-wide transition-colors shadow-sm">
+                    <i class="fas fa-arrow-left mr-1.5"></i> Kembali ke Aktif
+                </a>
+            </div>
+        </div>
+
+        <!-- SEARCH & FILTER -->
+        <div class="p-4 bg-slate-50 border-b border-slate-100">
+            <form action="{{ route('kasi.permohonan.arsip') }}" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                
+                <!-- Search -->
+                <div class="md:col-span-4">
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Cari Nama / Tiket</label>
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" name="search" value="{{ request('search') }}" 
+                            class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
+                            placeholder="Ketik Nama atau No. Tiket...">
+                    </div>
+                </div>
+
+                <!-- Filter Jenis Surat -->
+                <div class="md:col-span-3">
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Jenis Surat</label>
+                    <select name="jenis_surat_id" class="w-full py-2 px-3 text-sm border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Semua Jenis Surat</option>
+                        @foreach($jenisSuratList as $js)
+                            <option value="{{ $js->id }}" {{ request('jenis_surat_id') == $js->id ? 'selected' : '' }}>
+                                {{ $js->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Filter Tanggal (Start & End) -->
+                <div class="md:col-span-3">
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Tanggal Proses</label>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <input type="date" name="start_date" value="{{ request('start_date') }}" 
+                            class="w-full py-2 px-2 text-xs border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        <span class="text-slate-400 hidden sm:inline">-</span>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase sm:hidden pt-1">Sampai</span>
+                        <input type="date" name="end_date" value="{{ request('end_date') }}" 
+                            class="w-full py-2 px-2 text-xs border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- Filter Buttons -->
+                <div class="md:col-span-2 flex flex-col sm:flex-row items-stretch sm:items-end gap-2">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-sm transition-colors flex justify-center items-center h-[38px] mt-auto">
+                        <i class="fas fa-filter mr-1"></i> Filter
+                    </button>
+                    <a href="{{ route('kasi.permohonan.arsip') }}" class="w-full sm:w-auto bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 py-2 px-3 rounded-lg text-sm transition-colors flex justify-center items-center h-[38px] mt-auto" title="Reset">
+                        <i class="fas fa-sync-alt"></i>
+                    </a>
+                </div>
+
+            </form>
         </div>
 
         <div>

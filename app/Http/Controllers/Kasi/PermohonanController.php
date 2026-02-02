@@ -35,12 +35,12 @@ class PermohonanController extends Controller
         return view('pages.kasi.permohonan.index', compact('permohonan', 'stats'));
     }
 
-    public function arsip()
+    public function arsip(Request $request)
     {
         $user = Auth::user();
 
-        // Yang sudah diproses (Disetujui/Ditolak/Lanjut)
-        $permohonan = PermohonanSurat::with(['user.rt', 'jenisSurat'])
+        // Query Builder
+        $query = PermohonanSurat::with(['user.rt', 'jenisSurat'])
             ->whereIn('status', [
                 PermohonanSurat::DISETUJUI_KASI,
                 PermohonanSurat::DITOLAK_KASI,
@@ -51,13 +51,44 @@ class PermohonanController extends Controller
                 $q->whereHas('jenisSurat', function($sub) use ($user) {
                     $sub->where('bidang', $user->bidang);
                 });
-            })
-            ->latest()
-            ->get();
+            });
+
+        // 1. FILTER: Search (Tiket / Nama)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nomor_tiket', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($sub) use ($search) {
+                      $sub->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // 2. FILTER: Jenis Surat
+        if ($request->filled('jenis_surat_id')) {
+            $query->where('jenis_surat_id', $request->jenis_surat_id);
+        }
+
+        // 3. FILTER: Tanggal (Start - End)
+        if ($request->filled('start_date')) {
+            $query->whereDate('updated_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            // Sampai akhir hari tersebut
+            $query->whereDate('updated_at', '<=', $request->end_date);
+        }
+
+        $permohonan = $query->latest()->get();
+
+        // Get Jenis Surat list for Filter Dropdown (Sesuai Bidang)
+        $jenisSuratList = \App\Models\JenisSurat::where('is_active', true)
+            ->when($user->bidang, function($q) use ($user) {
+                $q->where('bidang', $user->bidang);
+            })->orderBy('name')->get();
 
         $stats = $this->getStats();
 
-        return view('pages.kasi.permohonan.arsip', compact('permohonan', 'stats'));
+        return view('pages.kasi.permohonan.arsip', compact('permohonan', 'stats', 'jenisSuratList'));
     }
 
     private function getStats()
