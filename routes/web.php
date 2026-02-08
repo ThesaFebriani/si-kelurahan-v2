@@ -12,6 +12,8 @@ Route::get('/kebijakan-privasi', function () {
     return view('pages.public.privacy-policy');
 })->name('privacy.policy');
 
+Route::get('/faq', [\App\Http\Controllers\PublicController::class, 'faq'])->name('public.faq');
+
 // Public Verification Routes
 // IMPORTANT: Specific routes must verify BEFORE greedy wildcard routes
 
@@ -29,7 +31,7 @@ Route::get('/verify/surat-pengantar/{id}', [\App\Http\Controllers\PublicControll
 Route::get('/verify/surat-pengantar/{id}/view', [\App\Http\Controllers\PublicController::class, 'viewPengantar'])
     ->name('public.verify.pengantar.view');
 
-Route::get('/peta-digital', [\App\Http\Controllers\GisController::class, 'index'])->name('gis.index');
+
 
 Route::get('/verification-pending', function () {
     return view('auth.verification-pending');

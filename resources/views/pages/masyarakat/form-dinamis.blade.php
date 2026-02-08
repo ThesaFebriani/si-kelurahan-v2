@@ -201,9 +201,9 @@
                                       {{ $field->required ? 'required' : '' }}
                                       {{ $isAutoFilled ? 'readonly' : '' }}>{{ $value }}</textarea>
 
-                        @elseif($field->field_type == 'select')
+                        @elseif($field->field_type == 'dropdown')
                             @if($isAutoFilled)
-                                {{-- If Select is autofilled, we show a disabled select for display, and a hidden input to submit the value --}}
+                                {{-- If Dropdown is autofilled (e.g. Jenis Kelamin), we show a disabled select for display, and a hidden input to submit the value --}}
                                 <input type="hidden" name="data[{{ $field->field_name }}]" value="{{ $value }}">
                                 <select disabled
                                         class="w-full h-11 border-2 border-slate-300 rounded-lg shadow-sm bg-slate-50 text-slate-800 font-medium cursor-not-allowed text-sm px-4 opacity-100">
@@ -217,7 +217,7 @@
                                             {{ $field->required ? 'required' : '' }}>
                                         <option value="">-- PILIH --</option>
                                         @foreach($field->options_array as $option)
-                                        <option value="{{ $option }}" {{ strcasecmp($value, $option) == 0 ? 'selected' : '' }}>{{ $option }}</option>
+                                        <option value="{{ trim($option) }}" {{ strcasecmp($value, trim($option)) == 0 ? 'selected' : '' }}>{{ trim($option) }}</option>
                                         @endforeach
                                     </select>
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">

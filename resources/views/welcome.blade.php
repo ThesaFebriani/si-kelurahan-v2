@@ -31,7 +31,7 @@
                 
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#fitur" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Layanan</a>
-                    <a href="#panduan" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Panduan</a>
+                    <a href="{{ route('public.faq') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Panduan & FAQ</a>
                     
                     @if (Route::has('login'))
                         <div class="flex items-center space-x-3 ml-4">

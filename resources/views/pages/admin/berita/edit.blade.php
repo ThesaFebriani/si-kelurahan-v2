@@ -25,29 +25,117 @@
             @error('judul') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
         </div>
 
-        <!-- Gambar Utama -->
+        <!-- Galeri Foto -->
         <div>
-            <label class="block text-sm font-bold text-slate-700 mb-1">Gambar Utama</label>
-            @if($beritum->gambar)
-            <div class="mb-3">
-                <p class="text-xs text-slate-500 mb-1">Gambar Saat Ini:</p>
-                <img src="{{ $beritum->gambar_url }}" alt="Preview" class="h-32 rounded-lg border border-slate-200 object-cover">
+            <label class="block text-sm font-bold text-slate-700 mb-2">Galeri Foto Berita</label>
+            
+            <!-- Existing Images -->
+            @if($beritum->semua_gambar && count($beritum->semua_gambar) > 0)
+            <div class="mb-4">
+                <p class="text-xs text-slate-500 mb-2 font-bold uppercase tracking-wider">Foto Saat Ini:</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    @foreach($beritum->semua_gambar as $index => $imgUrl)
+                    <div class="relative group rounded-lg overflow-hidden border border-slate-200 shadow-sm aspect-video" x-data="{ markedForDelete: false }">
+                        <img src="{{ $imgUrl }}" class="w-full h-full object-cover" :class="{ 'opacity-50 grayscale': markedForDelete }">
+                        
+                        <!-- Overlay for Delete -->
+                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                             <!-- Since path is needed for deletion, we need raw path. `semua_gambar` returns full URL. 
+                                  We need a way to get raw path. Model accessor was `getSemuaGambarAttribute`.
+                                  Let's access raw `gambar` attribute directly from blade if casted properly to array.
+                             -->
+                             @php 
+                                $rawPaths = $beritum->gambar; 
+                                $currentPath = is_array($rawPaths) ? ($rawPaths[$index] ?? '') : $rawPaths;
+                             @endphp
+
+                            <label class="cursor-pointer bg-red-500 text-white px-3 py-1 rounded-full text-xs hover:bg-red-600 transition shadow-md">
+                                <input type="checkbox" name="delete_images[]" value="{{ $currentPath }}" class="hidden" @change="markedForDelete = !markedForDelete">
+                                <span x-text="markedForDelete ? 'Batal Hapus' : 'Hapus Foto'">Hapus Foto</span>
+                            </label>
+                        </div>
+                        
+                        <!-- Status Badge -->
+                        <div x-show="markedForDelete" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow-lg">AKAN DIHAPUS</span>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                <p class="text-xs text-slate-400 mt-2 italic">* Centang "Hapus Foto" dan simpan perubahan untuk menghapus foto permanen.</p>
             </div>
             @endif
-            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl hover:bg-slate-50 transition-colors">
-                <div class="space-y-1 text-center">
-                    <i class="fas fa-image text-slate-400 text-3xl mb-2"></i>
-                    <div class="flex text-sm text-slate-600">
-                        <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-bold text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                            <span>Ganti Gambar</span>
-                            <input id="file-upload" name="gambar" type="file" class="sr-only" accept="image/*">
-                        </label>
-                        <p class="pl-1 text-slate-500 font-medium">atau tarik dan lepas</p>
-                    </div>
-                    <p class="text-xs text-slate-500">PNG, JPG up to 2MB (Kosongkan jika tidak ingin mengganti)</p>
+
+            <!-- Upload New Images -->
+            <div x-data="imageUploader()">
+                <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Tambah Foto Baru:</label>
+                
+                <!-- Upload Box -->
+                <div @click="$refs.fileInput.click()" class="border-2 border-dashed border-slate-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                    <i class="fas fa-plus-circle text-2xl text-slate-400 group-hover:text-blue-500 mb-1 transition-colors"></i>
+                    <p class="text-sm font-bold text-slate-600 group-hover:text-blue-600">Tambah Foto Lain</p>
+                    <p class="text-xs text-slate-400">JPG/PNG Max 5MB</p>
                 </div>
+                
+                <input type="file" name="gambar[]" multiple x-ref="fileInput" class="hidden" accept="image/*" @change="handleFiles($event)">
+
+                <!-- Preview New Images -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4" x-show="images.length > 0">
+                    <template x-for="(img, index) in images" :key="index">
+                        <div class="relative aspect-video rounded-lg overflow-hidden border border-slate-200 shadow-sm border-blue-400 ring-2 ring-blue-100">
+                            <img :src="img.url" class="w-full h-full object-cover">
+                            <button type="button" @click="removeImage(index)" class="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 shadow-sm">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                            <span class="absolute bottom-1 left-1 bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">BARU</span>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Validation Message -->
+                <p x-show="errorMessage" x-text="errorMessage" class="text-red-500 text-sm mt-2 font-bold"></p>
             </div>
         </div>
+
+        @push('scripts')
+        <script>
+            function imageUploader() {
+                return {
+                    images: [],
+                    errorMessage: '',
+                    handleFiles(event) {
+                        const files = event.target.files;
+                        // Append to existing check? No, standard behaviour for file input is replace selection. 
+                        // So we just show preview of current selection.
+                        this.images = []; 
+                        this.errorMessage = '';
+
+                        for (let i = 0; i < files.length; i++) {
+                            const file = files[i];
+                            if (file.size > 5 * 1024 * 1024) {
+                                this.errorMessage = `File "${file.name}" terlalu besar! Maksimal 5MB.`;
+                                alert(this.errorMessage);
+                                this.$refs.fileInput.value = '';
+                                this.images = [];
+                                return;
+                            }
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                this.images.push({ url: e.target.result });
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    },
+                    removeImage(index) {
+                         if(confirm('Reset pilihan foto baru?')) {
+                             this.images = [];
+                             this.$refs.fileInput.value = '';
+                         }
+                    }
+                }
+            }
+        </script>
+        @endpush
 
         <!-- Konten (Isi Berita) -->
         <div>

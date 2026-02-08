@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-between items-center mb-6 pl-12 md:pl-0">
         <h1 class="text-2xl font-bold text-gray-800">Format Surat Pengantar RT Global</h1>
     </div>
 
@@ -30,7 +30,7 @@
         <div class="flex flex-col lg:flex-row h-[calc(100vh-250px)]">
             
             <!-- EDITOR COLUMN -->
-            <div class="flex-1 bg-gray-200 p-8 overflow-y-auto flex justify-center relative">
+            <div class="flex-1 bg-gray-200 p-4 md:p-8 overflow-auto flex justify-center relative">
                 
                 <!-- A4 PAPER CONTAINER -->
                 <div class="w-[210mm] min-h-[297mm] bg-white shadow-xl flex flex-col p-[2cm]">

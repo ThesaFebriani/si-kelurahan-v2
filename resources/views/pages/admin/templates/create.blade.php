@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-between items-center mb-6 pl-12 md:pl-0">
         <h1 class="text-2xl font-bold text-gray-800">Buat Template Surat</h1>
         <a href="{{ route('admin.templates.index') }}" class="text-gray-600 hover:text-gray-900 flex items-center">
             <i class="fas fa-arrow-left mr-2"></i> Kembali
@@ -38,31 +38,19 @@
             </div>
         </div>
 
-        <div class="flex flex-col lg:flex-row h-[calc(100vh-200px)]">
+        <div class="flex flex-col lg:flex-row lg:h-[calc(100vh-200px)] h-auto">
             
             <!-- EDITOR COLUMN (PAPER SIMULATOR) -->
-            <div class="flex-1 bg-gray-200 p-8 overflow-y-auto flex justify-center relative">
-                
-                <!-- A4 PAPER CONTAINER -->
+            <div class="flex-1 bg-gray-200 p-4 md:p-8 flex justify-center relative min-h-[600px] lg:min-h-0 overflow-auto">
                 <div class="w-[210mm] min-h-[297mm] bg-white shadow-xl flex flex-col">
-                    
-                    <!-- 1. STATIC HEADER (KOP SURAT REMOVED) -->
-                    <!-- Kop Surat sekarang bisa diedit langsung di dalam editor jika diinginkan -->
-                    <!-- Jika tidak ada Kop Surat di editor, sistem akan menambahkan default secara otomatis -->
-
-                    <!-- 2. EDITABLE BODY (TinyMCE) -->
                     <div class="flex-1 relative">
                         <textarea name="template_content" id="template_content" class="h-full w-full border-none focus:ring-0">{{ old('template_content', $default_content ?? '') }}</textarea>
                     </div>
-
-                    <!-- 3. STATIC FOOTER (SIGNATURE PREVIEW REMOVED) -->
-                    <!-- Tanda tangan akan otomatis ditambahkan oleh sistem pada hasil akhir PDF -->
-
                 </div>
             </div>
 
             <!-- RIGHT SIDEBAR: TAG HELPERS -->
-            <div class="w-full lg:w-80 bg-white border-l border-gray-200 flex flex-col h-full shadow-lg z-10">
+            <div class="w-full lg:w-80 bg-white border-l border-gray-200 flex flex-col lg:h-full h-96 shadow-lg z-10">
                 <div class="p-4 bg-gray-50 border-b border-gray-200">
                     <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center">
                         <i class="fas fa-tags text-blue-600 mr-2"></i> Data Otomatis

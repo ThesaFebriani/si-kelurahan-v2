@@ -27,7 +27,7 @@ class BeritaController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'konten' => 'required',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gambar.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Max 5MB per file
             'status' => 'required|in:draft,published'
         ]);
 
@@ -36,9 +36,13 @@ class BeritaController extends Controller
         $data['excerpt'] = Str::limit(strip_tags($request->konten), 150);
         $data['user_id'] = Auth::id();
 
+        $imagePaths = [];
         if ($request->hasFile('gambar')) {
-            $data['gambar'] = $request->file('gambar')->store('berita', 'public');
+            foreach ($request->file('gambar') as $file) {
+                $imagePaths[] = $file->store('berita', 'public');
+            }
         }
+        $data['gambar'] = $imagePaths; // Store array, Model casts to JSON
 
         Berita::create($data);
 
@@ -55,7 +59,7 @@ class BeritaController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'konten' => 'required',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gambar.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
             'status' => 'required|in:draft,published'
         ]);
 
@@ -64,11 +68,38 @@ class BeritaController extends Controller
         $data['excerpt'] = Str::limit(strip_tags($request->konten), 150);
 
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama
-            if ($beritum->gambar) {
-                Storage::disk('public')->delete($beritum->gambar);
+            // Option: Add to existing or Replace?
+            // For simplicity and typical CMS behavior, let's append new images to existing ones
+            // OR if user wants to replace, they can delete old ones first. 
+            // Here we will MERGE new images with old ones.
+            
+            $existingImages = $beritum->gambar ?? [];
+            if (is_string($existingImages)) $existingImages = [$existingImages]; // Handle legacy
+
+            $newImages = [];
+            foreach ($request->file('gambar') as $file) {
+                $newImages[] = $file->store('berita', 'public');
             }
-            $data['gambar'] = $request->file('gambar')->store('berita', 'public');
+            
+            $data['gambar'] = array_merge($existingImages, $newImages);
+        } else {
+             // Keep existing images if no new ones uploaded
+             // Unless we handle deletion separately (which we should via a separate endpoint/hidden input, but for now preserve)
+             $data['gambar'] = $beritum->gambar;
+        }
+
+        // Logic to remove images if requested (via checkbox in edit form, handled later)
+        if ($request->has('delete_images')) {
+            $imagesToDelete = $request->input('delete_images');
+            $currentImages = $data['gambar'] ?? [];
+            
+            foreach ($imagesToDelete as $deletePath) {
+                if (($key = array_search($deletePath, $currentImages)) !== false) {
+                   unset($currentImages[$key]);
+                   Storage::disk('public')->delete($deletePath);
+                }
+            }
+            $data['gambar'] = array_values($currentImages); // Reindex array
         }
 
         $beritum->update($data);

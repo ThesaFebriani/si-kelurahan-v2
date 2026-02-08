@@ -9,7 +9,7 @@
                     <span class="font-bold text-gray-900 text-lg">SIP Kelurahan</span>
                 </div>
                 <div class="mt-4 flex space-x-4 text-sm text-gray-500">
-                    <p>© 2025 Pemerintah Kelurahan Padang Jati.</p>
+                    <p>© {{ date('Y') }} Sistem Informasi Pelayanan Kelurahan. All rights reserved.</p>
                     <span class="text-gray-300">|</span>
                     <a href="{{ route('privacy.policy') }}" class="hover:text-blue-600 transition-colors">Kebijakan Privasi</a>
                 </div>

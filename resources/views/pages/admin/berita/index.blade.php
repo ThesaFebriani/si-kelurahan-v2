@@ -30,8 +30,8 @@
                 <tr class="hover:bg-slate-50 transition-colors">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
-                            <div class="h-10 w-10 flex-shrink-0">
-                                <img class="h-10 w-10 rounded-lg object-cover border border-slate-200" src="{{ $berita->gambar_url }}" alt="">
+                            <div class="h-16 w-24 flex-shrink-0">
+                                <img class="h-full w-full rounded-lg object-cover border border-slate-200" src="{{ $berita->gambar_url }}" alt="">
                             </div>
                             <div class="ml-4">
                                 <div class="text-sm font-bold text-slate-800 line-clamp-1">{{ $berita->judul }}</div>

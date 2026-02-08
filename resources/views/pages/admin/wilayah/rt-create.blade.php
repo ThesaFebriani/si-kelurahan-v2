@@ -34,30 +34,7 @@
                 </div>
             </div>
 
-            <!-- Peta & Lokasi -->
-            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                <h3 class="text-sm font-bold text-blue-600 mb-4 pb-2 border-b border-blue-100 flex items-center gap-2">
-                    <i class="fas fa-globe-asia"></i> Peta & Lokasi
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Latitude</label>
-                        <input type="text" name="latitude" class="w-full rounded-md border-2 border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500" placeholder="-3.xxxx" value="{{ old('latitude') }}">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Longitude</label>
-                        <input type="text" name="longitude" class="w-full rounded-md border-2 border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500" placeholder="102.xxxx" value="{{ old('longitude') }}">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Warna Wilayah (Peta)</label>
-                        <div class="flex items-center gap-3">
-                            <input type="color" name="warna_wilayah" id="warna_wilayah" class="h-10 w-16 rounded border border-slate-300 cursor-pointer p-1 bg-white" value="{{ old('warna_wilayah', '#3b82f6') }}">
-                            <input type="text" name="warna_wilayah_text" class="w-40 rounded-md border-2 border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 font-mono" value="{{ old('warna_wilayah', '#3b82f6') }}" onchange="document.getElementById('warna_wilayah').value = this.value">
-                        </div>
-                        <p class="text-[10px] text-slate-500 mt-1">Warna ini akan digunakan untuk menandai wilayah RT di Peta Digital.</p>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- Pengaturan Status -->
             <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">

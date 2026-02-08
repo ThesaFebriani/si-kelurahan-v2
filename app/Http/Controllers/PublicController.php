@@ -94,4 +94,17 @@ class PublicController extends Controller
 
         return \Illuminate\Support\Facades\Storage::disk('local')->response($permohonan->file_surat_pengantar_rt);
     }
+
+    /**
+     * Public FAQ Page
+     */
+    public function faq()
+    {
+        $faqs = \App\Models\Faq::where('is_published', true)
+            ->latest()
+            ->get()
+            ->groupBy('category');
+            
+        return view('pages.public.faq', compact('faqs'));
+    }
 }

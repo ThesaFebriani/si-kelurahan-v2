@@ -273,14 +273,19 @@
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Input</label>
-                            <select name="field_type" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            <select name="field_type" onchange="toggleOptions(this.value)" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
                                 <option value="text">Teks Singkat (Text)</option>
                                 <option value="textarea">Teks Panjang (Textarea)</option>
                                 <option value="number">Angka (Number)</option>
                                 <option value="date">Tanggal (Date)</option>
-                                <!-- <option value="dropdown">Dropdown Options</option> -->
+                                <option value="dropdown">Pilihan (Dropdown)</option>
                             </select>
+                        </div>
+
+                        <div id="options_container" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Daftar Pilihan</label>
+                            <input type="text" name="options" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Contoh: Pria,Wanita (Pisahkan dengan koma)">
+                            <p class="text-[10px] text-gray-500 mt-1 italic">* Pisahkan setiap pilihan dengan koma tanpa spasi setelah koma.</p>
                         </div>
 
                         <div class="flex items-center">
@@ -362,4 +367,18 @@
         </div>
     </div>
 </div>
+@section('content')
 @endsection
+
+@push('scripts')
+<script>
+    function toggleOptions(val) {
+        const container = document.getElementById('options_container');
+        if (val === 'dropdown') {
+            container.classList.remove('hidden');
+        } else {
+            container.classList.add('hidden');
+        }
+    }
+</script>
+@endpush

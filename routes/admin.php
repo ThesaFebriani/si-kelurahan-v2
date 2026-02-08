@@ -81,6 +81,9 @@ Route::middleware(['auth', 'role:admin'])
 
         // Manajemen Berita (CMS)
         Route::resource('berita', \App\Http\Controllers\Admin\BeritaController::class);
+        
+        // Manajemen FAQ / Bantuan
+        Route::resource('faqs', \App\Http\Controllers\Admin\FaqController::class);
 
         // Required Documents for Jenis Surat
         Route::post('/required-documents', [\App\Http\Controllers\Admin\RequiredDocumentController::class, 'store'])->name('required-documents.store');

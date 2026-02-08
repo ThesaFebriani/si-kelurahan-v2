@@ -133,44 +133,5 @@
             @endif
         </div>
     </div>
-
-    <!-- Quick Actions -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <a href="{{ route('masyarakat.permohonan.create') }}" class="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
-            <div class="flex items-center space-x-3">
-                <div class="p-2.5 bg-green-100 rounded-lg">
-                    <i class="fas fa-plus text-green-600 text-lg"></i>
-                </div>
-                <div>
-                    <h3 class="font-semibold text-gray-800 text-sm">Ajukan Surat</h3>
-                    <p class="text-gray-600 text-xs mt-0.5">Buat permohonan baru</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ route('masyarakat.permohonan.index') }}" class="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
-            <div class="flex items-center space-x-3">
-                <div class="p-2.5 bg-blue-100 rounded-lg">
-                    <i class="fas fa-history text-blue-600 text-lg"></i>
-                </div>
-                <div>
-                    <h3 class="font-semibold text-gray-800 text-sm">Riwayat</h3>
-                    <p class="text-gray-600 text-xs mt-0.5">Lihat status pengajuan</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ route('masyarakat.profile.index') }}" class="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
-            <div class="flex items-center space-x-3">
-                <div class="p-2.5 bg-purple-100 rounded-lg">
-                    <i class="fas fa-user-circle text-purple-600 text-lg"></i>
-                </div>
-                <div>
-                    <h3 class="font-semibold text-gray-800 text-sm">Profil Saya</h3>
-                    <p class="text-gray-600 text-xs mt-0.5">Update data diri</p>
-                </div>
-            </div>
-        </a>
-    </div>
 </div>
 @endsection

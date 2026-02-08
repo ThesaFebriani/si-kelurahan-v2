@@ -6,11 +6,11 @@
 
 @section('content')
 <div class="space-y-6">
-    <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow border border-slate-200">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-lg shadow border border-slate-200">
         <!-- Filter Form -->
-        <form action="{{ route('admin.kependudukan.keluarga.index') }}" method="GET" class="flex items-center gap-2">
+        <form action="{{ route('admin.kependudukan.keluarga.index') }}" method="GET" class="flex items-center gap-2 w-full md:w-auto">
             <!-- Filter RW -->
-            <select name="rw_id" class="rounded-lg border-slate-300 text-sm focus:ring-blue-500 focus:border-blue-500 font-bold text-slate-700" onchange="this.form.rd_id.value=''; this.form.submit()">
+            <select name="rw_id" class="rounded-lg border-slate-300 text-sm focus:ring-blue-500 focus:border-blue-500 font-bold text-slate-700 flex-1 md:flex-none" onchange="this.form.rd_id.value=''; this.form.submit()">
                 <option value="">Semua RW</option>
                 @foreach($rws as $rw)
                     <option value="{{ $rw->id }}" {{ request('rw_id') == $rw->id ? 'selected' : '' }}>
@@ -20,7 +20,7 @@
             </select>
 
             <!-- Filter RT -->
-            <select name="rt_id" class="rounded-lg border-slate-300 text-sm focus:ring-blue-500 focus:border-blue-500" onchange="this.form.submit()">
+            <select name="rt_id" class="rounded-lg border-slate-300 text-sm focus:ring-blue-500 focus:border-blue-500 flex-1 md:flex-none" onchange="this.form.submit()">
                 <option value="">Semua RT</option>
                 @foreach($rts as $rt)
                     <option value="{{ $rt->id }}" {{ request('rt_id') == $rt->id ? 'selected' : '' }}>
@@ -30,13 +30,13 @@
             </select>
         </form>
 
-        <a href="{{ route('admin.kependudukan.keluarga.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm flex items-center gap-2">
+        <a href="{{ route('admin.kependudukan.keluarga.create') }}" class="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm flex items-center justify-center gap-2">
             <i class="fas fa-plus"></i> Tambah KK Baru
         </a>
     </div>
 
     <!-- KK List -->
-    <div class="bg-white rounded-lg shadow overflow-hidden border border-slate-200">
+    <div class="bg-white rounded-lg shadow overflow-hidden overflow-x-auto border border-slate-200">
         <table class="w-full text-left border-collapse">
             <thead class="bg-slate-50 border-b border-slate-200">
                 <tr>

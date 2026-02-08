@@ -4,10 +4,10 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Manajemen Template Surat (Lurah)</h1>
-        <a href="{{ route('admin.templates.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-            <i class="fas fa-plus mr-2"></i> Buat Template Baru
+        <a href="{{ route('admin.templates.create') }}" class="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center">
+            <i class="fas fa-plus mr-2"></i> Buat Template
         </a>
     </div>
 
@@ -17,7 +17,7 @@
     </div>
     @endif
 
-    <div class="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
+    <div class="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200 overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>

@@ -21,6 +21,7 @@
         .sidebar-transition {
             transition: all .3s ease;
         }
+        [x-cloak] { display: none !important; }
     </style>
 
     @stack('styles')

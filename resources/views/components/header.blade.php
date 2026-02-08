@@ -3,7 +3,7 @@ $user = Auth::user();
 @endphp
 
 <header class="bg-white shadow-sm border-b">
-    <div class="flex items-center justify-between p-4 lg:p-6">
+    <div class="flex items-center justify-between p-4 pl-16 lg:p-6 lg:pl-6">
         <!-- Page Title -->
         <div>
             <h1 class="text-xl lg:text-2xl font-bold text-gray-800">@yield('page-title', 'Dashboard')</h1>
