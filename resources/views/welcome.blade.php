@@ -61,6 +61,7 @@
         <!-- Mobile Menu -->
         <div class="mobile-menu hidden md:hidden bg-white border-b border-gray-100">
             <a href="#fitur" class="block py-3 px-4 text-sm hover:bg-gray-50 text-gray-700">Layanan</a>
+            <a href="{{ route('public.faq') }}" class="block py-3 px-4 text-sm hover:bg-gray-50 text-gray-700">Panduan & FAQ</a>
             <a href="#panduan" class="block py-3 px-4 text-sm hover:bg-gray-50 text-gray-700">Panduan</a>
             @auth
                  <a href="{{ url('/dashboard') }}" class="block py-3 px-4 text-sm font-bold text-blue-600">Dashboard</a>

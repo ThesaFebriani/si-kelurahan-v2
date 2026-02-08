@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
             JenisSuratSeeder::class,
             TemplateFieldSeeder::class,
             SuratTemplateSeeder::class,
+            FaqSeeder::class, // ADDED: Seeder FAQ
         ]);
     }
 }
