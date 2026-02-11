@@ -316,6 +316,16 @@ class PDFGeneratorService
             '[JABATAN_LURAH]' => 'Kepala Kelurahan',
         ];
 
+        // --- DYNAMIC REPLACEMENT FROM DATA_PEMOHON ---
+        foreach ($dataPemohon as $key => $value) {
+            // value must be string
+            if (is_string($value) || is_numeric($value)) {
+                $replacements['[' . strtoupper($key) . ']'] = $value; // [NAMA_USAHA]
+                $replacements['[' . $key . ']'] = $value;             // [nama_usaha]
+                $replacements['[' . ucwords(str_replace('_', ' ', $key)) . ']'] = $value; // [Nama Usaha] (optional heuristic)
+            }
+        }
+
         return strtr($content, $replacements);
     }
 }

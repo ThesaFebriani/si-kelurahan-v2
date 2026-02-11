@@ -238,19 +238,19 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="p-6 bg-gray-50 flex justify-between items-center">
+            <div class="p-6 bg-gray-50 flex flex-col-reverse md:flex-row justify-between items-center gap-4">
                 <a href="{{ route('rt.permohonan.index') }}"
-                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                    class="w-full md:w-auto text-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                     <i class="fas fa-arrow-left mr-2"></i>Kembali
                 </a>
 
-                <div class="space-x-3">
+                <div class="flex flex-col md:flex-row w-full md:w-auto gap-3">
                     <button type="button" onclick="history.back()"
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                        class="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         Batal
                     </button>
                     <button type="submit"
-                        class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        class="w-full md:w-auto px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                         <i class="fas fa-paper-plane mr-2"></i>Proses Permohonan
                     </button>
                 </div>

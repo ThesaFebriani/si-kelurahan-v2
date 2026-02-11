@@ -191,7 +191,7 @@ class PermohonanController extends Controller
             // Jika file → pakai aturan khusus
             if ($field->field_type === "file") {
                 $rule = ($field->required ? "required" : "nullable")
-                    . "|file|mimes:jpg,jpeg,png,pdf|max:2048";
+                    . "|file|mimes:jpg,jpeg,png,pdf|max:5120";
             }
 
             // Pastikan field required jadi rule Laravel
@@ -206,7 +206,7 @@ class PermohonanController extends Controller
         foreach ($jenisSurat->requiredDocuments as $doc) {
             $validationRules["documents.{$doc->document_name}"] =
                 ($doc->required ? "required" : "nullable")
-                . "|file|mimes:jpg,jpeg,png,pdf|max:2048";
+                . "|file|mimes:jpg,jpeg,png,pdf|max:5120";
         }
 
         // RULE KHUSUS NIK → ubah size menjadi digits
@@ -219,7 +219,7 @@ class PermohonanController extends Controller
             "data.*.required" => "Field :attribute wajib diisi.",
             "documents.*.required" => "Dokumen :attribute wajib diunggah.",
             "documents.*.mimes" => "Format dokumen harus JPG, PNG, atau PDF.",
-            "documents.*.max" => "Ukuran dokumen maksimal 2MB.",
+            "documents.*.max" => "Ukuran dokumen maksimal 5MB.",
         ];
 
         $validated = $request->validate($validationRules, $messages);

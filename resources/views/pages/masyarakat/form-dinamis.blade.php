@@ -234,7 +234,7 @@
                                    accept=".jpg,.jpeg,.png,.pdf"
                                    {{ $field->required ? 'required' : '' }}
                                    {{ $isAutoFilled ? 'disabled' : '' }}>
-                             <p class="mt-2 text-[10px] text-slate-500 font-medium">Format: JPG, PNG, PDF (Max 2MB)</p>
+                            <p class="mt-2 text-[10px] text-slate-500 font-medium">Format: JPG, PNG, PDF (Max 5MB)</p>
                         @endif
                     </div>
                     @endforeach
@@ -259,7 +259,7 @@
                                 {{ $doc->document_label }}
                                 @if($doc->required) <span class="text-red-500">*</span> @endif
                             </label>
-                            <p class="text-[10px] text-slate-500 mt-1 font-medium">Format: JPG/PDF, Max 2MB</p>
+                            <p class="text-[10px] text-slate-500 mt-1 font-medium">Format: JPG/PDF, Max 5MB</p>
                         </div>
                         
                         <div class="w-full md:w-1/2">
